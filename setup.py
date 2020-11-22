@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Anatoly Makarevich",
     author_email="anatoly_mak@yahoo.com",
-    url="https://github.com/nowanilfideme/pydantic_yaml",
+    url="https://github.com/NowanIlfideme/pydantic-yaml",
     license="MIT",
     packages=["pydantic_yaml"],
     python_requires=">=3.6",
