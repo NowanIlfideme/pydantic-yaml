@@ -1,16 +1,22 @@
+import importlib.util
 from pathlib import Path
 
 from setuptools import setup
-
 
 description = "Adds some YAML functionality to the excellent `pydantic` library."
 
 with (Path(__file__).parent / "README.md").open() as f:
     long_description = f.read()
 
-with (Path(__file__).parent / "pydantic_yaml/VERSION").open() as f:
-    version = f.read()
+# Get version
+spec = importlib.util.spec_from_file_location(
+    "pydantic_yaml.version", str(Path(__file__).parent / "pydantic_yaml/version.py")
+)
+vmodule = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(vmodule)
+version = vmodule.__version__
 
+# Run setup
 setup(
     name="pydantic_yaml",
     version=version,
