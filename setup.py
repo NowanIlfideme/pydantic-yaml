@@ -1,23 +1,21 @@
-import os
-import re
-import sys
-from importlib.machinery import SourceFileLoader
 from pathlib import Path
 
 from setuptools import setup
 
 from pydantic_yaml import __version__
 
-path_readme = Path(__file__).parent / "README.md"
 
 description = "Adds some YAML functionality to the excellent `pydantic` library."
 
-with path_readme.open() as f:
+with (Path(__file__).parent / "README.md").open() as f:
     long_description = f.read()
+
+with (Path(__file__).parent / "pydantic_yaml/VERSION").open() as f:
+    version = f.read()
 
 setup(
     name="pydantic_yaml",
-    version=str(__version__),
+    version=version,
     description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
