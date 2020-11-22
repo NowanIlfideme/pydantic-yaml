@@ -31,8 +31,8 @@ setup(
     install_requires=["pydantic"],
     extras_require={
         "pyyaml": ["pyyaml"],
+        "ruamel": ["ruamel.yaml>=0.15"],  # Using new API starting 0.15
         "ruamel-old": ["ruamel.yaml<0.15"],  # In-place repalcement
-        "ruamel-new": ["ruamel.yaml>=0.15"],  # Using new API starting 0.15
         "development": ["black", "flake8", "bump2version"],
     },
     classifiers=[
