@@ -25,7 +25,7 @@ for _typ in [
     PureWindowsPath,
     WindowsPath,
 ]:
-    yaml.add_representer(_typ, _repr_path)
+    yaml.SafeDumper.add_representer(_typ, _repr_path)
 
 
 # Fix dumping of UUID objects.
@@ -35,7 +35,7 @@ def _repr_uuid(dumper, node):
     return dumper.represent_str(str(node))
 
 
-yaml.add_representer(UUID, _repr_uuid)
+yaml.SafeDumper.add_representer(UUID, _repr_uuid)
 
 
 # Fix loading of Unicode strings from Python 2.

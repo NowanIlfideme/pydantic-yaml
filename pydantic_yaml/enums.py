@@ -24,7 +24,7 @@ class YamlEnum(Enum):
     """
 
     def __init_subclass__(cls):
-        yaml.add_representer(cls, _repr_enum)
+        yaml.SafeDumper.add_representer(cls, _repr_enum)
 
     def __repr__(self) -> str:
         return repr(self.value)
