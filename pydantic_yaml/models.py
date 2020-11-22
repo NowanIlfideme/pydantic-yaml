@@ -28,14 +28,14 @@ class YamlModel(BaseModel):
     def yaml(
         self,
         *,
-        include,
-        exclude,
-        by_alias: bool,
-        skip_defaults: bool,
-        exclude_unset: bool,
-        exclude_defaults: bool,
-        exclude_none: bool,
-        encoder: Optional[Callable[[Any], Any]],
+        include=None,
+        exclude=None,
+        by_alias: bool = False,
+        skip_defaults: bool = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        encoder: Optional[Callable[[Any], Any]] = None,
         **dumps_kwargs: Any,
     ) -> str:
         """Generates a YAML representation of the model.
