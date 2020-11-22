@@ -51,7 +51,7 @@ class YamlModel(BaseModel):
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
         )
-        res = yaml.dump(data)
+        res = yaml.safe_dump(data)
         return res
 
     @classmethod
@@ -64,14 +64,14 @@ class YamlModel(BaseModel):
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
     ) -> YamlModel:
-        if encoding is None:
+        if content_type is None:
             assume_yaml = False
         else:
             assume_yaml = ("yaml" in content_type) or ("yml" in content_type)
 
         if (proto == "yaml") or assume_yaml:
             try:
-                obj = yaml.load(b)
+                obj = yaml.safe_load(b)
             except Exception as e:
                 raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls)
             return cls.parse_obj(obj)
