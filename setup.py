@@ -2,8 +2,6 @@ from pathlib import Path
 
 from setuptools import setup
 
-from pydantic_yaml import __version__
-
 
 description = "Adds some YAML functionality to the excellent `pydantic` library."
 
