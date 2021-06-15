@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-
+from pydantic import ValidationError
 from pydantic_yaml import VersionedYamlModel
 
 
@@ -20,5 +20,5 @@ def test_versioned_yaml():
             min_version = "2.0.0"
 
     A.parse_file(file)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         B.parse_file(file)
