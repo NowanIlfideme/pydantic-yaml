@@ -47,6 +47,7 @@ class YamlModel(BaseModel):
             include=include,
             exclude=exclude,
             by_alias=by_alias,
+            skip_defaults=skip_defaults,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
