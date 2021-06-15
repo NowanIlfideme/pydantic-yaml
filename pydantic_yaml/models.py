@@ -75,7 +75,14 @@ class YamlModel(BaseModel):
                 obj = yaml.safe_load(b)
             except Exception as e:
                 raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls)
-            return cls.parse_obj(obj)
+
+            try:
+                res = cls.parse_obj(obj)
+            except RecursionError as e:
+                raise ValueError(
+                    "YAML files with recursive references are unsupported."
+                ) from e
+            return res
         else:
             return super().parse_raw(
                 b,
@@ -98,7 +105,10 @@ class YamlModel(BaseModel):
         if encoding is None:
             assume_yaml = False
         else:
-            assume_yaml = ("yaml" in content_type) or ("yml" in content_type)
+            try:
+                assume_yaml = ("yaml" in content_type) or ("yml" in content_type)
+            except Exception:
+                assume_yaml = False
 
         if (proto == "yaml") or assume_yaml:
             content_type = content_type or "application/yaml"

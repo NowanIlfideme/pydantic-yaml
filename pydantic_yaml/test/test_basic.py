@@ -45,8 +45,5 @@ def test_nested_models():
     assert c == c_re
 
 
-# def test_recursive_yaml():
-#     """TODO: Test how we parse recursive YAML documents."""
-
 # def test_files():
 #     """TODO: Test with tempfiles."""

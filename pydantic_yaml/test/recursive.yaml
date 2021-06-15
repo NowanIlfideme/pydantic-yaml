@@ -1,0 +1,5 @@
+# Recursive
+foo: &xyz
+  a: 42
+  inner:
+    <<: *xyz
