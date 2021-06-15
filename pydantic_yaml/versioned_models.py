@@ -13,6 +13,8 @@ __all__ = ["SemVer", "VersionedYamlModel"]
 
 
 def _chk_between(v, lo=None, hi=None):
+    if v is None:
+        return
     if (hi is not None) and (v > hi):
         raise ValueError(f"Default version higher than maximum: {v} > {hi}")
     if (lo is not None) and (v < lo):
@@ -33,18 +35,19 @@ class VersionedYamlModel(YamlModel):
     def __init_subclass__(cls) -> None:
         fld = cls.__fields__["version"]
         d = fld.default
-        if d is not None:
+        if d is None:
+            pass
+        else:
+            _chk_between(d, lo=cls.Config.min_version, hi=cls.Config.max_version)
             warnings.warn(
                 f"Recommended to have `version` be required, but set default {d!r}",
                 UserWarning,
             )
 
-        if not isinstance(fld.type_, SemVer):
+        if not issubclass(fld.type_, SemVer):
             raise TypeError(
                 f"Field type for `version` must be SemVer, got {fld.type_!r}"
             )
-
-        _chk_between(d, lo=cls.Config.min_version, hi=cls.Config.max_version)
 
     @validator("version", always=True)
     def _check_semver(cls, v):
