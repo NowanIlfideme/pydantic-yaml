@@ -24,7 +24,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Anatoly Makarevich",
-    author_email="anatoly_mak@yahoo.com",
+    author_email="git@nowan.dev",
     url="https://github.com/NowanIlfideme/pydantic-yaml",
     license="MIT",
     packages=["pydantic_yaml"],
@@ -35,7 +35,7 @@ setup(
         "pyyaml": ["pyyaml"],
         "ruamel": ["ruamel.yaml>=0.15"],  # Using new API starting 0.15
         "ruamel-old": ["ruamel.yaml<0.15"],  # In-place repalcement
-        "development": ["black", "flake8", "bump2version"],
+        "dev": ["black", "flake8", "bump2version", "pytest"],
     },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
