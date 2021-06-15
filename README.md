@@ -23,12 +23,20 @@ class MyModel(YamlModel):
 
 m1 = MyModel(x=2, e="b")
 yml = m1.yaml()
+jsn = m1.json()
 
-m2 = MyModel.parse_raw(yml, proto="yaml")
+m2 = MyModel.parse_raw(yml)  # This automatically assumes YAML
 assert m1 == m2
 
-m3 = MyModel.parse_raw(yml, content_type="application/yaml")
+m3 = MyModel.parse_raw(jsn)  # This will fallback to JSON
 assert m1 == m3
+
+m4 = MyModel.parse_raw(yml, proto="yaml")
+assert m1 == m4
+
+m5 = MyModel.parse_raw(yml, content_type="application/yaml")
+assert m1 == m5
+
 ```
 
 ## Installation
