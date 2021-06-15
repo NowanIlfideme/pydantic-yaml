@@ -9,7 +9,7 @@ from pydantic.types import StrBytes
 from pydantic.parse import Protocol
 from pydantic.utils import ROOT_KEY
 
-from pydantic_yaml._yaml import yaml
+from ._yaml import yaml
 
 __all__ = ["YamlModel"]
 
@@ -88,6 +88,8 @@ class YamlModel(BaseModel):
             raise ValueError(
                 "YAML files with recursive references are unsupported."
             ) from e
+        except ValidationError:
+            raise
         except Exception as e:
             if is_yaml:  # specifically requested YAML, so we error
                 raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls) from e
@@ -127,14 +129,16 @@ class YamlModel(BaseModel):
                 proto="yaml",
                 allow_pickle=allow_pickle,
             )
-        except Exception as e:
+        except ValidationError:
+            raise
+        except Exception:
             if is_yaml:  # specifically requested YAML, so we error
                 raise
 
-            return super().parse_file(
-                path,
-                content_type=content_type,
-                encoding=encoding,
-                proto=proto,
-                allow_pickle=allow_pickle,
-            )
+        return super().parse_file(
+            path,
+            content_type=content_type,
+            encoding=encoding,
+            proto=proto,
+            allow_pickle=allow_pickle,
+        )
