@@ -39,7 +39,7 @@ class YamlModel(BaseModel):
         **dumps_kwargs: Any,
     ) -> str:
         """Generates a YAML representation of the model.
-        
+
         Note that JSON is a subset of the YAMl spec, however this
         generates a multi-line, more-human-readable representation.
         """

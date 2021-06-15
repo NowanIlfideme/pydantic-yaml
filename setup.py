@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""See `setup.cfg` for the configuration - this just allows editable installs."""
+"""See `setup.cfg` for configuration. This just allows editable installs."""
 
 import setuptools
 
