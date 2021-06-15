@@ -1,18 +1,8 @@
-from __future__ import annotations
-
 from pathlib import Path
-from typing import Optional
 
 import pytest
+
 from pydantic_yaml import YamlModel
-
-
-class Outer(YamlModel):
-    a: int
-    inner: Optional[Outer]
-
-
-Outer.update_forward_refs()
 
 
 def test_recursive_yaml():
@@ -28,9 +18,9 @@ def test_recursive_yaml():
         """Recursive model."""
 
         a: int
-        inner: Optional[A]
+        inner: Optional["A"]
 
     A.update_forward_refs()
 
     with pytest.raises(ValueError):
-        A.parse_file(file)
+        A.parse_file(file, content_type="application/yaml")
