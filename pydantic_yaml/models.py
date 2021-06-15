@@ -22,6 +22,15 @@ except ImportError:
     ExtendedProto = Union[Protocol, str]
 
 
+def is_yaml_requested(content_type: str = None, proto: ExtendedProto = None):
+    if content_type is None:
+        is_yaml = False
+    else:
+        is_yaml = ("yaml" in content_type) or ("yml" in content_type)
+    is_yaml = is_yaml or (proto == "yaml")
+    return is_yaml
+
+
 class YamlModel(BaseModel):
     """YAML-aware Pydantic model base class."""
 
@@ -65,32 +74,32 @@ class YamlModel(BaseModel):
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
     ) -> YamlModel:
-        if content_type is None:
-            assume_yaml = False
-        else:
-            assume_yaml = ("yaml" in content_type) or ("yml" in content_type)
 
-        if (proto == "yaml") or assume_yaml:
-            try:
-                obj = yaml.safe_load(b)
-            except Exception as e:
-                raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls)
+        # Check whether we're specifically asked to parse YAML
+        is_yaml = is_yaml_requested(content_type, proto)
 
-            try:
-                res = cls.parse_obj(obj)
-            except RecursionError as e:
-                raise ValueError(
-                    "YAML files with recursive references are unsupported."
-                ) from e
+        # Assume we're parsing YAML anyways
+        # NOTE: JSON is a subset of the YAML spec
+        try:
+            obj = yaml.safe_load(b)
+            res = cls.parse_obj(obj)
             return res
-        else:
-            return super().parse_raw(
-                b,
-                content_type=content_type,
-                encoding=encoding,
-                proto=proto,
-                allow_pickle=allow_pickle,
-            )
+        except RecursionError as e:
+            raise ValueError(
+                "YAML files with recursive references are unsupported."
+            ) from e
+        except Exception as e:
+            if is_yaml:  # specifically requested YAML, so we error
+                raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls) from e
+
+        # We had an error parsing as YAML, so let's try other formats :)
+        return super().parse_raw(
+            b,
+            content_type=content_type,
+            encoding=encoding,
+            proto=proto,
+            allow_pickle=allow_pickle,
+        )
 
     @classmethod
     def parse_file(
@@ -102,16 +111,13 @@ class YamlModel(BaseModel):
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
     ) -> YamlModel:
-        if encoding is None:
-            assume_yaml = False
-        else:
-            try:
-                assume_yaml = ("yaml" in content_type) or ("yml" in content_type)
-            except Exception:
-                assume_yaml = False
 
-        if (proto == "yaml") or assume_yaml:
-            content_type = content_type or "application/yaml"
+        # Check whether we're specifically asked to parse YAML
+        is_yaml = is_yaml_requested(content_type, proto)
+
+        # Assume we're parsing YAML anyways
+        # NOTE: JSON is a subset of the YAML spec
+        try:
             path = Path(path)
             b = path.read_bytes()
             return cls.parse_raw(
@@ -121,7 +127,10 @@ class YamlModel(BaseModel):
                 proto="yaml",
                 allow_pickle=allow_pickle,
             )
-        else:
+        except Exception as e:
+            if is_yaml:  # specifically requested YAML, so we error
+                raise
+
             return super().parse_file(
                 path,
                 content_type=content_type,
