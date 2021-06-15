@@ -5,9 +5,9 @@ name: Test Python package "pydantic_yaml"
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
