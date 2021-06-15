@@ -1,9 +1,6 @@
-"""YAML-enabled Pydantic models."""
-from pathlib import Path
+import warnings as _w
 
-__all__ = ["__version__", "YamlEnum", "YamlModel"]
-
-from . import aux_types  # noqa
-from .enums import YamlEnum
-from .models import YamlModel
-from .version import __version__
+try:
+    from .main import __version__, YamlEnum, YamlModel
+except Exception as e:
+    _w.warn(str(e))
