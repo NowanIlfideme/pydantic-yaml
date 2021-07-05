@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable, Optional, Type, Any, Union
+from typing import Any, Callable, Optional, Type, TypeVar, Union
 
 from pydantic.main import BaseModel
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
@@ -29,6 +29,9 @@ def is_yaml_requested(content_type: str = None, proto: ExtendedProto = None):
         is_yaml = ("yaml" in content_type) or ("yml" in content_type)
     is_yaml = is_yaml or (proto == "yaml")
     return is_yaml
+
+
+T = TypeVar('T', bound='YamlModel')
 
 
 class YamlModel(BaseModel):
@@ -66,14 +69,14 @@ class YamlModel(BaseModel):
 
     @classmethod
     def parse_raw(
-        cls: Type[YamlModel],
+        cls: Type[T],
         b: StrBytes,
         *,
         content_type: str = None,
         encoding: str = None,
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
-    ) -> YamlModel:
+    ) -> T:
 
         # Check whether we're specifically asked to parse YAML
         is_yaml = is_yaml_requested(content_type, proto)
@@ -105,14 +108,14 @@ class YamlModel(BaseModel):
 
     @classmethod
     def parse_file(
-        cls: YamlModel,
+        cls: Type[T],
         path: Union[str, Path],
         *,
         content_type: str = None,
         encoding: str = "utf-8",
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
-    ) -> YamlModel:
+    ) -> T:
 
         # Check whether we're specifically asked to parse YAML
         is_yaml = is_yaml_requested(content_type, proto)
