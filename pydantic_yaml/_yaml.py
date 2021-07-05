@@ -1,7 +1,9 @@
 # flake8: noqa
 
 try:
-    import ruamel.yaml as yaml
+    import ruamel.yaml as yaml  # type: ignore
+
+    # ruamel.yaml doesn't have type annotations
 
     if yaml.__version__ < "0.15.0":
         __yaml_lib__ = "ruamel-old"
@@ -9,7 +11,7 @@ try:
         __yaml_lib__ = "ruamel-new"
 except ImportError:
     try:
-        import yaml
+        import yaml  # type: ignore
 
         __yaml_lib__ = "pyyaml"
     except ImportError:
