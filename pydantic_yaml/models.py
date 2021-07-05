@@ -3,10 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable, Optional, Type, TypeVar, Union
 
-from pydantic.main import BaseModel
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
-from pydantic.types import StrBytes
+from pydantic.main import BaseModel
 from pydantic.parse import Protocol
+from pydantic.types import StrBytes
 from pydantic.utils import ROOT_KEY
 
 from ._yaml import yaml
@@ -14,12 +14,11 @@ from ._yaml import yaml
 __all__ = ["YamlModel"]
 
 try:
-    from typing import Literal
-
-    ExtendedProto = Union[Protocol, Literal["yaml"]]
+    from typing import Literal  # type: ignore
 except ImportError:
-    # I think this would happen with Python < 3.8
-    ExtendedProto = Union[Protocol, str]
+    from typing_extensions import Literal
+
+ExtendedProto = Union[Protocol, Literal["yaml"]]
 
 
 def is_yaml_requested(content_type: str = None, proto: ExtendedProto = None):
@@ -31,7 +30,7 @@ def is_yaml_requested(content_type: str = None, proto: ExtendedProto = None):
     return is_yaml
 
 
-T = TypeVar('T', bound='YamlModel')
+T = TypeVar("T", bound="YamlModel")
 
 
 class YamlModel(BaseModel):
@@ -64,7 +63,7 @@ class YamlModel(BaseModel):
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
         )
-        res = yaml.safe_dump(data)
+        res = str(yaml.safe_dump(data))
         return res
 
     @classmethod
@@ -73,7 +72,7 @@ class YamlModel(BaseModel):
         b: StrBytes,
         *,
         content_type: str = None,
-        encoding: str = None,
+        encoding: str = "utf8",
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
     ) -> T:

@@ -5,7 +5,8 @@ from pydantic import validator
 from .models import YamlModel
 
 try:
-    from pydantic import SemVer
+    # If Pydantic implements a SemVer string (which I want to make a PR for eventually)
+    from pydantic import SemVer  # type: ignore
 except ImportError:
     from ._semver import SemVer
 
