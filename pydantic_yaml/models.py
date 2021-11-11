@@ -63,7 +63,7 @@ class YamlModel(BaseModel):
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
         )
-        res = str(yaml.safe_dump(data))
+        res = str(yaml.safe_dump(data, **dumps_kwargs))
         return res
 
     @classmethod
