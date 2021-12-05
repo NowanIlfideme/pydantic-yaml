@@ -3,6 +3,7 @@
 import pytest
 
 from pydantic_yaml.compat.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
+from pydantic_yaml.compat.yaml_lib import yaml
 
 
 class XSE(YamlStrEnum):
@@ -48,9 +49,6 @@ def test_int_enum():
         XIE(3)
 
 
-from pydantic_yaml import YamlInt, yaml
-
-
 def test_int():
     """Test for YamlInt class."""
     x = XI("123")
@@ -66,4 +64,3 @@ def test_str():
     assert isinstance(x, XS)
     assert x == _exp
     assert repr(x) == "XS('My value is: 123')"
-

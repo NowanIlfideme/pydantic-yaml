@@ -122,7 +122,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         **kwargs,
     ) -> str:
         """Generate a YAML representation of the model.
-        
+
         Parameters
         ----------
         include, exclude
@@ -132,10 +132,13 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         skip_defaults, exclude_unset, exclude_defaults, exclude_none
             Arguments as per `BaseModel.dict()`.
         default_flow_style : bool or None
-            Whether to use the "flow" style. By default, this is False, which
-            uses the "block" style (which is probably most familiar to users).
-        default_style : 
-
+            Whether to use the "flow" style in the dumper. By default, this is False,
+            which uses the "block" style (probably the most familiar to users).
+        default_style : {None, "", "'", '"', "|", ">"}
+            This is the default style for quoting strings, used by `ruamel.yaml` dumper.
+            Default is None, which varies the style based on line length.
+        indent, encoding, kwargs
+            Additional arguments for the dumper.
         """
         data: "DictStrAny" = self.dict(  # type: ignore
             include=include,
@@ -151,7 +154,8 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             data = data[ROOT_KEY]
             warnings.warn(
                 "Explicit custom root behavior not yet implemented for pydantic_yaml."
-                " This may not work as expected. If so, please create a GitHub issue!"
+                " This may not work as expected. If so, please create a GitHub issue:"
+                " https://github.com/NowanIlfideme/pydantic-yaml/issues/new"
             )
         cfg = cast(YamlModelMixinConfig, self.__config__)
         return cfg.yaml_dumps(
@@ -184,7 +188,8 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         # even if JSON is passed. It will be slower, however.
         if is_yaml:
             try:
-                obj = cls.__config__.yaml_loads(b)  # type: ignore
+                cfg = cast(YamlModelMixinConfig, cls.__config__)
+                obj = cfg.yaml_loads(b)
             except RecursionError as e:
                 raise ValueError(
                     "YAML files with recursive references are unsupported."

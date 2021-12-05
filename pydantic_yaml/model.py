@@ -4,8 +4,8 @@ from .mixin import YamlModelMixin
 
 _pre_doc = """`pydantic.BaseModel` class with built-in YAML support.
 
-You can alternatively inherit from `(pydantic.BaseModel, pydantic_yaml.YamlModelMixin)`
-to implement your model.
+You can alternatively inherit from this to implement your model:
+`(pydantic_yaml.YamlModelMixin, pydantic.BaseModel)`
 
 See Also
 --------

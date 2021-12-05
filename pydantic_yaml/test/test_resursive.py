@@ -5,7 +5,7 @@ from typing import Optional
 
 import pytest
 
-from pydantic_yaml_old import YamlModel
+from pydantic_yaml import YamlModel
 
 
 class A(YamlModel):

@@ -12,7 +12,7 @@ __all__ = ["register_str_like", "register_int_like"]
 
 def dump_as_str(dumper: yaml.Dumper, data: Any, method: Callable[[Any], str] = str):
     """Represents an object as a string in YAML.
-    
+
     Parameters
     ----------
     dumper : yaml.Dumper
@@ -32,7 +32,7 @@ def dump_as_str(dumper: yaml.Dumper, data: Any, method: Callable[[Any], str] = s
 
 def dump_as_int(dumper: yaml.Dumper, data: Any, method: Callable[[Any], int] = int):
     """Represents an object as an integer in YAML.
-    
+
     Parameters
     ----------
     dumper : yaml.Dumper
@@ -52,7 +52,7 @@ def dump_as_int(dumper: yaml.Dumper, data: Any, method: Callable[[Any], int] = i
 
 def register_str_like(cls: CType, method: Callable[[Any], str] = str) -> CType:
     """Registers `cls` to be dumped to YAML as a string.
-    
+
     Parameters
     ----------
     cls : Type
@@ -66,7 +66,6 @@ def register_str_like(cls: CType, method: Callable[[Any], str] = str) -> CType:
     cls
         This is the same as the input `cls`.
     """
-    global dumper_classes
     for dump_cls in dumper_classes:
         dump_cls.add_representer(cls, partial(dump_as_str, method=method))
     return cls
@@ -74,7 +73,7 @@ def register_str_like(cls: CType, method: Callable[[Any], str] = str) -> CType:
 
 def register_int_like(cls: CType, method: Callable[[Any], int] = int) -> CType:
     """Registers `cls` to be dumped to YAML as an integer.
-    
+
     Parameters
     ----------
     cls : Type
@@ -88,7 +87,6 @@ def register_int_like(cls: CType, method: Callable[[Any], int] = int) -> CType:
     cls
         This is the same as the input `cls`.
     """
-    global dumper_classes
     for dump_cls in dumper_classes:
         dump_cls.add_representer(cls, partial(dump_as_int, method=method))
     return cls

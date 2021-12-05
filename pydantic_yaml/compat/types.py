@@ -63,7 +63,7 @@ class YamlInt(int):
 
 class YamlStrEnum(YamlStr, Enum):
     """String-valued enum that serializes to YAML directly as a string.
-    
+
     This also checks that your enum can properly be serialized.
     """
 
@@ -77,7 +77,7 @@ class YamlStrEnum(YamlStr, Enum):
 
 class YamlIntEnum(YamlInt, Enum):
     """Integer-valued enum that serializes to YAML directly as an integer.
-    
+
     This also checks that your enum can properly be serialized.
     """
 
@@ -98,4 +98,3 @@ if __name__ == "__main__":
     class X(YamlIntEnum):
         x1 = 1
         x2 = 2
-
