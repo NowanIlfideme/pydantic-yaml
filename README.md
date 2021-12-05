@@ -2,17 +2,17 @@
 
 [![PyPI version](https://badge.fury.io/py/pydantic-yaml.svg)](https://badge.fury.io/py/pydantic-yaml) [![Unit Tests](https://github.com/NowanIlfideme/pydantic-yaml/actions/workflows/python-testing.yml/badge.svg)](https://github.com/NowanIlfideme/pydantic-yaml/actions/workflows/python-testing.yml)
 
-This is a small helper library that adds some YAML capabilities to [pydantic](https://github.com/samuelcolvin/pydantic), namely dumping to yaml via the `yaml_model.yaml()` function, and parsing from strings/files using `YamlModel.parse_raw()` and `YamlModel.parse_file()`. It also adds an `Enum` subclass that gets dumped to YAML as a string, and fixes dumping of some typical types.
+This is a small helper library that adds some YAML capabilities to [pydantic](https://github.com/samuelcolvin/pydantic), namely dumping to yaml via the `yaml_model.yaml()` function, and parsing from strings/files using `YamlModel.parse_raw()` and `YamlModel.parse_file()`. It also adds `Enum` subclasses that get dumped to YAML as strings or integers, and fixes dumping of some typical types.
 
 ## Basic Usage
 
 Example usage is seen below.
 
 ```python
-from pydantic_yaml import YamlEnum, YamlModel
+from pydantic_yaml import YamlStrEnum, YamlModel
 
 
-class MyEnum(str, YamlEnum):
+class MyEnum(YamlStrEnum):
     a = "a"
     b = "b"
 
@@ -43,13 +43,15 @@ assert m1 == m5
 
 `pip install pydantic_yaml`
 
-Make sure to install `ruamel.yaml` (recommended) or `pyyaml` as well. These are optional dependencies:
+Make sure to install `ruamel.yaml` or `pyyaml` as well. These are optional dependencies:
 
 `pip install pydantic_yaml[ruamel]`
 
 `pip install pydantic_yaml[pyyaml]`
 
 ## Versioned Models
+
+NOTE: This is currently not implemented!
 
 Since YAML is often used for config files, there is also a `VersionedYamlModel` class.
 
