@@ -9,23 +9,43 @@ from typing import (
     ClassVar,
     Optional,
     Type,
+    TypeVar,
     Union,
     cast,
     no_type_check,
 )
-
+from pydantic.parse import Protocol, load_str_bytes
 from pydantic.main import ROOT_KEY, BaseModel, ModelMetaclass, BaseConfig
+from pydantic.error_wrappers import ErrorWrapper, ValidationError
+from pydantic.types import StrBytes
 
 if TYPE_CHECKING:
-    from pydantic.typing import DictStrAny, AbstractSetIntStr, MappingIntStrAny
+    from pydantic.typing import (
+        DictStrAny,
+        AbstractSetIntStr,
+        MappingIntStrAny,
+    )
+
+    Model = TypeVar("Model", bound="BaseModel")
 
 from .compat.yaml_lib import yaml
 
-# class YamlModelMixin(metaclass=ModelMetaclass):
-#     """Mixin to add YAML compatibility to your class."""
-_YamlStyle = Union[
-    None, Literal[""], Literal['"'], Literal["'"], Literal["|"], Literal[">"]
+
+ExtendedProto = Union[Protocol, Literal["yaml"]]
+
+YamlStyle = Union[
+    None, Literal[""], Literal['"'], Literal["'"], Literal["|"], Literal[">"],
 ]
+
+
+def is_yaml_requested(content_type: str = None, proto: ExtendedProto = None) -> bool:
+    """Checks whether YAML is requested by the `content_type` or `proto` params."""
+    if content_type is None:
+        is_yaml = False
+    else:
+        is_yaml = ("yaml" in content_type) or ("yml" in content_type)
+    is_yaml = is_yaml or (proto == "yaml")
+    return is_yaml
 
 
 class YamlModelMixinConfig:
@@ -36,7 +56,26 @@ class YamlModelMixinConfig:
 
 
 class YamlModelMixin(metaclass=ModelMetaclass):
-    """Mixin to add YAML compatibility to your class."""
+    """Mixin to add YAML compatibility to your class.
+
+    Usage
+    -----
+    Inherit from this and a `pydantic.BaseModel` or a subclass, like this:
+
+    ```python
+    class MyBaseType(BaseModel):
+        my_field: str = "default"
+
+    class MyExtType(YamlModelMixin, MyBaseType):
+        other_field: int = 42
+    ```
+
+    `YamlModelMixin` *must* be *before* any class that inherits from
+    `pydantic.BaseModel` due to issues with the method resolution order.
+
+    You can now use `MyExtType().yaml()` to dump the class values (default here)
+    to a YAML string.
+    """
 
     if TYPE_CHECKING:
         __custom_root_type__: ClassVar[bool] = False
@@ -45,6 +84,8 @@ class YamlModelMixin(metaclass=ModelMetaclass):
     @no_type_check
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
+
+        # Set the config class
         cfg: Type[YamlModelMixinConfig] = cls.__config__
         if not issubclass(cfg, YamlModelMixinConfig):
 
@@ -68,7 +109,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         exclude_defaults: bool = False,
         exclude_none: bool = False,
         default_flow_style: Optional[bool] = False,
-        default_style: _YamlStyle = None,
+        default_style: YamlStyle = None,
         indent: Optional[bool] = None,
         encoding: Optional[str] = None,
         **kwargs,
@@ -114,3 +155,45 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             indent=indent,
             **kwargs,
         )
+
+    @no_type_check
+    @classmethod
+    def parse_raw(
+        cls: Type["Model"],
+        b: StrBytes,
+        *,
+        content_type: str = "application/yaml",
+        encoding: str = "utf-8",
+        proto: ExtendedProto = None,
+        allow_pickle: bool = False,
+    ) -> "Model":
+        # NOTE: Type checking this function is a PITA, because we're overriding
+        # BaseModel.parse_raw, but not inheriting it due to the MRO problem!
+
+        # Check whether we're specifically asked to parse YAML
+        is_yaml = is_yaml_requested(content_type=content_type, proto=proto)
+
+        # Note that JSON is a subset of the YAML 1.2 spec, so we should be OK
+        # even if JSON is passed. It will be slower, however.
+        if is_yaml:
+            try:
+                obj = cls.__config__.yaml_loads(b)  # type: ignore
+            except RecursionError as e:
+                raise ValueError(
+                    "YAML files with recursive references are unsupported."
+                ) from e
+            except ValidationError:
+                raise
+            except Exception as e:
+                raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls) from e
+        else:
+            obj = load_str_bytes(
+                b,
+                proto=proto,
+                content_type=content_type,
+                encoding=encoding,
+                allow_pickle=allow_pickle,
+                json_loads=cls.__config__.json_loads,
+            )
+        res = cls.parse_obj(obj)  # type: ignore
+        return cast("Model", res)

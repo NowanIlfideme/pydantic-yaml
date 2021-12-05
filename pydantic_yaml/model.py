@@ -16,5 +16,5 @@ ruamel.yaml: https://yaml.readthedocs.io/en/latest/index.html
 """
 
 
-class YamlModel(BaseModel, YamlModelMixin):
+class YamlModel(YamlModelMixin, BaseModel):
     __doc__ = _pre_doc + BaseModel.__doc__
