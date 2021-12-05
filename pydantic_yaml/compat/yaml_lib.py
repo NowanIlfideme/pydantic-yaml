@@ -1,3 +1,5 @@
+"""Imports an installed YAML library."""
+
 # flake8: noqa
 
 try:
@@ -19,5 +21,15 @@ except ImportError:
             "Could not import ruamel.yaml or pyyaml, "
             "please install at least one of them."
         )
+
+dumper_classes = []
+for _fld in dir(yaml):
+    try:
+        if "Dumper" in _fld:
+            _obj = getattr(yaml, _fld)
+            dumper_classes.append(_obj)
+    except Exception:
+        pass
+
 
 __all__ = ["yaml", "__yaml_lib__"]
