@@ -2,6 +2,7 @@
 
 from typing_extensions import Literal
 import warnings
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,7 +15,7 @@ from typing import (
     cast,
     no_type_check,
 )
-from pydantic.parse import Protocol, load_str_bytes
+from pydantic.parse import Protocol, load_file, load_str_bytes
 from pydantic.main import ROOT_KEY, BaseModel, ModelMetaclass, BaseConfig
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 from pydantic.types import StrBytes
@@ -38,13 +39,19 @@ YamlStyle = Union[
 ]
 
 
-def is_yaml_requested(content_type: str = None, proto: ExtendedProto = None) -> bool:
-    """Checks whether YAML is requested by the `content_type` or `proto` params."""
-    if content_type is None:
-        is_yaml = False
-    else:
+def is_yaml_requested(
+    content_type: str = None,
+    proto: ExtendedProto = None,
+    path_suffix: Optional[str] = None,
+) -> bool:
+    """Checks whether YAML is requested by the user, depending on params."""
+    is_yaml = False
+    if content_type is not None:
         is_yaml = ("yaml" in content_type) or ("yml" in content_type)
-    is_yaml = is_yaml or (proto == "yaml")
+    if proto is not None:
+        is_yaml = is_yaml or (proto == "yaml")
+    if path_suffix is not None:
+        is_yaml = is_yaml or (path_suffix in [".yaml", ".yml"])
     return is_yaml
 
 
@@ -162,7 +169,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         cls: Type["Model"],
         b: StrBytes,
         *,
-        content_type: str = "application/yaml",
+        content_type: str = "application/yaml",  # This is a reasonable default, right?
         encoding: str = "utf-8",
         proto: ExtendedProto = None,
         allow_pickle: bool = False,
@@ -197,3 +204,48 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             )
         res = cls.parse_obj(obj)  # type: ignore
         return cast("Model", res)
+
+    @no_type_check
+    @classmethod
+    def parse_file(
+        cls: Type["Model"],
+        path: Union[str, Path],
+        *,
+        content_type: str = None,
+        encoding: str = "utf-8",
+        proto: ExtendedProto = None,
+        allow_pickle: bool = False,
+    ) -> "Model":
+        path = Path(path)
+
+        # Assume YAML based on the file name, so `parse_raw()` works well below
+        if (content_type is None) and (path.suffix in [".yml", ".yaml"]):
+            content_type = "application/yaml"
+
+        # Check whether we're specifically asked to parse YAML
+        is_yaml = is_yaml_requested(
+            content_type=content_type, proto=proto, path_suffix=path.suffix
+        )
+
+        # The first code path explicitly checks YAML compatibility.
+        # We offload the rest to Pydantic.
+        if is_yaml:
+            b = path.read_bytes()
+            return cls.parse_raw(
+                b,
+                content_type=content_type,
+                encoding=encoding,
+                proto=proto,
+                allow_pickle=allow_pickle,
+            )
+        else:
+            obj = load_file(
+                path,
+                proto=proto,
+                content_type=content_type,
+                encoding=encoding,
+                allow_pickle=allow_pickle,
+                json_loads=cls.__config__.json_loads,
+            )
+            res = cls.parse_obj(obj)  # type: ignore
+            return cast("Model", res)

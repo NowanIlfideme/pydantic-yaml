@@ -60,7 +60,3 @@ def test_nested_models():
 
     c_re = C.parse_raw(yml, proto="yaml")
     assert c == c_re
-
-
-# def test_files():
-#     """TODO: Test with tempfiles."""
