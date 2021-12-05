@@ -45,7 +45,7 @@ class YamlInt(int):
         return res
 
     @classmethod
-    def _to_yaml_int(cls, v) -> str:
+    def _to_yaml_int(cls, v) -> int:
         """Represent a value of this type as an integer."""
         return int(v)
 
