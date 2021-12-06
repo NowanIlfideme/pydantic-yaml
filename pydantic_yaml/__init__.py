@@ -1,8 +1,34 @@
-import warnings as _w
+"""YAML-enabled Pydantic models."""
 
-__all__ = ["__version__", "YamlEnum", "YamlModel", "SemVer", "VersionedYamlModel"]
+from .version import __version__
 
 try:
-    from .main import __version__, YamlEnum, YamlModel, SemVer, VersionedYamlModel
-except Exception as e:
-    _w.warn(str(e))
+    __all__ = [
+        "__version__",
+        "SemVer",
+        "yaml",
+        "VersionedYamlModel",
+        "YamlEnum",  # deprecated class
+        "YamlInt",
+        "YamlIntEnum",
+        "YamlModel",
+        "YamlModelMixin",
+        "YamlModelMixinConfig",
+        "YamlStr",
+        "YamlStrEnum",
+    ]
+    from .main import (
+        SemVer,
+        VersionedYamlModel,
+        YamlEnum,
+        YamlInt,
+        YamlIntEnum,
+        YamlModel,
+        YamlModelMixin,
+        YamlModelMixinConfig,
+        YamlStr,
+        YamlStrEnum,
+        yaml,
+    )
+except Exception:
+    pass

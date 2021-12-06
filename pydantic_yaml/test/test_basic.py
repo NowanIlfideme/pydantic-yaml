@@ -1,9 +1,16 @@
+"""Basic tests for pydantic_yaml functionality."""
+
+
 def test_readme():
     """Tests the functionality from the README."""
 
-    from pydantic_yaml import YamlEnum, YamlModel
 
-    class MyEnum(str, YamlEnum):
+def test_simple():
+    """Tests the functionality from the README."""
+
+    from pydantic_yaml import YamlStrEnum, YamlModel
+
+    class MyEnum(YamlStrEnum):
         a = "a"
         b = "b"
 
@@ -15,26 +22,33 @@ def test_readme():
     yml = m1.yaml()
     jsn = m1.json()
 
-    m2 = MyModel.parse_raw(yml)  # This automatically assumes YAML
+    # This automatically assumes YAML
+    m2 = MyModel.parse_raw(yml)
     assert m1 == m2
 
-    m3 = MyModel.parse_raw(jsn)  # This will fallback to JSON
+    # This explicitly sets YAML (or `content_type="application/yaml"`)
+    m3 = MyModel.parse_raw(yml, proto="yaml")
     assert m1 == m3
 
-    m4 = MyModel.parse_raw(yml, proto="yaml")
+    # This explicitly uses JSON
+    m4 = MyModel.parse_raw(jsn, content_type="application/json")
     assert m1 == m4
 
-    m5 = MyModel.parse_raw(yml, content_type="application/yaml")
+    # JSON is actually a subset of YAML, so it should parse correctly anyways.
+    m5 = MyModel.parse_raw(jsn)
     assert m1 == m5
 
 
 def test_nested_models():
-    """Test nested YAML models"""
+    """Test nested YAML models and inheritance."""
 
     from pydantic import BaseModel
-    from pydantic_yaml import YamlModel
+    from pydantic_yaml import YamlModel, YamlModelMixin
 
-    class A(YamlModel):
+    class A0(BaseModel):
+        x: int = 1
+
+    class A(A0, YamlModelMixin):
         x: int = 1
 
     class B(BaseModel):
@@ -50,7 +64,3 @@ def test_nested_models():
 
     c_re = C.parse_raw(yml, proto="yaml")
     assert c == c_re
-
-
-# def test_files():
-#     """TODO: Test with tempfiles."""

@@ -2,6 +2,7 @@ from functools import wraps
 from typing import Any, Callable, Optional, Union, no_type_check
 
 from pydantic import errors
+from pydantic_yaml.compat.types import YamlStr
 from semver import VersionInfo
 
 __all__ = ["SemVer"]
@@ -25,7 +26,7 @@ def _comparator(operator: Comparator) -> Comparator:
     return wrapper
 
 
-class SemVer(str):  # want to inherit from VersionInfo, but metaclass conflict
+class SemVer(YamlStr):  # want to inherit from VersionInfo, but metaclass conflict
     """Semantic Version string for Pydantic.
 
     Depends on `semver>=2,<3`, see:
@@ -42,7 +43,7 @@ class SemVer(str):  # want to inherit from VersionInfo, but metaclass conflict
 
     @no_type_check
     def __new__(cls, version: Optional[str], **kwargs) -> object:
-        return str.__new__(cls, cls.parse(**kwargs) if version is None else version)
+        return YamlStr.__new__(cls, cls.parse(**kwargs) if version is None else version)
 
     def __init__(self, version: str):
         str.__init__(version)
@@ -64,18 +65,13 @@ class SemVer(str):  # want to inherit from VersionInfo, but metaclass conflict
         yield cls.validate
 
     @classmethod
-    def validate(cls, value: Union[str]) -> "SemVer":
+    def validate(cls, value: Union[str, "SemVer"]) -> "SemVer":
         vi = VersionInfo.parse(value)
         if not cls.allow_build and (vi.build is None):
             raise errors.NotNoneError()
         if not cls.allow_prerelease and (vi.prerelease is None):
             raise errors.NotNoneError()
         return cls(value)
-
-    def __repr__(self):
-        cn = type(self).__qualname__
-        v = super().__repr__()
-        return f"{cn}({v})"
 
     @property
     def info(self) -> VersionInfo:
@@ -156,4 +152,3 @@ class SemVer(str):  # want to inherit from VersionInfo, but metaclass conflict
     @_comparator
     def __ge__(self, other: "SemVer"):
         return self._info >= other._info
-

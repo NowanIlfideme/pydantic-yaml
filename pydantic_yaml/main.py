@@ -1,11 +1,28 @@
 """YAML-enabled Pydantic models."""
 
-__all__ = ["__version__", "YamlEnum", "YamlModel", "SemVer", "VersionedYamlModel"]
+__all__ = [
+    "__version__",
+    "yaml",
+    "YamlEnum",
+    "YamlInt",
+    "YamlIntEnum",
+    "YamlStr",
+    "YamlStrEnum",
+    "YamlModel",
+    "YamlModelMixin",
+    "YamlModelMixinConfig",
+    "SemVer",
+    "VersionedYamlModel",
+]
 
-from ._inject_representers import _inject_all
-from .enums import YamlEnum
-from .models import YamlModel
+from .compat.old_enums import YamlEnum
+from .compat.hacks import inject_all as _inject_yaml_hacks
+from .compat.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
+from .compat.yaml_lib import yaml
+from .ext.semver import SemVer
+from .ext.versioned_model import VersionedYamlModel
+from .mixin import YamlModelMixin, YamlModelMixinConfig
+from .model import YamlModel
 from .version import __version__
-from .versioned_models import SemVer, VersionedYamlModel
 
-_inject_all()
+_inject_yaml_hacks()
