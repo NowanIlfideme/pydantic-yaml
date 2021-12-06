@@ -3,6 +3,7 @@
 __all__ = [
     "__version__",
     "yaml",
+    "YamlEnum",
     "YamlInt",
     "YamlIntEnum",
     "YamlStr",
@@ -14,6 +15,7 @@ __all__ = [
     "VersionedYamlModel",
 ]
 
+from .compat.old_enums import YamlEnum
 from .compat.hacks import inject_all as _inject_yaml_hacks
 from .compat.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
 from .compat.yaml_lib import yaml
