@@ -4,6 +4,10 @@
 def test_readme():
     """Tests the functionality from the README."""
 
+
+def test_simple():
+    """Tests the functionality from the README."""
+
     from pydantic_yaml import YamlStrEnum, YamlModel
 
     class MyEnum(YamlStrEnum):
