@@ -71,7 +71,7 @@ class YamlStrEnum(YamlStr, Enum):
         res = super().__init_subclass__()
         if not isabstract(cls):
             vals: Dict[str, cls] = dict(cls.__members__)
-            yaml.dump(vals)
+            yaml.safe_dump(vals)
         return res
 
 
@@ -85,7 +85,7 @@ class YamlIntEnum(YamlInt, Enum):
         res = super().__init_subclass__()
         if not isabstract(cls):
             vals: Dict[str, cls] = dict(cls.__members__)
-            yaml.dump(vals)
+            yaml.safe_dump(vals)
         return res
 
 
