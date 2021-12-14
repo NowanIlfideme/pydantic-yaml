@@ -33,12 +33,16 @@ def get_str_like_types() -> List[Type]:
         except Exception:
             return False
 
+    # Get most candidates
     candidates = (
         list(locals().values())
         + [getattr(types, v) for v in types.__all__]
         + [getattr(networks, v) for v in networks.__all__]
     )
     str_like = [v for v in candidates if _chk(v)]
+
+    # SecretStr, SecretBytes are stringified as "**********" by Pydantic
+    str_like += [types.SecretStr, types.SecretBytes]
     return str_like
 
 
