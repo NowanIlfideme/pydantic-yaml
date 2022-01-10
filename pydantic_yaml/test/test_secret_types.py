@@ -58,4 +58,3 @@ def test_secret_types_roundtrippable():
     assert sd2 == sd
     assert sm_alt.ss.get_secret_value() == sd.ss.get_secret_value()
     assert sm_alt.sb.get_secret_value() == sd.sb.get_secret_value()
-

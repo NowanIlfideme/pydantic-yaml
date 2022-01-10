@@ -13,6 +13,10 @@ warn_unused_configs = true
 module = 'ruamel.*'
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = 'semver.*'
+ignore_missing_imports = true
+
 [tool.black]
 line-length = 88
 include = '^/pydantic_yaml.*\.py' # all .py files
