@@ -5,7 +5,7 @@
 
 This is a small helper library that adds some YAML capabilities to [pydantic](https://github.com/samuelcolvin/pydantic), namely dumping to yaml via the `yaml_model.yaml()` function, and parsing from strings/files using `YamlModel.parse_raw()` and `YamlModel.parse_file()`. It also adds `Enum` subclasses that get dumped to YAML as strings or integers, and fixes dumping of some typical types.
 
-[Documentation on ReadTheDocs.org](http://pydantic-yaml.rtfm.io/)
+[Documentation on ReadTheDocs.org](https://pydantic-yaml.readthedocs.io/en/latest/)
 
 ## Basic Usage
 
