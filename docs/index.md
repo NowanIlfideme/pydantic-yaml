@@ -1,16 +1,14 @@
-# pydantic-yaml
+# Pydantic-YAML
 
 [![PyPI version](https://badge.fury.io/py/pydantic-yaml.svg)](https://badge.fury.io/py/pydantic-yaml) [![Documentation Status](https://readthedocs.org/projects/pydantic-yaml/badge/?version=latest)](https://pydantic-yaml.readthedocs.io/en/latest/?badge=latest)
  [![Unit Tests](https://github.com/NowanIlfideme/pydantic-yaml/actions/workflows/python-testing.yml/badge.svg)](https://github.com/NowanIlfideme/pydantic-yaml/actions/workflows/python-testing.yml)
 
-This is a small helper library that adds some YAML capabilities to [pydantic](https://github.com/samuelcolvin/pydantic), namely dumping to yaml via the `yaml_model.yaml()` function, and parsing from strings/files using `YamlModel.parse_raw()` and `YamlModel.parse_file()`. It also adds `Enum` subclasses that get dumped to YAML as strings or integers, and fixes dumping of some typical types.
-
-[Documentation on ReadTheDocs.org](http://pydantic-yaml.rtfm.io/)
+Pydantic-YAML adds YAML capabilities to [Pydantic](https://pydantic-docs.helpmanual.io/),
+which is an _excellent_ Python library for data validation and settings management.
+If you aren't familiar with Pydantic, I would suggest you first check out their
+[docs](https://pydantic-docs.helpmanual.io/).
 
 ## Basic Usage
-
-Typical usage is seen below. See the [pydantic docs](https://pydantic-docs.helpmanual.io/)
-for more usage examples.
 
 ```python
 from pydantic import BaseModel, validator
@@ -64,16 +62,6 @@ assert m1 == m4
 m5 = MyModel.parse_raw(yml, content_type="application/yaml")
 assert m1 == m5
 ```
-
-## Installation
-
-`pip install pydantic_yaml`
-
-Make sure to install `ruamel.yaml` or `pyyaml` as well. These are optional dependencies:
-
-`pip install pydantic_yaml[ruamel]`
-
-`pip install pydantic_yaml[pyyaml]`
 
 ## Mixin Class
 

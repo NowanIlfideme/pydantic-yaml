@@ -1,0 +1,70 @@
+site_name: pydantic-yaml
+repo_name: NowanIlfideme/pydantic-yaml
+repo_url: https://github.com/NowanIlfideme/pydantic-yaml/
+site_author: Anatoly Makarevich
+site_description: YAML support for Pydantic models
+
+# NOTE: This allows looking at docs locally
+# See https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
+site_url: ""
+use_directory_urls: false
+
+nav:
+  - Overview: index.md
+  - Install: installing.md
+
+theme:
+  name: "material"
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: pink
+      accent: pink
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: pink
+      accent: pink
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+
+# Plugins: https://squidfunk.github.io/mkdocs-material/reference/code-blocks/
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          rendering:
+            docstring_style: numpy
+            show_root_heading: true
+            show_object_full_path: false
+            show_signature_annotations: true
+          selection:
+            filters:
+              - "^__init__$" # but always include __init__ modules and methods
+              - "!^_" # exlude all members starting with _
+
+markdown_extensions:
+  # - markdown_include.include:
+  #     base_path: docs
+  # - toc:
+  #     permalink: "🔗"
+  - toc:
+      permalink: True
+  - pymdownx.highlight:
+      use_pygments: true
+      linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  # - pymdownx.emoji:
+  #     emoji_index: !!python/name:pymdownx.emoji.gemoji
+  #     emoji_generator: !!python/name:pymdownx.emoji.to_svg
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/NowanIlfideme/pydantic-yaml/
