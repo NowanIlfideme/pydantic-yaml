@@ -18,7 +18,7 @@ updates:
     # Do pip dependency checks every day
     schedule:
       interval: "daily"
-      time: "8:00"
+      time: "08:00"
       timezone: "UTC"
 
     # Ping owner directly for review
@@ -31,7 +31,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "friday"
-      time: "8:00"
+      time: "08:00"
       timezone: "UTC"
 
     # Ping owner directly for review
