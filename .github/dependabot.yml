@@ -1,0 +1,39 @@
+# This configures Dependabot to monitor the package, and open pull requests when dependencies update.
+#
+# For configuration format, see
+# https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates#directory
+#
+# Thanks to these updates:
+# https://github.com/dependabot/dependabot-core/issues/2133
+# https://github.com/dependabot/dependabot-core/pull/2281
+# https://github.com/dependabot/dependabot-core/pull/3423
+# Dependabot now supports python.cfg files, so we can use it!
+
+version: 2
+
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+
+    # Do pip dependency checks every day
+    schedule:
+      interval: "daily"
+      time: "8:00"
+      timezone: "UTC"
+
+    # Ping owner directly for review
+    assignees:
+      - "NowanIlfideme"
+
+  - package-ecosystem: "github-actions"
+    # Workflow files stored in the default location of `.github/workflows`
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "8:00"
+      timezone: "UTC"
+
+    # Ping owner directly for review
+    assignees:
+      - "NowanIlfideme"
