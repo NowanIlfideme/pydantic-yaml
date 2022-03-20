@@ -29,11 +29,8 @@ def _comparator(operator: Comparator) -> Comparator:
 class SemVer(YamlStr):  # want to inherit from VersionInfo, but metaclass conflict
     """Semantic Version string for Pydantic.
 
-    Depends on `semver>=2,<3`, see:
+    Depends on `semver` versions 2 or 3. Look here for how to fix the version:
     https://python-semver.readthedocs.io/en/3.0.0-dev.2/install.html#release-policy
-    
-    Waiting to be implemented here:
-    https://github.com/samuelcolvin/pydantic/discussions/2506
     """
 
     allow_build: bool = True
