@@ -25,6 +25,9 @@ jobs:
         deps:
           - dev, ruamel
           - dev, pyyaml
+        lib-semver:
+          - "2.13.0"
+          - "3.0.0.dev3"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -33,6 +36,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Package with dependencies ${{ matrix.deps }}
         run: |
+          pip install "semver~=${{ matrix.lib-semver }}"
           pip install -e ".[${{ matrix.deps }}]"
       - name: Lint with flake8
         run: |
