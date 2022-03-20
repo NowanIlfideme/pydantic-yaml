@@ -33,26 +33,32 @@ def _get_minmax_robust(
 
 
 class VersionedYamlModel(YamlModel):
-    """YAML model with versioning.
+    """YAML model with versioning support.
 
     Usage
     -----
-    Inherit from this class, and set a Config class with attributes `min_version` and/or
-    `max_version`:
+    Inherit from this class, and set a Config class with attributes 
+    `min_version` and/or `max_version`:
 
     ```python
     class MyModel(VersionedYamlModel):
         class Config:
-            min_version = 
+            min_version = "1.0.0"
 
+        foo: str = "bar"
     ```
+
+    By default, the minimum version is "0.0.0" and the maximum is unset.
+    This pattern enables you to more easily version your YAML files and
+    protect against accidentally using older (or newer) configuration file formats.
 
     Notes
     -----
     By default, a validator checks that the "version" field is between 
     `Config.min_version` and `Config.max_version`, if those are not None.
 
-    It's probably best not to even set the `version` field by hand.
+    It's probably best not to even set the `version` field by hand, but rather
+    in your configuration.
     """
 
     version: SemVer
