@@ -73,4 +73,4 @@ def inject_all():
     for cls in get_str_like_types():
         register_str_like(cls, method=str)
     for cls in get_int_like_types():
-        register_int_like(cls)
+        register_int_like(cls, method=int)
