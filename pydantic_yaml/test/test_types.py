@@ -3,7 +3,7 @@
 import pytest
 
 from pydantic_yaml.compat.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
-from pydantic_yaml.compat.yaml_lib import yaml
+from pydantic_yaml.compat.yaml_lib import yaml_safe_dump, yaml_safe_load
 
 
 class XSE(YamlStrEnum):
@@ -31,8 +31,8 @@ def test_str_enum():
 
     x1 = XSE.a
     x2 = XSE("b")
-    assert yaml.safe_load(yaml.safe_dump(x1)) == "a"
-    assert yaml.safe_load(yaml.safe_dump(x2)) == "b"
+    assert yaml_safe_load(yaml_safe_dump(x1)) == "a"
+    assert yaml_safe_load(yaml_safe_dump(x2)) == "b"
 
     with pytest.raises(ValueError):
         XSE("c")
@@ -42,8 +42,8 @@ def test_int_enum():
     """Test for YamlIntEnum class."""
     x1 = XIE.a
     x2 = XIE(2)
-    assert yaml.safe_load(yaml.safe_dump(x1)) == 1
-    assert yaml.safe_load(yaml.safe_dump(x2)) == 2
+    assert yaml_safe_load(yaml_safe_dump(x1)) == 1
+    assert yaml_safe_load(yaml_safe_dump(x2)) == 2
 
     with pytest.raises(ValueError):
         XIE(3)

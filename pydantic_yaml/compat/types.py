@@ -5,7 +5,7 @@ from inspect import isabstract
 from typing import Dict, Tuple, Union
 
 from .representers import register_int_like, register_str_like
-from .yaml_lib import yaml
+from .yaml_lib import yaml_safe_dump
 
 __all__ = ["YamlInt", "YamlIntEnum", "YamlStr", "YamlStrEnum"]
 
@@ -91,7 +91,7 @@ class YamlStrEnum(YamlStr, Enum):
         res = super().__init_subclass__()
         if not isabstract(cls):
             vals: Dict[str, cls] = dict(cls.__members__)
-            yaml.safe_dump(vals)
+            yaml_safe_dump(vals)
         return res
 
     # def __new__(cls, v):
@@ -116,7 +116,7 @@ class YamlIntEnum(YamlInt, Enum):
         res = super().__init_subclass__()
         if not isabstract(cls):
             vals: Dict[str, cls] = dict(cls.__members__)
-            yaml.safe_dump(vals)
+            yaml_safe_dump(vals)
         return res
 
 

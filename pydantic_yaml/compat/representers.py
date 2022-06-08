@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any, Callable, TypeVar
 
-from .yaml_lib import yaml, dumper_classes
+from .yaml_lib import yaml, dumper_classes, representer_classes
 
 CType = TypeVar("CType")
 
@@ -66,8 +66,8 @@ def register_str_like(cls: CType, method: Callable[[Any], str] = str) -> CType:
     cls
         This is the same as the input `cls`.
     """
-    for dump_cls in dumper_classes:
-        dump_cls.add_representer(cls, partial(dump_as_str, method=method))
+    for x_cls in dumper_classes + representer_classes:
+        x_cls.add_representer(cls, partial(dump_as_str, method=method))
     return cls
 
 
@@ -87,6 +87,6 @@ def register_int_like(cls: CType, method: Callable[[Any], int] = int) -> CType:
     cls
         This is the same as the input `cls`.
     """
-    for dump_cls in dumper_classes:
-        dump_cls.add_representer(cls, partial(dump_as_int, method=method))
+    for x_cls in dumper_classes + representer_classes:
+        x_cls.add_representer(cls, partial(dump_as_int, method=method))
     return cls
