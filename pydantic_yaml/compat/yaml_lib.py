@@ -37,12 +37,22 @@ for _fld in dir(yaml):
 
 def yaml_safe_load(stream) -> Any:
     """Wrapper around YAML library loader."""
-    return yaml.safe_load(stream)
+    if __yaml_lib__ in ["ruamel-old", "pyyaml"]:
+        return yaml.safe_load(stream)
+    # Fixing deprecation warning in new ruamel.yaml versions
+    assert __yaml_lib__ == "ruamel-new"
+    ruamel_obj = yaml.YAML(typ="safe", pure=True)
+    return ruamel_obj.load(stream)
 
 
 def yaml_safe_dump(data: Any, stream=None, **kwds) -> Optional[Any]:
     """Wrapper around YAML library dumper."""
-    return yaml.safe_dump(data, stream=stream, **kwds)
+    if __yaml_lib__ in ["ruamel-old", "pyyaml"]:
+        return yaml.safe_dump(data, stream=stream, **kwds)
+    # Fixing deprecation warning in new ruamel.yaml versions
+    assert __yaml_lib__ == "ruamel-new"
+    ruamel_obj = yaml.YAML(typ="safe", pure=True)
+    return ruamel_obj.dump(data, stream=stream, **kwds)
 
 
 __all__ = ["yaml_safe_dump", "yaml_safe_load", "yaml", "__yaml_lib__"]
