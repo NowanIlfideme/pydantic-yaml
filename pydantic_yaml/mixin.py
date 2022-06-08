@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     Model = TypeVar("Model", bound="BaseModel")
 
-from .compat.yaml_lib import yaml
+from .compat.yaml_lib import yaml_safe_dump, yaml_safe_load
 
 
 ExtendedProto = Union[Protocol, Literal["yaml"]]
@@ -58,8 +58,8 @@ def is_yaml_requested(
 class YamlModelMixinConfig:
     """Additional configuration for YamlModelMixin."""
 
-    yaml_loads: Callable[[str], Any] = yaml.safe_load  # type: ignore
-    yaml_dumps: Callable[..., str] = yaml.safe_dump  # type: ignore
+    yaml_loads: Callable[[str], Any] = yaml_safe_load  # type: ignore
+    yaml_dumps: Callable[..., str] = yaml_safe_dump  # type: ignore
 
 
 class YamlModelMixin(metaclass=ModelMetaclass):

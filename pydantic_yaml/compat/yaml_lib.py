@@ -2,6 +2,9 @@
 
 # flake8: noqa
 
+from typing import Any, Optional
+
+
 try:
     import ruamel.yaml as yaml  # type: ignore
 
@@ -32,4 +35,14 @@ for _fld in dir(yaml):
         pass
 
 
-__all__ = ["yaml", "__yaml_lib__"]
+def yaml_safe_load(stream) -> Any:
+    """Wrapper around YAML library loader."""
+    return yaml.safe_load(stream)
+
+
+def yaml_safe_dump(data: Any, stream=None, **kwds) -> Optional[Any]:
+    """Wrapper around YAML library dumper."""
+    return yaml.safe_dump(data, stream=stream, **kwds)
+
+
+__all__ = ["yaml_safe_dump", "yaml_safe_load", "yaml", "__yaml_lib__"]
