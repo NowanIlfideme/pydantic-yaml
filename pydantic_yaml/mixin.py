@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     Model = TypeVar("Model", bound="BaseModel")
 
-from .compat.yaml_lib import yaml_safe_dump, yaml_safe_load
+from .compat.yaml_lib import yaml_safe_dump, yaml_safe_load, __yaml_lib__
 
 
 ExtendedProto = Union[Protocol, Literal["yaml"]]
@@ -119,6 +119,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         default_style: YamlStyle = None,
         indent: Optional[bool] = None,
         encoding: Optional[str] = None,
+        descriptions: bool = False,
         **kwargs,
     ) -> str:
         """Generate a YAML representation of the model.
@@ -139,6 +140,8 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             Default is None, which varies the style based on line length.
         indent, encoding, kwargs
             Additional arguments for the dumper.
+        descriptions: bool
+            Add descriptions as end-of-line comments to the generated yaml, requires ruamel.yaml
         """
         data: "DictStrAny" = self.dict(  # type: ignore
             include=include,
@@ -158,6 +161,29 @@ class YamlModelMixin(metaclass=ModelMetaclass):
                 " https://github.com/NowanIlfideme/pydantic-yaml/issues/new"
             )
         cfg = cast(YamlModelMixinConfig, self.__config__)
+        
+        if descriptions:
+            if not 'ruamel' in __yaml_lib__:
+                warnings.warn("ruamel.yaml is required for yaml(descriptions=True), \
+                    dumping without comments")
+                return dump
+            from ruamel.yaml import YAML
+            from io import StringIO
+            from collections import OrderedDict
+            yaml = YAML()
+            yaml.register_class(OrderedDict)
+            setattr(yaml, "encoding", encoding)
+            setattr(yaml, "default_flow_style", default_flow_style)
+            setattr(yaml, "default_style", default_style)
+            setattr(yaml, "indent", indent)
+            dump = StringIO()
+            yaml.dump(data,dump)
+            data = yaml.load(dump.getvalue())
+            self.add_inline_descriptions(data,self)
+            dump = StringIO()
+            yaml.dump(data,dump)
+            return dump.getvalue()
+
         return cfg.yaml_dumps(
             data,
             default_flow_style=default_flow_style,
@@ -166,6 +192,23 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             indent=indent,
             **kwargs,
         )
+
+    @staticmethod
+    def add_inline_descriptions(data, model): 
+        if not hasattr(model, "__fields__"):
+            return
+        fields = model.__fields__
+        from ruamel.yaml.comments import CommentedBase
+        if isinstance(data,CommentedBase) and isinstance(data, dict) :
+            for k, v in data.items():
+                if not k in fields.keys():
+                    continue
+                description = fields[k].field_info.description
+                if description:
+                    data.yaml_add_eol_comment(description, k)
+                if hasattr(model,k):
+                    YamlModelMixin.add_inline_descriptions(v,getattr(model,k))
+
 
     @no_type_check
     @classmethod
