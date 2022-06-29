@@ -50,3 +50,10 @@ def test_file_comments(tmpdir: str):
         # This works because JSON is a subset of YAML :)
         mx = M.parse_file(base_dir / "mdl.json", content_type="application/yaml")
         assert mx == m
+
+        with open(base_dir / "mdl.yaml", "r") as f:
+            text = f.read()
+            assert('This is an important description' in text)
+            assert('doubletest' in text)
+            assert('Mymodel description' in text)
+
