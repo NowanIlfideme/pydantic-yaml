@@ -195,10 +195,25 @@ class YamlModelMixin(metaclass=ModelMetaclass):
 
     @staticmethod
     def add_inline_descriptions(data, model): 
+        """add_inline_descriptions recursively checks the pydantic structure
+        for comments that can be added to the resulting yaml
+
+        Parameters
+        ----------
+        data :
+            Ruaml round-trip yaml.dumps structure
+        model :
+            The pydantic model which contains the description information
+        """
+        from ruamel.yaml.comments import CommentedBase
+
+        if isinstance(data,list):
+            for item, info in zip(data,model):
+                YamlModelMixin.add_inline_descriptions(item,info)
+
         if not hasattr(model, "__fields__"):
             return
         fields = model.__fields__
-        from ruamel.yaml.comments import CommentedBase
         if isinstance(data,CommentedBase) and isinstance(data, dict) :
             for k, v in data.items():
                 if not k in fields.keys():
@@ -208,6 +223,8 @@ class YamlModelMixin(metaclass=ModelMetaclass):
                     data.yaml_add_eol_comment(description, k)
                 if hasattr(model,k):
                     YamlModelMixin.add_inline_descriptions(v,getattr(model,k))
+
+        
 
 
     @no_type_check

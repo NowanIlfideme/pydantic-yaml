@@ -4,7 +4,7 @@
 
 from json.decoder import JSONDecodeError
 from pathlib import Path
-from typing import no_type_check
+from typing import no_type_check, List
 
 import pytest
 
@@ -29,13 +29,13 @@ def test_file_comments(tmpdir: str):
 
     class MyOtherModel(YamlModelMixin, TestBase):
         sub: MyModel = Field(None, description="Mymodel description")
+        sublist: List[MyModel] = [MyModel()]
 
-    m1 = MyModel(x=2, e="b")
-    m2 = MyOtherModel(sub=m1)
+    m2 = MyOtherModel(sub=MyModel(x="41"), sublist=[MyModel(),MyModel(x="43",e="b")])
 
     base_dir: Path = Path(tmpdir).resolve()
 
-    for (m, M) in zip([m1, m2], [MyModel, MyOtherModel]):
+    for (m, M) in zip([m2], [MyOtherModel]):
         with (base_dir / "mdl.yaml").open(mode="w") as f:
             f.write(m.yaml(descriptions = True))
         with (base_dir / "mdl.json").open(mode="w") as f:
