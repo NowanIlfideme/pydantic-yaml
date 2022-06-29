@@ -160,7 +160,16 @@ class YamlModelMixin(metaclass=ModelMetaclass):
                 " This may not work as expected. If so, please create a GitHub issue:"
                 " https://github.com/NowanIlfideme/pydantic-yaml/issues/new"
             )
+
         cfg = cast(YamlModelMixinConfig, self.__config__)
+        dump = cfg.yaml_dumps(
+            data,
+            default_flow_style=default_flow_style,
+            default_style=default_style,
+            encoding=encoding,
+            indent=indent,
+            **kwargs,
+        )
         
         if descriptions:
             if not 'ruamel' in __yaml_lib__:
@@ -182,16 +191,10 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             self.add_inline_descriptions(data,self)
             dump = StringIO()
             yaml.dump(data,dump)
-            return dump.getvalue()
+            dump = dump.getvalue()
 
-        return cfg.yaml_dumps(
-            data,
-            default_flow_style=default_flow_style,
-            default_style=default_style,
-            encoding=encoding,
-            indent=indent,
-            **kwargs,
-        )
+        return dump
+
 
     @staticmethod
     def add_inline_descriptions(data, model): 
