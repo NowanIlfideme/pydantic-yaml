@@ -5,6 +5,7 @@
 from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import no_type_check, List
+from pydantic_yaml.compat.yaml_lib import __yaml_lib__
 
 import pytest
 
@@ -12,6 +13,10 @@ import pytest
 @no_type_check
 def test_file_comments(tmpdir: str):
     """Test file IO with temporary files (tmpdir is a pytest fixture)."""
+
+    if 'ruamel-new' not in __yaml_lib__:
+        pytest.skip("comments only work with ruamel-new")
+        return
 
     from pydantic import BaseModel, Field
     from pydantic_yaml import YamlModel, YamlModelMixin, YamlStrEnum
