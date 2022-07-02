@@ -60,14 +60,33 @@ def yaml_safe_load(stream) -> Any:
     return ruamel_obj.load(stream)
 
 
-def yaml_safe_dump(data: Any, stream=None, **kwds) -> Optional[Any]:
-    """Wrapper around YAML library dumper."""
+def yaml_safe_dump(
+    data: Any, stream=None, *, sort_keys: bool = False, **kwds
+) -> Optional[Any]:
+    """Wrapper around YAML library dumper.
+    
+    Parameters
+    ----------
+    data
+        The data you want to dump, typically a mapping (dict).
+    stream
+        The stream to dump to. By default (if no stream is given, i.e. None),
+        this will instead dump to a text stream.
+    sort_keys : bool
+        Whether to sort the keys of mappings before dumping.
+        Default value is False, rather than True, which is the YAML default.
+        This is because Pydantic configs are easier to read if dumped in the
+        same order as they are defined.
+    kwds
+        Other keyword arguments to set on the YAML dumper instance.
+    """
     if __yaml_lib__ in ["ruamel-old", "pyyaml"]:
-        return yaml.safe_dump(data, stream=stream, **kwds)
+        return yaml.safe_dump(data, stream=stream, sort_keys=sort_keys, **kwds)
     # Fixing deprecation warning in new ruamel.yaml versions
     assert __yaml_lib__ == "ruamel-new"
     ruamel_obj = yaml.YAML(typ="safe", pure=True)
-    # Hacking some options that aren't
+    ruamel_obj.sort_base_mapping_type_on_output = sort_keys
+    # Hacking some options that aren't available
     for kw in ["encoding", "default_flow_style", "default_style", "indent"]:
         if kw in kwds:
             setattr(ruamel_obj, kw, kwds[kw])
