@@ -66,7 +66,7 @@ def register_str_like(cls: CType, method: Callable[[Any], str] = str) -> CType:
     cls
         This is the same as the input `cls`.
     """
-    for x_cls in dumper_classes + representer_classes:
+    for x_cls in dumper_classes + representer_classes:  # type: ignore
         x_cls.add_representer(cls, partial(dump_as_str, method=method))
     return cls
 
@@ -87,6 +87,6 @@ def register_int_like(cls: CType, method: Callable[[Any], int] = int) -> CType:
     cls
         This is the same as the input `cls`.
     """
-    for x_cls in dumper_classes + representer_classes:
+    for x_cls in dumper_classes + representer_classes:  # type: ignore
         x_cls.add_representer(cls, partial(dump_as_int, method=method))
     return cls

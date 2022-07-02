@@ -2,7 +2,7 @@
 
 # flake8: noqa
 
-from typing import Any, Optional
+from typing import Any, List, Optional, Type
 from io import BytesIO, StringIO, IOBase
 
 
@@ -26,7 +26,7 @@ except ImportError:
             "please install at least one of them."
         )
 
-dumper_classes = []
+dumper_classes: List[Type[yaml.BaseDumper]] = []
 for _fld in dir(yaml):
     try:
         if "Dumper" in _fld:
@@ -35,12 +35,21 @@ for _fld in dir(yaml):
     except Exception:
         pass
 
-representer_classes = []
+representer_classes: List[Type[yaml.BaseRepresenter]] = []
 for _fld in dir(yaml):
     try:
         if "Representer" in _fld:
             _obj = getattr(yaml, _fld)
             representer_classes.append(_obj)
+    except Exception:
+        pass
+
+loader_classes: List[Type[yaml.BaseLoader]] = []
+for _fld in dir(yaml):
+    try:
+        if "Loader" in _fld:
+            _obj = getattr(yaml, _fld)
+            loader_classes.append(_obj)
     except Exception:
         pass
 
