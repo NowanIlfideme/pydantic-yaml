@@ -47,7 +47,7 @@ for _fld in dir(yaml):
 loader_classes: List[Type[yaml.BaseLoader]] = []
 for _fld in dir(yaml):
     try:
-        if "Loader" in _fld:
+        if "Loader" in _fld and "Warning" not in _fld:
             _obj = getattr(yaml, _fld)
             loader_classes.append(_obj)
     except Exception:
