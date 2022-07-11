@@ -115,7 +115,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-        sort_keys: bool = False,
+        sort_keys: bool = True,
         default_flow_style: Optional[bool] = False,
         default_style: YamlStyle = None,
         indent: Optional[bool] = None,
@@ -134,7 +134,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             Arguments as per `BaseModel.dict()`.
         sort_keys : bool
             If True, will sort the keys in alphanumeric order for dictionaries.
-            Default is False, which will dump in the field definition order.
+            Default is True. False will dump in the field definition order.
         default_flow_style : bool or None
             Whether to use the "flow" style in the dumper. By default, this is False,
             which uses the "block" style (probably the most familiar to users).
