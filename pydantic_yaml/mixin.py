@@ -268,6 +268,6 @@ class YamlModelMixin(metaclass=ModelMetaclass):
         """
         try:
             if issubclass(cls, BaseModel):
-                super().__try_update_forward_refs__(**localns: Any)  # type: ignore
+                super().__try_update_forward_refs__(**localns)  # type: ignore
         except AttributeError:
             pass
