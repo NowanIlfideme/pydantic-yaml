@@ -261,13 +261,13 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             return cast("Model", res)
 
     @classmethod
-    def __try_update_forward_refs__(cls) -> None:
+    def __try_update_forward_refs__(cls, **localns: Any) -> None:
         """
         Same as update_forward_refs but will not raise exception
         when forward references are not defined.
         """
         try:
             if issubclass(cls, BaseModel):
-                super().__try_update_forward_refs__()  # type: ignore
+                super().__try_update_forward_refs__(**localns)  # type: ignore
         except AttributeError:
             pass

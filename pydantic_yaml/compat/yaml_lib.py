@@ -85,7 +85,7 @@ def yaml_safe_dump(
     # Fixing deprecation warning in new ruamel.yaml versions
     assert __yaml_lib__ == "ruamel-new"
     ruamel_obj = yaml.YAML(typ="safe", pure=True)
-    ruamel_obj.sort_base_mapping_type_on_output = sort_keys
+    ruamel_obj.sort_base_mapping_type_on_output = sort_keys  # type: ignore
     # Hacking some options that aren't available
     for kw in ["encoding", "default_flow_style", "default_style", "indent"]:
         if kw in kwds:
