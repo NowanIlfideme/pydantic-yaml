@@ -2,8 +2,6 @@
 
 from .version import __version__
 
-from pydantic_yaml.compat.yaml_lib import __yaml_lib__ as _
-
 
 __all__ = [
     "__version__",
