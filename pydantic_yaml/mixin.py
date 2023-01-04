@@ -35,13 +35,18 @@ from .compat.yaml_lib import yaml_safe_dump, yaml_safe_load
 ExtendedProto = Union[Protocol, Literal["yaml"]]
 
 YamlStyle = Union[
-    None, Literal[""], Literal['"'], Literal["'"], Literal["|"], Literal[">"],
+    None,
+    Literal[""],
+    Literal['"'],
+    Literal["'"],
+    Literal["|"],
+    Literal[">"],
 ]
 
 
 def is_yaml_requested(
-    content_type: str = None,
-    proto: ExtendedProto = None,
+    content_type: Optional[str] = None,
+    proto: Optional[ExtendedProto] = None,
     path_suffix: Optional[str] = None,
 ) -> bool:
     """Checks whether YAML is requested by the user, depending on params."""
@@ -108,10 +113,10 @@ class YamlModelMixin(metaclass=ModelMetaclass):
     def yaml(
         self,
         *,
-        include: Union["AbstractSetIntStr", "MappingIntStrAny"] = None,
-        exclude: Union["AbstractSetIntStr", "MappingIntStrAny"] = None,
+        include: Union["AbstractSetIntStr", "MappingIntStrAny", None] = None,
+        exclude: Union["AbstractSetIntStr", "MappingIntStrAny", None] = None,
         by_alias: bool = False,
-        skip_defaults: bool = None,
+        skip_defaults: Optional[bool] = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
