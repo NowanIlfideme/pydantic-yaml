@@ -40,8 +40,8 @@ YamlStyle = Union[
 
 
 def is_yaml_requested(
-    content_type: str = None,
-    proto: ExtendedProto = None,
+    content_type: Optional[str] = None,
+    proto: Optional[ExtendedProto] = None,
     path_suffix: Optional[str] = None,
 ) -> bool:
     """Checks whether YAML is requested by the user, depending on params."""
@@ -108,10 +108,10 @@ class YamlModelMixin(metaclass=ModelMetaclass):
     def yaml(
         self,
         *,
-        include: Union["AbstractSetIntStr", "MappingIntStrAny"] = None,
-        exclude: Union["AbstractSetIntStr", "MappingIntStrAny"] = None,
+        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
         by_alias: bool = False,
-        skip_defaults: bool = None,
+        skip_defaults: bool = False,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
