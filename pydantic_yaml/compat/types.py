@@ -20,9 +20,6 @@ class YamlStr(str):
             register_str_like(cls, method=cls._to_yaml_str)
         return res
 
-    # def __new__(cls, v):
-    #     return super(cls).__new__(v)
-
     @classmethod
     def _to_yaml_str(cls, v) -> str:
         """Represent a value of this type as a string."""
@@ -53,9 +50,6 @@ class YamlInt(int):
         if not isabstract(cls):
             register_int_like(cls, method=cls._to_yaml_int)
         return res
-
-    # def __new__(cls, v):
-    #     return super(cls).__new__(v)
 
     @classmethod
     def _to_yaml_int(cls, v) -> int:
@@ -93,9 +87,6 @@ class YamlStrEnum(YamlStr, Enum):
             vals: Dict[str, cls] = dict(cls.__members__)
             yaml_safe_dump(vals)
         return res
-
-    # def __new__(cls, v):
-    #     return super(cls).__new__(v)
 
     def __str__(self) -> str:
         """This returns the wrapped string."""
