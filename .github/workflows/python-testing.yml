@@ -49,4 +49,4 @@ jobs:
           pytest
       - name: Test with mypy
         run: |
-          mypy -m pydantic_yaml
+          mypy -p pydantic_yaml

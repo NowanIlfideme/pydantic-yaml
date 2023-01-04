@@ -35,7 +35,12 @@ from .compat.yaml_lib import yaml_safe_dump, yaml_safe_load
 ExtendedProto = Union[Protocol, Literal["yaml"]]
 
 YamlStyle = Union[
-    None, Literal[""], Literal['"'], Literal["'"], Literal["|"], Literal[">"],
+    None,
+    Literal[""],
+    Literal['"'],
+    Literal["'"],
+    Literal["|"],
+    Literal[">"],
 ]
 
 
@@ -108,10 +113,10 @@ class YamlModelMixin(metaclass=ModelMetaclass):
     def yaml(
         self,
         *,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        include: Union["AbstractSetIntStr", "MappingIntStrAny", None] = None,
+        exclude: Union["AbstractSetIntStr", "MappingIntStrAny", None] = None,
         by_alias: bool = False,
-        skip_defaults: bool = False,
+        skip_defaults: Optional[bool] = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
