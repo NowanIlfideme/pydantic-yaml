@@ -18,14 +18,14 @@ jobs:
         python-version:
           - "3.7"
           - "3.10"
-        pydantic-version:
+        deps:
+          - dev, ruamel
+          - dev, pyyaml
+        lib-pydantic:
           - "1.7.4"
           - "1.8.2"
           - "1.9.0"
           - "1.10.0"
-        deps:
-          - dev, ruamel
-          - dev, pyyaml
         lib-semver:
           - "2.13.0"
           - "3.0.0.dev3"
@@ -37,7 +37,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Package with dependencies ${{ matrix.deps }}
         run: |
-          pip install "pydantic~=${{ matrix.python-version }}"
+          pip install "pydantic~=${{ matrix.lib-pydantic }}"
           pip install "semver~=${{ matrix.lib-semver }}"
           pip install -e ".[${{ matrix.deps }}]"
       - name: Lint with flake8
