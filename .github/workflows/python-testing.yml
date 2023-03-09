@@ -38,7 +38,7 @@ jobs:
       - name: Install Package with dependencies ${{ matrix.deps }}
         run: |
           pip install "pydantic~=${{ matrix.lib-pydantic }}"
-          if [-n ${{ matrix.lib-semver }}]
+          if test -n ${{ matrix.lib-semver }}
           then
             pip install "semver~=${{ matrix.lib-semver }}"
           fi
