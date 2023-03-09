@@ -11,7 +11,7 @@ except ImportError:
     INSTALLED_SEMVER = False
 
 
-@pytest.mark.skip(not INSTALLED_SEMVER, reason="`semver` is not installed.")
+@pytest.mark.skipif(not INSTALLED_SEMVER, reason="`semver` is not installed.")
 def test_versioned_yaml():
     """Test VersionedYamlModel."""
     from pydantic_yaml.ext.versioned_model import VersionedYamlModel
@@ -49,7 +49,7 @@ def test_versioned_yaml():
                 max_version = "2.1.0"
 
 
-@pytest.mark.skip(not INSTALLED_SEMVER, reason="semver not installed.")
+@pytest.mark.skipif(not INSTALLED_SEMVER, reason="semver not installed.")
 def test_versioned_docs():
     """Test docs for versioned model."""
     from pydantic_yaml.ext.semver import SemVer
