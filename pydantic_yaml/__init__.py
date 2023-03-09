@@ -5,9 +5,7 @@ from .version import __version__
 
 __all__ = [
     "__version__",
-    "SemVer",
     "yaml",
-    "VersionedYamlModel",
     "YamlEnum",  # deprecated class
     "YamlInt",
     "YamlIntEnum",
@@ -18,8 +16,6 @@ __all__ = [
     "YamlStrEnum",
 ]
 from .main import (
-    SemVer,
-    VersionedYamlModel,
     YamlEnum,
     YamlInt,
     YamlIntEnum,
@@ -30,3 +26,10 @@ from .main import (
     YamlStrEnum,
     yaml,
 )
+try:
+    from .main import (    SemVer,
+        VersionedYamlModel,
+    )
+    __all__.extend(["SemVer","VersionedYamlModel"])
+except ImportError:
+    pass
