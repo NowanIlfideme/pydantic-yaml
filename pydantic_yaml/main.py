@@ -13,8 +13,6 @@ __all__ = [
     "YamlModel",
     "YamlModelMixin",
     "YamlModelMixinConfig",
-    "SemVer",
-    "VersionedYamlModel",
 ]
 
 from .compat.old_enums import YamlEnum
@@ -28,8 +26,8 @@ from .version import __version__
 try:
     from .ext.semver import SemVer
     from .ext.versioned_model import VersionedYamlModel
+    __all__.extend(["SemVer", "VersionedYamlModel"])
 except ImportError:
-    __all__.remove("SemVer")
-    __all__.remove("VersionedYamlModel")
+    pass
 
 _inject_yaml_hacks()
