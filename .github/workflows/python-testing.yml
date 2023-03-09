@@ -28,7 +28,7 @@ jobs:
         lib-semver:
           - "2.13.0"
           - "3.0.0.dev3"
-          - ""
+          - "SKIP"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -38,7 +38,7 @@ jobs:
       - name: Install Package with dependencies ${{ matrix.deps }}
         run: |
           pip install "pydantic~=${{ matrix.lib-pydantic }}"
-          if test -n ${{ matrix.lib-semver }}
+          if [ ${{ matrix.lib-semver }} != "SKIP" ]
           then
             pip install "semver~=${{ matrix.lib-semver }}"
           fi
