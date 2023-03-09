@@ -28,7 +28,7 @@ from .version import __version__
 try:
     from .ext.semver import SemVer
     from .ext.versioned_model import VersionedYamlModel
-except:
+except ImportError:
     __all__.remove("SemVer")
     __all__.remove("VersionedYamlModel")
 

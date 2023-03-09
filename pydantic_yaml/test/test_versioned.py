@@ -3,12 +3,18 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from pydantic_yaml.ext.semver import SemVer
-from pydantic_yaml.ext.versioned_model import VersionedYamlModel
+try:
+    import semver  # noqa
+
+    INSTALLED_SEMVER = True
+except ImportError:
+    INSTALLED_SEMVER = False
 
 
+@pytest.mark.skip(not INSTALLED_SEMVER, reason="`semver` is not installed.")
 def test_versioned_yaml():
     """Test VersionedYamlModel."""
+    from pydantic_yaml.ext.versioned_model import VersionedYamlModel
 
     file = Path(__file__).parent / "versioned.yaml"
 
@@ -43,8 +49,11 @@ def test_versioned_yaml():
                 max_version = "2.1.0"
 
 
+@pytest.mark.skip(not INSTALLED_SEMVER, reason="semver not installed.")
 def test_versioned_docs():
     """Test docs for versioned model."""
+    from pydantic_yaml.ext.semver import SemVer
+    from pydantic_yaml.ext.versioned_model import VersionedYamlModel
 
     class A(VersionedYamlModel):
         """Model with min, max constraints as None."""

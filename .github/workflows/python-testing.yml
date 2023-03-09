@@ -28,6 +28,7 @@ jobs:
         lib-semver:
           - "2.13.0"
           - "3.0.0.dev3"
+          - ""
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -37,7 +38,10 @@ jobs:
       - name: Install Package with dependencies ${{ matrix.deps }}
         run: |
           pip install "pydantic~=${{ matrix.lib-pydantic }}"
-          pip install "semver~=${{ matrix.lib-semver }}"
+          if [-n ${{ matrix.lib-semver }}]
+          then
+            pip install "semver~=${{ matrix.lib-semver }}"
+          fi
           pip install -e ".[${{ matrix.deps }}]"
       - name: Lint with flake8
         run: |

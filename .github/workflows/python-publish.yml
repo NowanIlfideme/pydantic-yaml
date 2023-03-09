@@ -23,7 +23,7 @@ jobs:
           pip install setuptools wheel twine
       - name: Install Package
         run: |
-          pip install -e ".[dev, ruamel]"
+          pip install -e ".[dev, ruamel, semver]"
       - name: Test with pytest
         run: |
           pytest
