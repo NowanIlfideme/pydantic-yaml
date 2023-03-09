@@ -15,7 +15,7 @@ class SecretTstModel(YamlModel):
 
 def test_secret_types_no_rt():
     """Basic tests for SecretStr, SecretBytes not being dumped.
-    
+
     Note that we actually intend to lose data when saving!
     """
     # Create model
@@ -35,7 +35,7 @@ def test_secret_types_no_rt():
 
 class SecretTstModelDumpable(SecretTstModel):
     """Round-trippable model.
-    
+
     TODO: Support YAML encoders? Or just use the JSON encoders instead?
     """
 

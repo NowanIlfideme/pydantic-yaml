@@ -37,7 +37,7 @@ class VersionedYamlModel(YamlModel):
 
     Usage
     -----
-    Inherit from this class, and set a Config class with attributes 
+    Inherit from this class, and set a Config class with attributes
     `min_version` and/or `max_version`:
 
     ```python
@@ -54,7 +54,7 @@ class VersionedYamlModel(YamlModel):
 
     Notes
     -----
-    By default, a validator checks that the "version" field is between 
+    By default, a validator checks that the "version" field is between
     `Config.min_version` and `Config.max_version`, if those are not None.
 
     It's probably best not to even set the `version` field by hand, but rather

@@ -64,7 +64,7 @@ def get_int_like_types() -> List[Type]:
 
 def inject_all():
     """Injects all necessary "hacks" into the namespace.
-    
+
     What this currently does:
     - Registers many str-like and int-like types (from Pydantic and the standard
       library) to be representable in YAML.

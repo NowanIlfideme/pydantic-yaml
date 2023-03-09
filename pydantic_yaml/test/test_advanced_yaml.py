@@ -33,8 +33,12 @@ class UsesRefs(YamlModel):
         allow_population_by_field_name = True
 
 
-@pytest.mark.parametrize(("raw", "model_type"), [(uses_refs, UsesRefs),])
+@pytest.mark.parametrize(
+    ("raw", "model_type"),
+    [
+        (uses_refs, UsesRefs),
+    ],
+)
 def test_yaml_refs(raw: str, model_type: Type[YamlModel]):
     """Tests that references are properly parsed."""
     model_type.parse_raw(raw)
-

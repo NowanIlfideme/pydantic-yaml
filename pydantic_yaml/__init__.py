@@ -26,10 +26,13 @@ from .main import (
     YamlStrEnum,
     yaml,
 )
+
 try:
-    from .main import (    SemVer,
+    from .main import (
+        SemVer,
         VersionedYamlModel,
     )
-    __all__.extend(["SemVer","VersionedYamlModel"])
+
+    __all__.extend(["SemVer", "VersionedYamlModel"])
 except ImportError:
     pass

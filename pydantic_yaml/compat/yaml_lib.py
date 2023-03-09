@@ -64,7 +64,7 @@ def yaml_safe_dump(
     data: Any, stream=None, *, sort_keys: bool = False, **kwds
 ) -> Optional[Any]:
     """Wrapper around YAML library dumper.
-    
+
     Parameters
     ----------
     data

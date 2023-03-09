@@ -35,7 +35,7 @@ class YamlStr(str):
 
     def __getnewargs__(self) -> Tuple[str]:
         """Implementation to prevent Enum from sabotaging us.
-        
+
         I'm not joking! See `_make_class_unpicklable()` from `enum.py`
         """
         return super().__getnewargs__()
@@ -69,7 +69,7 @@ class YamlInt(int):
 
     def __getnewargs__(self) -> Tuple[int]:
         """Implementation to prevent Enum from sabotaging us.
-        
+
         I'm not joking! See `_make_class_unpicklable()` from `enum.py`
         """
         return super().__getnewargs__()

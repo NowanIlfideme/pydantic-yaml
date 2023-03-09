@@ -35,7 +35,7 @@ def test_file_io(tmpdir: str):
 
     base_dir: Path = Path(tmpdir).resolve()
 
-    for (m, M) in zip([m1, m2], [MyModel, MyOtherModel]):
+    for m, M in zip([m1, m2], [MyModel, MyOtherModel]):
         with (base_dir / "mdl.yaml").open(mode="w") as f:
             f.write(m.yaml())
         with (base_dir / "mdl.json").open(mode="w") as f:

@@ -26,6 +26,7 @@ from .version import __version__
 try:
     from .ext.semver import SemVer
     from .ext.versioned_model import VersionedYamlModel
+
     __all__.extend(["SemVer", "VersionedYamlModel"])
 except ImportError:
     pass
