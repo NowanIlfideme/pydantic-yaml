@@ -1,5 +1,9 @@
 [build-system]
-requires = ["setuptools >= 61.0.0", "setuptools-scm[toml]>=6.2"]
+requires = [
+    "setuptools >= 61.0.0",
+    "setuptools-scm[toml]>=6.2",
+    "importlib_metadata>=4.2.0",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -105,4 +109,12 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = 'setuptools_scm.*'
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = 'importlib.metadata'
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = 'importlib_metadata'
 ignore_missing_imports = true
