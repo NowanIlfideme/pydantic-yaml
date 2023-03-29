@@ -2,18 +2,26 @@
 
 __all__ = ["__version__"]
 
+from typing import no_type_check
 
-try:
-    from setuptools_scm import get_version  # noqa
 
-    __version__ = get_version(root="../..", relative_to=__file__)
-except Exception:
+@no_type_check
+def __get_version() -> str:
     try:
-        import importlib.metadata as _im  # noqa
-    except ImportError:
-        import importlib_metadata as _im  # noqa
+        from setuptools_scm import get_version  # noqa
 
-    try:
-        __version__ = _im.version("pydantic_yaml")
-    except _im.PackageNotFoundError:  # type: ignore
-        __version__ = "0.0.0"
+        vv = get_version(root="../..", relative_to=__file__)
+    except Exception:
+        try:
+            import importlib.metadata as _im  # noqa
+        except ImportError:
+            import importlib_metadata as _im  # noqa
+
+        try:
+            vv = _im.version("pydantic_yaml")
+        except _im.PackageNotFoundError:  # noqa
+            vv = "0.0.0"
+    return vv
+
+
+__version__ = __get_version()
