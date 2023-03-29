@@ -1,9 +1,9 @@
 # Configuration for flake8. For some reason, they stubbornly avoid `pyproject.toml` support.
 
 [flake8]
-exclude = 
+exclude =
     *
-include = 
+include =
     pydantic_yaml
 max-line-length = 88
 max-doc-length = 88

@@ -37,7 +37,14 @@ repos:
     hooks:
       - id: mypy
         pass_filenames: false
-        args: [--config-file, pyproject.toml, --ignore-missing-imports]
+        args:
+          [
+            --config-file,
+            pyproject.toml,
+            --ignore-missing-imports,
+            --install-types,
+            --non-interactive,
+          ]
   # SEE: https://pre-commit.com/#repository-local-hooks
   # - repo: local
   #   hooks:
