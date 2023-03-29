@@ -17,18 +17,18 @@ from pydantic_yaml import YamlStrEnum, YamlModel
 
 class MyEnum(YamlStrEnum):
     """This is a custom enumeration that is YAML-safe."""
-    
+
     a = "a"
     b = "b"
 
 class InnerModel(BaseModel):
     """This is a normal pydantic model that can be used as an inner class."""
-    
+
     fld: float = 1.0
 
 class MyModel(YamlModel):
     """This is our custom class, with a `.yaml()` method.
-    
+
     The `parse_raw()` and `parse_file()` methods are also updated to be able to
     handle `content_type='application/yaml'`, `protocol="yaml"` and file names
     ending with `.yml`/`.yaml`
@@ -129,7 +129,7 @@ class A(VersionedYamlModel):
 
 class B(VersionedYamlModel):
     """Model with a maximum version set."""
-    
+
     foo: str = "bar"
 
     class Config:

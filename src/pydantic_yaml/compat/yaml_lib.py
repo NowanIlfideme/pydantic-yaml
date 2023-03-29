@@ -22,8 +22,7 @@ except ImportError:
         __yaml_lib__ = "pyyaml"
     except ImportError:
         raise ImportError(
-            "Could not import ruamel.yaml or pyyaml, "
-            "please install at least one of them."
+            "Could not import ruamel.yaml or pyyaml, " "please install at least one of them."
         )
 
 dumper_classes = []
@@ -60,9 +59,7 @@ def yaml_safe_load(stream) -> Any:
     return ruamel_obj.load(stream)
 
 
-def yaml_safe_dump(
-    data: Any, stream=None, *, sort_keys: bool = False, **kwds
-) -> Optional[Any]:
+def yaml_safe_dump(data: Any, stream=None, *, sort_keys: bool = False, **kwds) -> Optional[Any]:
     """Wrapper around YAML library dumper.
 
     Parameters

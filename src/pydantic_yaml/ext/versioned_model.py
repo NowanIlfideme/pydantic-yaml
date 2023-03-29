@@ -81,9 +81,7 @@ class VersionedYamlModel(YamlModel):
         # Check ranges
         min_, max_ = _get_minmax_robust(cls)
         if (min_ is not None) and (max_ is not None) and (min_ > max_):
-            raise ValueError(
-                f"Minimum version higher than maximum: {min_!r} > {max_!r}"
-            )
+            raise ValueError(f"Minimum version higher than maximum: {min_!r} > {max_!r}")
 
         # Check the default value of the "version" field
         fld = cls.__fields__["version"]
@@ -98,9 +96,7 @@ class VersionedYamlModel(YamlModel):
             )
 
         if not issubclass(fld.type_, SemVer):
-            raise TypeError(
-                f"Field type for `version` must be SemVer, got {fld.type_!r}"
-            )
+            raise TypeError(f"Field type for `version` must be SemVer, got {fld.type_!r}")
 
     @validator("version", always=True)
     def _check_semver(cls, v):

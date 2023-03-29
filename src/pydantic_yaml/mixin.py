@@ -201,9 +201,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
                 cfg = cast(YamlModelMixinConfig, cls.__config__)
                 obj = cfg.yaml_loads(b)
             except RecursionError as e:
-                raise ValueError(
-                    "YAML files with recursive references are unsupported."
-                ) from e
+                raise ValueError("YAML files with recursive references are unsupported.") from e
             except ValidationError:
                 raise
             except Exception as e:
@@ -238,9 +236,7 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             content_type = "application/yaml"
 
         # Check whether we're specifically asked to parse YAML
-        is_yaml = is_yaml_requested(
-            content_type=content_type, proto=proto, path_suffix=path.suffix
-        )
+        is_yaml = is_yaml_requested(content_type=content_type, proto=proto, path_suffix=path.suffix)
 
         # The first code path explicitly checks YAML compatibility.
         # We offload the rest to Pydantic.
