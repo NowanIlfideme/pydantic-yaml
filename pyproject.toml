@@ -1,12 +1,102 @@
 [build-system]
-requires = ["setuptools >= 40.9.0", "wheel"]
+requires = [
+    "setuptools >= 61.0.0",
+    "setuptools-scm[toml]>=6.2",
+    "importlib_metadata>=4.2.0",
+]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "pydantic_yaml"
+description = "Adds some YAML functionality to the excellent `pydantic` library."
+readme = "README.md"
+requires-python = ">=3.7"
+dynamic = ["version"]
+keywords = ["pydantic", "yaml"]
+license = { file = "LICENSE" }
+authors = [{ name = "NowanIlfideme", email = "git@nowan.dev" }]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "importlib_metadata",
+    "pydantic>=1.8,<2",
+    # "ruamel.yaml~=0.17.21",
+    "deprecated~=1.2.5",
+    "types-Deprecated",
+]
+urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }
+
+[project.optional-dependencies]
+dev = [
+    "setuptools>=61.0.0",
+    "setuptools-scm[toml]>=6.2",
+    "pre-commit==2.21.0",
+    # "ruff==0.0.260",
+    "flake8",
+    "black==23.3.0",
+    "mypy==1.0.0",
+    "pytest==7.2.2",
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "pymdown-extensions",
+    "pygments",
+]
+pyyaml = ["pyyaml", "types-PyYAML"]
+ruamel = [
+    "ruamel.yaml>=0.15,<0.18",
+] # new API starting from 0.15, but old is still available
+semver = ["semver>=2.13.0,<4"] # Versions 2 or 3 should both work
+
+[project.scripts]
+
+[tool.setuptools]
+zip-safe = false
+package-dir = { "" = "src" }
+packages = ["pydantic_yaml"]
+
+[tool.setuptools.package-data]
+
+[tool.setuptools.dynamic]
+version = { attr = "pydantic_yaml.version.__version__" }
+
+[tool.black]
+line-length = 105
+target-version = ['py39']
+include = '^/src/pydantic_yaml.*\.py' # all .py files
+extend-exclude = '''
+^/setup.py
+|^/docs
+|^/dist
+'''
+
+[tool.ruff]
+line-length = 105
+src = ["src"]
+select = [
+    "E", # pycodestyle
+    "F", # pyflakes
+    #"UP",  # pyupgrade
+    "D", # pydocstyle
+]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
 [tool.pytest.ini_options]
-testpaths = ["pydantic_yaml"]
+testpaths = ["src/pydantic_yaml"]
 
 [tool.mypy]
-files = 'pydantic_yaml/**/*.py'
+files = 'src/pydantic_yaml/**/*.py'
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
@@ -17,11 +107,14 @@ ignore_missing_imports = true
 module = 'semver.*'
 ignore_missing_imports = true
 
-[tool.black]
-line-length = 88
-include = '^/pydantic_yaml.*\.py' # all .py files
-extend-exclude = '''
-^/setup.py
-|^/docs
-|^/dist
-'''
+[[tool.mypy.overrides]]
+module = 'setuptools_scm.*'
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = 'importlib.metadata'
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = 'importlib_metadata'
+ignore_missing_imports = true

@@ -1,0 +1,48 @@
+# Configuration for pre-commit hooks, see: https://pre-commit.com/
+default_language_version:
+  python: python3.7
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+        # 1 MB - Don't commit notebooks with output!
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: detect-private-key
+  - repo: https://github.com/psf/black
+    # docs: https://black.readthedocs.io/en/stable/integrations/source_version_control.html
+    rev: "22.6.0"
+    hooks:
+      - id: black
+    # consider also black-jupyter
+  # - repo: https://github.com/charliermarsh/ruff-pre-commit
+  #   # Ruff version.
+  #   rev: "v0.0.260"
+  #   hooks:
+  #     - id: ruff
+  - repo: https://github.com/pycqa/flake8
+    # docs: https://flake8.pycqa.org/en/latest/user/using-hooks.html?highlight=commit
+    rev: "5.0.4"
+    hooks:
+      - id: flake8
+        #additional_dependencies: [flake8-pyproject]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    # NOTE: This passes ALL files to `mypy`. mypy will cache these.
+    # However, we must ignore all missing imports, because pre-commit runs in a separate env
+    rev: "v1.0.0"
+    hooks:
+      - id: mypy
+        pass_filenames: false
+        args: [--config-file, pyproject.toml, --ignore-missing-imports]
+  # SEE: https://pre-commit.com/#repository-local-hooks
+  # - repo: local
+  #   hooks:
+  #     - id: foo
+  #       name: foo
+  #       entry: foo
+  #       language: system
+  #       description: "Example local hook, see https://pre-commit.com/#repository-local-hooks"
