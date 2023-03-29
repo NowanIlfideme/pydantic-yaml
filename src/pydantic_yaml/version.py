@@ -2,6 +2,7 @@
 
 # type: ignore
 
+
 __all__ = ["__version__"]
 
 
@@ -11,11 +12,11 @@ try:
     __version__ = get_version(root="../..", relative_to=__file__)
 except Exception:
     try:
-        from importlib.metadata import PackageNotFoundError, version  # noqa
+        from importlib.metadata import PackageNotFoundError, version  # noqa  # type: ignore
     except ImportError:
-        from importlib_metadata import PackageNotFoundError, version  # noqa
+        from importlib_metadata import PackageNotFoundError, version  # noqa  # type: ignore
 
     try:
         __version__ = version("pydantic_yaml")
-    except PackageNotFoundError:
+    except PackageNotFoundError:  # type: ignore
         __version__ = "0.0.0"
