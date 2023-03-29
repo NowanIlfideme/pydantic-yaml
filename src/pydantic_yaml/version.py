@@ -1,5 +1,7 @@
 """Gets the version, either installed or dynamically."""
 
+# type: ignore
+
 __all__ = ["__version__"]
 
 

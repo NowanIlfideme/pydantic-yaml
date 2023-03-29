@@ -12,7 +12,7 @@ description = "Adds some YAML functionality to the excellent `pydantic` library.
 readme = "README.md"
 requires-python = ">=3.7"
 dynamic = ["version"]
-keywords = ["pydantic", "yaml", "fsspec"]
+keywords = ["pydantic", "yaml"]
 license = { file = "LICENSE" }
 authors = [{ name = "NowanIlfideme", email = "git@nowan.dev" }]
 classifiers = [
