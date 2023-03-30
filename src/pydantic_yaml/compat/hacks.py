@@ -13,7 +13,7 @@ from .representers import register_str_like, register_int_like
 def get_str_like_types() -> List[Type]:
     """Returns many string-like types from stdlib and Pydantic."""
 
-    # flake8: noqa
+    # ruff: noqa
 
     from uuid import UUID
     from pathlib import (

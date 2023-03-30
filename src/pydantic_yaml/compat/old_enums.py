@@ -12,7 +12,7 @@ __all__ = ["YamlEnum"]
 
 @deprecated(version="0.5.0", reason="Use the `YamlStrEnum` class instead.")
 class YamlEnum(Enum):
-    """This class is DEPRECATED, please use `pydantic_yaml.YamlStrEnum` instead.
+    """DEPRECATED, please use `pydantic_yaml.YamlStrEnum` instead.
 
     Enumeration that serializes as the proper underlying object type.
 
@@ -27,11 +27,14 @@ class YamlEnum(Enum):
     """
 
     def __init_subclass__(cls):
+        """Subclass hook for old enumerations."""
         if not isabstract(cls):
             register_str_like(cls)
 
     def __repr__(self) -> str:
+        """Return representation."""
         return repr(self.value)
 
     def __str__(self) -> str:
+        """Return string value."""
         return str(self.value)

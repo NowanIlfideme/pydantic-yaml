@@ -28,7 +28,6 @@ class XS(YamlStr):
 
 def test_str_enum():
     """Test for YamlStrEnum class."""
-
     x1 = XSE.a
     x2 = XSE("b")
     assert yaml_safe_load(yaml_safe_dump(x1)) == "a"

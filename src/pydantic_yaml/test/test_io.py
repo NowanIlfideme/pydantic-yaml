@@ -12,7 +12,6 @@ import pytest
 @no_type_check
 def test_file_io(tmpdir: str):
     """Test file IO with temporary files (tmpdir is a pytest fixture)."""
-
     from pydantic import BaseModel
     from pydantic_yaml import YamlModel, YamlModelMixin, YamlStrEnum
 

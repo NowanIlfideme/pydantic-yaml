@@ -24,12 +24,6 @@ repos:
   #   rev: "v0.0.260"
   #   hooks:
   #     - id: ruff
-  - repo: https://github.com/pycqa/flake8
-    # docs: https://flake8.pycqa.org/en/latest/user/using-hooks.html?highlight=commit
-    rev: "5.0.4"
-    hooks:
-      - id: flake8
-        #additional_dependencies: [flake8-pyproject]
   - repo: https://github.com/pre-commit/mirrors-mypy
     # NOTE: This passes ALL files to `mypy`. mypy will cache these.
     # However, we must ignore all missing imports, because pre-commit runs in a separate env

@@ -1,6 +1,6 @@
 """Imports an installed YAML library."""
 
-# flake8: noqa
+# ruff: noqa
 
 from typing import Any, Optional
 from io import BytesIO, StringIO, IOBase

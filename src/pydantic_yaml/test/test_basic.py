@@ -7,7 +7,6 @@ def test_readme():
 
 def test_simple():
     """Tests the functionality from the README."""
-
     from pydantic_yaml import YamlStrEnum, YamlModel
 
     class MyEnum(YamlStrEnum):
@@ -41,7 +40,6 @@ def test_simple():
 
 def test_nested_models():
     """Test nested YAML models and inheritance."""
-
     from pydantic import BaseModel
     from pydantic_yaml import YamlModel, YamlModelMixin
 
