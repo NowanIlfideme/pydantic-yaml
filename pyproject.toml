@@ -85,7 +85,7 @@ select = [
     "E", # pycodestyle
     "F", # pyflakes
     #"UP",  # pyupgrade
-    "D", # pydocstyle
+    # "D", # pydocstyle
 ]
 
 [tool.ruff.pydocstyle]
