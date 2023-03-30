@@ -1,9 +1,10 @@
 """Models used for testing."""
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, Field
+from pydantic.types import SecretBytes, SecretStr
 
 root = Path(__file__).resolve().parent / "data"
 
@@ -45,3 +46,26 @@ class Recursive(BaseModel):
 
 
 Recursive.update_forward_refs()
+
+
+class SecretTstModel(BaseModel):
+    """Normal model with secret fields. This can't be roundtripped."""
+
+    ss: SecretStr
+    sb: SecretBytes
+
+
+def _encode_secret(obj: Union[SecretStr, SecretBytes, None]) -> Union[str, bytes, None]:
+    """Encode secret value."""
+    if obj is None:
+        return None
+    return obj.get_secret_value()
+
+
+class SecretTstModelDumpable(SecretTstModel):
+    """Round-trippable model. This will save secret fields as the raw values."""
+
+    class Config:
+        """Configuration."""
+
+        json_encoders = {SecretStr: _encode_secret, SecretBytes: _encode_secret}

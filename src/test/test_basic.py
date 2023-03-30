@@ -5,8 +5,16 @@ from typing import Type
 import pytest
 
 from pydantic import BaseModel
-from pydantic_yaml import parse_yaml_file_as, to_yaml_str
-from pydantic_yaml.examples.models import A, Empty, Recursive, UsesRefs, root
+from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
+from pydantic_yaml.examples.models import (
+    A,
+    Empty,
+    Recursive,
+    UsesRefs,
+    root,
+    SecretTstModel,
+    SecretTstModelDumpable,
+)
 
 
 @pytest.mark.parametrize(
@@ -35,3 +43,27 @@ def test_no_load_recursive():
 def test_write_simple_model(model: BaseModel):
     """Test output of simple models."""
     to_yaml_str(model)  # TODO: Check output vs expected?
+
+
+def test_secret_no_rt():
+    """Test secret models properly failing to roundtrip."""
+    sm = SecretTstModel(ss="123", sb=b"321")  # type: ignore
+    assert sm.ss.get_secret_value() == "123"
+    assert sm.sb.get_secret_value() == b"321"
+
+    raw = to_yaml_str(sm)
+    mdl = parse_yaml_raw_as(SecretTstModel, raw)
+    assert mdl.ss.get_secret_value() != "123"
+    assert mdl.sb.get_secret_value() != b"321"
+
+
+def test_secret_yes_rt():
+    """Test 'fixed' secret models properly roundtripping."""
+    sm = SecretTstModelDumpable(ss="123", sb=b"321")  # type: ignore
+    assert sm.ss.get_secret_value() == "123"
+    assert sm.sb.get_secret_value() == b"321"
+
+    raw = to_yaml_str(sm)
+    mdl = parse_yaml_raw_as(SecretTstModelDumpable, raw)
+    assert mdl.ss.get_secret_value() == "123"
+    assert mdl.sb.get_secret_value() == b"321"
