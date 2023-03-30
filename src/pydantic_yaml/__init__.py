@@ -1,5 +1,7 @@
 """YAML-enabled Pydantic models."""
 
+# ruff: noqa
+
 from .version import __version__
 
 
