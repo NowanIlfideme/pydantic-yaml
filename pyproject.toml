@@ -25,11 +25,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "importlib_metadata",
     "pydantic>=1.8,<2",
-    # "ruamel.yaml~=0.17.21",
-    "deprecated~=1.2.5",
-    "types-Deprecated",
+    "ruamel.yaml~=0.17.21",
+    "importlib_metadata",
 ]
 urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }
 
@@ -50,11 +48,6 @@ docs = [
     "pymdown-extensions",
     "pygments",
 ]
-pyyaml = ["pyyaml", "types-PyYAML"]
-ruamel = [
-    "ruamel.yaml>=0.15,<0.18",
-] # new API starting from 0.15, but old is still available
-semver = ["semver>=2.13.0,<4"] # Versions 2 or 3 should both work
 
 [project.scripts]
 
@@ -92,7 +85,7 @@ select = [
 convention = "numpy"
 
 [tool.pytest.ini_options]
-testpaths = ["src/pydantic_yaml"]
+testpaths = ["src/test"]
 
 [tool.mypy]
 files = 'src/pydantic_yaml/**/*.py'
@@ -100,10 +93,6 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = 'ruamel.*'
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = 'semver.*'
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
