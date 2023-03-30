@@ -1,0 +1,5 @@
+# Thanks to https://stackoverflow.com/a/2063741
+bill-to: &id001
+  given: Chris
+  family: Dumars
+ship-to: *id001

@@ -33,6 +33,8 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs):
     val = json.loads(json_val)
     writer = YAML()
     # TODO: Configure writer
+    # writer.default_flow_style = True or False or smth like that
+    # writer.indent(...) for example
     writer.dump(val, stream)
 
 
