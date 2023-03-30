@@ -5,15 +5,21 @@ from typing import Type
 import pytest
 
 from pydantic import BaseModel
-from pydantic_yaml import parse_yaml_file_as
+from pydantic_yaml import parse_yaml_file_as, to_yaml_str
 from pydantic_yaml.examples.models import A, Empty, root
 
 
 @pytest.mark.parametrize(
-    ["fn", "model"],
+    ["fn", "model_type"],
     [("a.yaml", A), ("a-1.1.yaml", A), ("a-1.2.yaml", A), ("a.yaml", Empty)],
 )
-def test_simple_files(fn: str, model: Type[BaseModel]):
+def test_load_simple_files(fn: str, model_type: Type[BaseModel]):
     """Test simple file loading."""
     file = root / fn
-    parse_yaml_file_as(model, file)
+    parse_yaml_file_as(model_type, file)
+
+
+@pytest.mark.parametrize("model", [A(a="aaa")])
+def test_write_simple_model(model: BaseModel):
+    """Test output of simple models."""
+    to_yaml_str(model)  # TODO: Check output vs expected?

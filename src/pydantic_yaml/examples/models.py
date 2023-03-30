@@ -13,3 +13,5 @@ class Empty(BaseModel):
 
 class A(BaseModel):
     """Class A."""
+
+    a: str

@@ -11,7 +11,15 @@ T = TypeVar("T", bound=BaseModel)
 
 
 def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
-    """Parse raw YAML string as the passed model type."""
+    """Parse raw YAML string as the passed model type.
+
+    Parameters
+    ----------
+    model_type : Type[BaseModel]
+        The resulting model type.
+    raw : str or bytes or IOBase
+        The YAML string or stream.
+    """
     stream: IOBase
     if isinstance(raw, str):
         stream = StringIO(raw)
@@ -28,7 +36,15 @@ def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
 
 
 def parse_yaml_file_as(model_type: Type[T], file: Union[Path, str, IOBase]) -> T:
-    """Parse YAML file as the passed model type."""
+    """Parse YAML file as the passed model type.
+
+    Parameters
+    ----------
+    model_type : Type[BaseModel]
+        The resulting model type.
+    file : Path or str or IOBase
+        The file path or stream to write to.
+    """
     # Short-circuit
     if isinstance(file, IOBase):
         return parse_yaml_raw_as(model_type, raw=file)
