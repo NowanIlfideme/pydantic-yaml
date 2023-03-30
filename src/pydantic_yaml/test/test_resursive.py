@@ -20,7 +20,6 @@ A.update_forward_refs()
 
 def test_recursive_yaml():
     """Test how we react to (unsupported) recursive YAML documents."""
-
     file = Path(__file__).parent / "recursive.yaml"
 
     with pytest.raises(ValueError):

@@ -2,7 +2,7 @@
 
 from enum import Enum
 from inspect import isabstract
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple
 
 from .representers import register_int_like, register_str_like
 from .yaml_lib import yaml_safe_dump

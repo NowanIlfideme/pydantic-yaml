@@ -1,5 +1,7 @@
 """YAML-enabled Pydantic models."""
 
+# ruff: noqa
+
 __all__ = [
     "__version__",
     "yaml",
