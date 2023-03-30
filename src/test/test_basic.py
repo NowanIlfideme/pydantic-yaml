@@ -10,6 +10,7 @@ from pydantic_yaml.examples.models import (
     A,
     Empty,
     Recursive,
+    HasEnums,
     UsesRefs,
     root,
     SecretTstModel,
@@ -25,12 +26,19 @@ from pydantic_yaml.examples.models import (
         ("a-1.2.yaml", A),
         ("a.yaml", Empty),
         ("uses_refs.yaml", UsesRefs),
+        ("has_enums.yaml", HasEnums),
     ],
 )
-def test_load_simple_files(fn: str, model_type: Type[BaseModel]):
-    """Test simple file loading."""
+def test_load_rt_simple_files(fn: str, model_type: Type[BaseModel]):
+    """Test simple file loading and roundtripping."""
+    # Load file
     file = root / fn
-    parse_yaml_file_as(model_type, file)
+    obj = parse_yaml_file_as(model_type, file)
+    # Roundtrip
+    raw = to_yaml_str(obj)
+    obj_rt = parse_yaml_raw_as(model_type, raw)
+    # Check equality
+    assert obj_rt == obj
 
 
 def test_no_load_recursive():

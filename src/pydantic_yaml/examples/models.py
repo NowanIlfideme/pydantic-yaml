@@ -1,7 +1,8 @@
 """Models used for testing."""
 
+from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 from pydantic.types import SecretBytes, SecretStr
@@ -69,3 +70,24 @@ class SecretTstModelDumpable(SecretTstModel):
         """Configuration."""
 
         json_encoders = {SecretStr: _encode_secret, SecretBytes: _encode_secret}
+
+
+class MyStrEnum(str, Enum):
+    """String enumeration for testing."""
+
+    option1 = "option1"
+    option2 = "option2"
+
+
+class MyIntEnum(int, Enum):
+    """Integer enumeration for testing."""
+
+    v1 = 1
+    v2 = 2
+
+
+class HasEnums(BaseModel):
+    """Base model with enums."""
+
+    opts: MyStrEnum
+    vals: List[MyIntEnum]
