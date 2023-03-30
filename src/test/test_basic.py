@@ -1,8 +1,19 @@
-"""Tests for the basic functionality advertised in README."""
+"""Tests for basic functionality."""
+
+from typing import Type
+
+import pytest
+
+from pydantic import BaseModel
+from pydantic_yaml import parse_yaml_file_as
+from pydantic_yaml.examples.models import A, Empty, root
 
 
-def test_import():
-    """Ensure pydantic_yaml can be imported."""
-    from pydantic_yaml import __version__
-
-    assert __version__ != "0.0.0"
+@pytest.mark.parametrize(
+    ["fn", "model"],
+    [("a.yaml", A), ("a.yaml", Empty)],
+)
+def test_simple_files(fn: str, model: Type[BaseModel]):
+    """Test simple file loading."""
+    file = root / fn
+    parse_yaml_file_as(model, file)
