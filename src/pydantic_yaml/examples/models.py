@@ -1,6 +1,7 @@
 """Models used for testing."""
 
 from pathlib import Path
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -34,3 +35,13 @@ class UsesRefs(BaseModel):
         """Pydantic configuration class."""
 
         allow_population_by_field_name = True
+
+
+class Recursive(BaseModel):
+    """Recursive model, which is actually unsupported."""
+
+    inner: Optional["Recursive"]
+    a: int  # Doesn't work!
+
+
+Recursive.update_forward_refs()
