@@ -11,7 +11,7 @@ from pydantic_yaml.examples.models import A, Empty, root
 
 @pytest.mark.parametrize(
     ["fn", "model"],
-    [("a.yaml", A), ("a.yaml", Empty)],
+    [("a.yaml", A), ("a-1.1.yaml", A), ("a-1.2.yaml", A), ("a.yaml", Empty)],
 )
 def test_simple_files(fn: str, model: Type[BaseModel]):
     """Test simple file loading."""
