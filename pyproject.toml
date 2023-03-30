@@ -82,10 +82,10 @@ extend-exclude = '''
 line-length = 105
 src = ["src"]
 select = [
-    "E", # pycodestyle
-    "F", # pyflakes
-    #"UP",  # pyupgrade
-    # "D", # pydocstyle
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "UP", # pyupgrade
+    "D",  # pydocstyle
 ]
 
 [tool.ruff.pydocstyle]
