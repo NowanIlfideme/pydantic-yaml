@@ -1,4 +1,4 @@
-"""Models used for testing."""
+"""Models used for testing, just normal `pydantic.BaseModel` objects."""
 
 from enum import Enum
 from pathlib import Path
@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 from pydantic.types import SecretBytes, SecretStr
 
-root = Path(__file__).resolve().parent / "data"
+root = Path(__file__).resolve().parent / "base_models"
 
 
 class Empty(BaseModel):

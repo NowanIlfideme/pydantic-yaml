@@ -6,7 +6,7 @@ import pytest
 from pydantic import BaseModel
 
 from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
-from pydantic_yaml.examples.models import (
+from pydantic_yaml.examples.base_models import (
     A,
     CustomRootListObj,
     CustomRootListStr,
