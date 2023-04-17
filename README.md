@@ -71,22 +71,30 @@ assert m1 == m3
 
 ## Mixin Class
 
-This functionality has currently been removed!
+This functionality has currently been removed! It will be re-added later.
 
 ## Configuration
 
-You can configure the function used to dump and load the YAML by using the `Config`
-inner class, [as in Pydantic](https://pydantic-docs.helpmanual.io/usage/model_config/):
+Currently we use the JSON dumping of Pydantic to perform most of the magic.
+
+This uses the `Config` inner class,
+[as in Pydantic](https://pydantic-docs.helpmanual.io/usage/model_config/):
 
 ```python
-class MyModel(YamlModel):
+class MyModel(BaseModel):
     # ...
     class Config:
-        # You can override these fields:
-        yaml_dumps = my_custom_dumper
-        yaml_loads = lambda x: MyModel()
+        # You can override these fields, which affect JSON and YAML:
+        json_dumps = my_custom_dumper
+        json_loads = lambda x: MyModel()
         # As well as other Pydantic configuration:
         allow_mutation = False
+```
+
+A separate configuration for YAML specifically will be added later.
+
+```python
+# TODO
 ```
 
 ## Versioned Models
