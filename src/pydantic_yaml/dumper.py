@@ -9,10 +9,17 @@ Roundtrip comments with ruamel.yaml
 import json
 from io import StringIO, IOBase
 from pathlib import Path
-from typing import Union
+from typing import Any, Union
 
 from ruamel.yaml import YAML
 from pydantic import BaseModel
+
+
+def _chk_model(model: Any) -> BaseModel:
+    """Ensure the model passed is a Pydantic model."""
+    if isinstance(model, BaseModel):
+        return model
+    raise TypeError(f"We can currently only write `pydantic.BaseModel`, but recieved: {model!r}")
 
 
 def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs):
@@ -29,6 +36,7 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs):
     kwargs : Any
         Keyword arguments to pass `model.json()`. FIXME: Add explicit arguments.
     """
+    model = _chk_model(model)
     json_val = model.json(**kwargs)
     val = json.loads(json_val)
     writer = YAML()
@@ -53,6 +61,7 @@ def to_yaml_str(model: BaseModel, **kwargs) -> str:
     This currently uses JSON dumping as an intermediary.
     This means that you can use `json_encoders` in your model.
     """
+    model = _chk_model(model)
     stream = StringIO()
     _write_yaml_model(stream, model, **kwargs)
     stream.seek(0)
@@ -76,6 +85,7 @@ def to_yaml_file(file: Union[Path, str, IOBase], model: BaseModel, **kwargs) -> 
     This currently uses JSON dumping as an intermediary.
     This means that you can use `json_encoders` in your model.
     """
+    model = _chk_model(model)
     if isinstance(file, IOBase):
         _write_yaml_model(file, model, **kwargs)
 
