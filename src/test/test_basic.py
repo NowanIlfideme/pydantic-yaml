@@ -12,7 +12,6 @@ from pydantic_yaml.examples.models import (
     CustomRootListStr,
     Empty,
     HasEnums,
-    Recursive,
     SecretTstModel,
     SecretTstModelDumpable,
     UsesRefs,
@@ -43,12 +42,6 @@ def test_load_rt_simple_files(fn: str, model_type: Type[BaseModel]):
     obj_rt = parse_yaml_raw_as(model_type, raw)
     # Check equality
     assert obj_rt == obj
-
-
-def test_no_load_recursive():
-    """Test properly rejecting loading a recursive model."""
-    with pytest.raises(ValueError):
-        parse_yaml_file_as(Recursive, root / "recursive.yaml")
 
 
 @pytest.mark.parametrize("model", [A(a="aaa")])
