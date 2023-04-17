@@ -3,18 +3,19 @@
 from typing import Type
 
 import pytest
-
 from pydantic import BaseModel
+
 from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
 from pydantic_yaml.examples.models import (
     A,
+    CustomRootListStr,
     Empty,
-    Recursive,
     HasEnums,
-    UsesRefs,
-    root,
+    Recursive,
     SecretTstModel,
     SecretTstModelDumpable,
+    UsesRefs,
+    root,
 )
 
 
@@ -27,6 +28,7 @@ from pydantic_yaml.examples.models import (
         ("a.yaml", Empty),
         ("uses_refs.yaml", UsesRefs),
         ("has_enums.yaml", HasEnums),
+        ("root_list_str.yaml", CustomRootListStr),
     ],
 )
 def test_load_rt_simple_files(fn: str, model_type: Type[BaseModel]):

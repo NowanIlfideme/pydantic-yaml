@@ -91,3 +91,14 @@ class HasEnums(BaseModel):
 
     opts: MyStrEnum
     vals: List[MyIntEnum]
+
+
+class CustomRootListStr(BaseModel):
+    """Model with a custom root type.
+
+    See Also
+    --------
+    https://docs.pydantic.dev/usage/models/#custom-root-types
+    """
+
+    __root__: List[str]
