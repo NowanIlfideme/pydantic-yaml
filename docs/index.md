@@ -8,26 +8,33 @@ which is an _excellent_ Python library for data validation and settings manageme
 If you aren't familiar with Pydantic, I would suggest you first check out their
 [docs](https://pydantic-docs.helpmanual.io/).
 
+## Breaking Changes for v1
+
+The API for `pydantic-yaml` version 1.0.0 has been greatly simplified!
+
+You no longer need to add `YamlModel` or `YamlModelMixin` classes to your code,
+unless you specifically want the `.yaml()` or `.parse_*()` methods.
+
 ## Basic Usage
 
 ```python
+from enum import Enum
 from pydantic import BaseModel, validator
-from pydantic_yaml import YamlStrEnum, YamlModel
+from pydantic_yaml import parse_yaml_raw_as, to_yaml_str
 
-
-class MyEnum(YamlStrEnum):
-    """This is a custom enumeration that is YAML-safe."""
+class MyEnum(str, Enum):
+    """A custom enumeration that is YAML-safe."""
 
     a = "a"
     b = "b"
 
 class InnerModel(BaseModel):
-    """This is a normal pydantic model that can be used as an inner class."""
+    """A normal pydantic model that can be used as an inner class."""
 
     fld: float = 1.0
 
-class MyModel(YamlModel):
-    """This is our custom class, with a `.yaml()` method.
+class MyModel(BaseModel):
+    """Our custom class, with a `.yaml()` method.
 
     The `parse_raw()` and `parse_file()` methods are also updated to be able to
     handle `content_type='application/yaml'`, `protocol="yaml"` and file names
@@ -38,7 +45,7 @@ class MyModel(YamlModel):
     e: MyEnum = MyEnum.a
     m: InnerModel = InnerModel()
 
-    @validator('x')
+    @validator("x")
     def _chk_x(cls, v: int) -> int:  # noqa
         """You can add your normal pydantic validators, like this one."""
         assert v > 0
@@ -47,48 +54,22 @@ class MyModel(YamlModel):
 m1 = MyModel(x=2, e="b", m=InnerModel(fld=1.5))
 
 # This dumps to YAML and JSON respectively
-yml = m1.yaml()
+yml = to_yaml_str(m1)
 jsn = m1.json()
 
-m2 = MyModel.parse_raw(yml)  # This automatically assumes YAML
+# This parses YAML as the MyModel type
+m2 = parse_yaml_raw_as(MyModel, yml)
 assert m1 == m2
 
-m3 = MyModel.parse_raw(jsn)  # This will fallback to JSON
+# JSON is also valid YAML, so this works too
+m3 = parse_yaml_raw_as(MyModel, jsn)
 assert m1 == m3
 
-m4 = MyModel.parse_raw(yml, proto="yaml")
-assert m1 == m4
-
-m5 = MyModel.parse_raw(yml, content_type="application/yaml")
-assert m1 == m5
 ```
 
 ## Mixin Class
 
-Version 0.5.0 adds a `YamlModelMixin` which can be used to add YAML functionality on
-top of, or alongside, other base classes:
-
-```python
-from typing import List
-
-from pydantic import BaseModel
-from pydantic_yaml import YamlModelMixin
-
-
-class MyBase(BaseModel):
-    """This is a normal."""
-    x: str = "x"
-
-class ExtModel(YamlModelMixin, MyBase):
-    """This model can be sent to/read from YAML."""
-    y: List[int] = [1, 2, 3]  # and you can define additional fields, if you want
-```
-
-Note that this `YamlModelMixin` must be **before** any `BaseModel`-derived classes.
-This will hopefully be resolved in Pydantic 2.0
-(see [this discussion](https://github.com/samuelcolvin/pydantic/discussions/3025)
-for more details). If you know a better way of implementing this, please make raise
-an issue or create a PR!
+This functionality has currently been removed!
 
 ## Configuration
 
@@ -108,44 +89,11 @@ class MyModel(YamlModel):
 
 ## Versioned Models
 
-Since YAML is often used for config files, there is also a `SemVer` str-like class and `VersionedYamlModel` base class.
+This functionality has been removed, as it's questionably useful for most users.
 
-The `version` attribute is parsed according to the SemVer
-([Semantic Versioning](https://semver.org/)) specification.
-It's constrained between the `min_version` and `max_version` specified by your models'
-`Config` inner class (similar to regular `pydantic` models).
-
-### Usage example
+If you were using the `VersionedModel` classes, you can use this snippet
+in your own code:
 
 ```python
-from pydantic import ValidationError
-from pydantic_yaml import SemVer, VersionedYamlModel
-
-class A(VersionedYamlModel):
-    """Model with min, max constraints as None."""
-
-    foo: str = "bar"
-
-
-class B(VersionedYamlModel):
-    """Model with a maximum version set."""
-
-    foo: str = "bar"
-
-    class Config:
-        min_version = "2.0.0"
-
-ex_yml = """
-version: 1.0.0
-foo: baz
-"""
-
-a = A.parse_raw(ex_yml)
-assert a.version == SemVer("1.0.0")
-assert a.foo == "baz"
-
-try:
-    B.parse_raw(ex_yml)
-except ValidationError as e:
-    print("Correctly got ValidationError:", e, sep="\n")
+# TODO
 ```
