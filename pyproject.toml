@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=1.8,<2",
-    "ruamel.yaml~=0.17.21",
+    "ruamel.yaml>=0.15.0,<0.18.0", # recommended ~=0.17.21
     "importlib_metadata",
 ]
 urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }

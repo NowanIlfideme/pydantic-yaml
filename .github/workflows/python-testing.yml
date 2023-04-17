@@ -27,14 +27,22 @@ jobs:
           - "1.8.2"
           - "1.9.0"
           - "1.10.0"
+        lib-ruamel:
+          - "NOTSET"
+          - "0.15.0"
+          - "0.17.21"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Package with dependencies ${{ matrix.deps }}
+      - name: Install Package with dependencies ${{ matrix.deps }} and other libs
         run: |
+          if [ ${{ matrix.lib-ruamel }} != "NOTSET" ]
+          then
+            pip install "ruamel.yaml~=${{ matrix.lib-ruamel }}"
+          fi
           pip install "pydantic~=${{ matrix.lib-pydantic }}"
           pip install -e ".[${{ matrix.deps }}]"
       - name: Lint with ruff
