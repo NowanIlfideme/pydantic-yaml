@@ -20,6 +20,12 @@ class A(BaseModel):
     a: str
 
 
+class B(BaseModel):
+    """Class B."""
+
+    b: str
+
+
 class _Name(BaseModel):
     """First/last names."""
 
@@ -102,3 +108,14 @@ class CustomRootListStr(BaseModel):
     """
 
     __root__: List[str]
+
+
+class CustomRootListObj(BaseModel):
+    """Model with a custom root type, list of objects.
+
+    See Also
+    --------
+    https://docs.pydantic.dev/usage/models/#custom-root-types
+    """
+
+    __root__: List[Union[A, B]]
