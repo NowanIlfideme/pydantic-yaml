@@ -63,7 +63,7 @@ version = { attr = "pydantic_yaml.version.__version__" }
 
 [tool.black]
 line-length = 105
-target-version = ['py39']
+target-version = ['py37']
 include = '^/src/pydantic_yaml.*\.py' # all .py files
 extend-exclude = '''
 ^/setup.py
@@ -73,6 +73,7 @@ extend-exclude = '''
 
 [tool.ruff]
 line-length = 105
+target-version = 'py37'
 src = ["src"]
 select = [
     "E",  # pycodestyle
