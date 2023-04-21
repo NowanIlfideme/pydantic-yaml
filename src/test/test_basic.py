@@ -53,7 +53,7 @@ def test_write_simple_model(model: BaseModel):
     to_yaml_str(model)  # TODO: Check output vs expected?
 
 
-@pytest.mark.xfail(pydantic.__version__ >= "2", reason="Pydantic v2 is stricter for Bytes types.")
+@pytest.mark.xfail(pydantic.VERSION >= "2", reason="Pydantic v2 is stricter for Bytes types.")
 def test_secret_no_rt():
     """Test secret models properly failing to roundtrip."""
     sm = SecretTstModel(ss="123", sb=b"321")  # type: ignore
@@ -66,7 +66,7 @@ def test_secret_no_rt():
     assert mdl.sb.get_secret_value() != b"321"
 
 
-@pytest.mark.xfail(pydantic.__version__ >= "2", reason="Pydantic v2 is stricter for Bytes types.")
+@pytest.mark.xfail(pydantic.VERSION >= "2", reason="Pydantic v2 is stricter for Bytes types.")
 def test_secret_yes_rt():
     """Test 'fixed' secret models properly roundtripping."""
     sm = SecretTstModelDumpable(ss="123", sb=b"321")  # type: ignore
