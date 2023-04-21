@@ -4,6 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Union
 
+import pydantic
 from pydantic import BaseModel, Field
 from pydantic.types import SecretBytes, SecretStr
 
@@ -99,23 +100,87 @@ class HasEnums(BaseModel):
     vals: List[MyIntEnum]
 
 
-class CustomRootListStr(BaseModel):
-    """Model with a custom root type.
+if pydantic.VERSION < "2":
 
-    See Also
-    --------
-    https://docs.pydantic.dev/usage/models/#custom-root-types
-    """
+    class CustomRootListStr(BaseModel):
+        """Model with a custom root type.
 
-    __root__: List[str]
+        See Also
+        --------
+        https://docs.pydantic.dev/usage/models/#custom-root-types
+        """
 
+        __root__: List[str]
 
-class CustomRootListObj(BaseModel):
-    """Model with a custom root type, list of objects.
+    class CustomRootListObj(BaseModel):
+        """Model with a custom root type, list of objects.
 
-    See Also
-    --------
-    https://docs.pydantic.dev/usage/models/#custom-root-types
-    """
+        See Also
+        --------
+        https://docs.pydantic.dev/usage/models/#custom-root-types
+        """
 
-    __root__: List[Union[A, B]]
+        __root__: List[Union[A, B]]
+
+else:
+    # pydantic v2
+
+    from pydantic import root_validator, model_serializer
+
+    class CustomRootListStr(BaseModel):  # type: ignore[no-redef]
+        """Model with a custom root type.
+
+        See Also
+        --------
+        https://docs.pydantic.dev/blog/pydantic-v2-alpha/#changes-to-basemodel
+        https://github.com/pydantic/pydantic/blob/2b9459f20d094a46fa3093b43c34444240f03646/tests/test_parse.py#L95-L113
+        """
+
+        root: List[str]
+
+        @root_validator(pre=True)
+        @classmethod
+        def _populate_root(cls, values):
+            return {"root": values}
+
+        @model_serializer(mode="wrap")
+        def _serialize(self, handler, info):
+            data = handler(self)
+            if info.mode == "json":
+                return data["root"]
+            else:
+                return data
+
+        @classmethod
+        def model_modify_json_schema(cls, json_schema):
+            """JSON schema changer."""
+            return json_schema["properties"]["root"]
+
+    class CustomRootListObj(BaseModel):  # type: ignore[no-redef]
+        """Model with a custom root type, list of objects.
+
+        See Also
+        --------
+        https://docs.pydantic.dev/blog/pydantic-v2-alpha/#changes-to-basemodel
+        https://github.com/pydantic/pydantic/blob/2b9459f20d094a46fa3093b43c34444240f03646/tests/test_parse.py#L95-L113
+        """
+
+        root: List[Union[A, B]]
+
+        @root_validator(pre=True)
+        @classmethod
+        def _populate_root(cls, values):
+            return {"root": values}
+
+        @model_serializer(mode="wrap")
+        def _serialize(self, handler, info):
+            data = handler(self)
+            if info.mode == "json":
+                return data["root"]
+            else:
+                return data
+
+        @classmethod
+        def model_modify_json_schema(cls, json_schema):
+            """JSON schema changer."""
+            return json_schema["properties"]["root"]
