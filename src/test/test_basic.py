@@ -2,12 +2,14 @@
 
 from typing import Type
 
+import pydantic
 import pytest
 from pydantic import BaseModel
 
 from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
 from pydantic_yaml.examples.base_models import (
     A,
+    B,
     CustomRootListObj,
     CustomRootListStr,
     Empty,
@@ -26,6 +28,7 @@ from pydantic_yaml.examples.base_models import (
         ("a.yaml", A),
         ("a-1.1.yaml", A),
         ("a-1.2.yaml", A),
+        ("b.yaml", B),
         ("uses_refs.yaml", UsesRefs),
         ("has_enums.yaml", HasEnums),
         ("root_list_str.yaml", CustomRootListStr),
@@ -50,6 +53,7 @@ def test_write_simple_model(model: BaseModel):
     to_yaml_str(model)  # TODO: Check output vs expected?
 
 
+@pytest.mark.xfail(pydantic.__version__ >= "2", reason="Pydantic v2 is stricter for Bytes types.")
 def test_secret_no_rt():
     """Test secret models properly failing to roundtrip."""
     sm = SecretTstModel(ss="123", sb=b"321")  # type: ignore
@@ -62,6 +66,7 @@ def test_secret_no_rt():
     assert mdl.sb.get_secret_value() != b"321"
 
 
+@pytest.mark.xfail(pydantic.__version__ >= "2", reason="Pydantic v2 is stricter for Bytes types.")
 def test_secret_yes_rt():
     """Test 'fixed' secret models properly roundtripping."""
     sm = SecretTstModelDumpable(ss="123", sb=b"321")  # type: ignore

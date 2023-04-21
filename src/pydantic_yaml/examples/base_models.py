@@ -27,25 +27,6 @@ class B(BaseModel):
     b: str
 
 
-class _Name(BaseModel):
-    """First/last names."""
-
-    given: str
-    family: str
-
-
-class UsesRefs(BaseModel):
-    """Example for the reference data."""
-
-    bill_to: _Name = Field(alias="bill-to")
-    ship_to: _Name = Field(alias="ship-to")
-
-    class Config:
-        """Pydantic configuration class."""
-
-        allow_population_by_field_name = True
-
-
 class Recursive(BaseModel):
     """Recursive model, which is actually unsupported."""
 
@@ -101,6 +82,24 @@ class HasEnums(BaseModel):
 
 
 if pydantic.VERSION < "2":
+    # pydantic v1
+
+    class _Name(BaseModel):
+        """First/last names."""
+
+        given: str
+        family: str
+
+    class UsesRefs(BaseModel):
+        """Example for the reference data."""
+
+        bill_to: _Name = Field(alias="bill-to")
+        ship_to: _Name = Field(alias="ship-to")
+
+        class Config:
+            """Pydantic configuration class."""
+
+            allow_population_by_field_name = True
 
     class CustomRootListStr(BaseModel):
         """Model with a custom root type.
@@ -126,6 +125,21 @@ else:
     # pydantic v2
 
     from pydantic import root_validator, model_serializer
+
+    class _Name(BaseModel):  # type: ignore[no-redef]
+        """First/last names."""
+
+        given: str
+        family: str
+
+    class UsesRefs(BaseModel):  # type: ignore[no-redef]
+        """Example for the reference data."""
+
+        bill_to: _Name = Field(alias="bill-to")
+        ship_to: _Name = Field(alias="ship-to")
+
+        # Pydantic config
+        model_config = dict(populate_by_name=True)
 
     class CustomRootListStr(BaseModel):  # type: ignore[no-redef]
         """Model with a custom root type.

@@ -6,7 +6,7 @@ import pytest
 from pydantic import BaseModel
 
 from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
-from pydantic_yaml.examples.base_models import A, Recursive, root
+from pydantic_yaml.examples.base_models import A, B, Recursive, root
 
 
 def test_no_load_recursive():
@@ -25,9 +25,9 @@ def test_no_dump(obj: Any):
 @pytest.mark.parametrize(
     ["model_type", "raw"],
     [
-        (BaseModel, None),
+        (B, None),
         (A, 3),
-        (BaseModel, "aaa"),
+        (B, "aaa"),
         (A, "aaaaaaaaaaa"),
     ],
 )
