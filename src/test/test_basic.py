@@ -22,20 +22,20 @@ from pydantic_yaml.examples.base_models import (
 
 
 @pytest.mark.parametrize(
-    ["fn", "model_type"],
+    ["model_type", "fn"],
     [
-        ("a.yaml", Empty),
-        ("a.yaml", A),
-        ("a-1.1.yaml", A),
-        ("a-1.2.yaml", A),
-        ("b.yaml", B),
-        ("uses_refs.yaml", UsesRefs),
-        ("has_enums.yaml", HasEnums),
-        ("root_list_str.yaml", CustomRootListStr),
-        ("root_list_obj.yaml", CustomRootListObj),
+        (Empty, "a.yaml"),
+        (A, "a.yaml"),
+        (A, "a-1.1.yaml"),
+        (A, "a-1.2.yaml"),
+        (B, "b.yaml"),
+        (UsesRefs, "uses_refs.yaml"),
+        (HasEnums, "has_enums.yaml"),
+        (CustomRootListStr, "root_list_str.yaml"),
+        (CustomRootListObj, "root_list_obj.yaml"),
     ],
 )
-def test_load_rt_simple_files(fn: str, model_type: Type[BaseModel]):
+def test_load_rt_simple_files(model_type: Type[BaseModel], fn: str):
     """Test simple file loading and roundtripping."""
     # Load file
     file = root / fn
