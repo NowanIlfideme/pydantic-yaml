@@ -10,13 +10,6 @@ If you aren't familiar with Pydantic, I would suggest you first check out their
 
 [Documentation on ReadTheDocs.org](https://pydantic-yaml.readthedocs.io/en/latest/)
 
-## Breaking Changes for v1
-
-The API for `pydantic-yaml` version 1.0.0 has been greatly simplified!
-
-You no longer need to add `YamlModel` or `YamlModelMixin` classes to your code,
-unless you specifically want the `.yaml()` or `.parse_*()` methods.
-
 ## Basic Usage
 
 ```python
@@ -36,12 +29,7 @@ class InnerModel(BaseModel):
     fld: float = 1.0
 
 class MyModel(BaseModel):
-    """Our custom class, with a `.yaml()` method.
-
-    The `parse_raw()` and `parse_file()` methods are also updated to be able to
-    handle `content_type='application/yaml'`, `protocol="yaml"` and file names
-    ending with `.yml`/`.yaml`
-    """
+    """Our custom Pydantic model."""
 
     x: int = 1
     e: MyEnum = MyEnum.a
@@ -69,10 +57,6 @@ assert m1 == m3
 
 ```
 
-## Mixin Class
-
-This functionality has currently been removed! It will be re-added later.
-
 ## Configuration
 
 Currently we use the JSON dumping of Pydantic to perform most of the magic.
@@ -97,13 +81,19 @@ A separate configuration for YAML specifically will be added later.
 # TODO
 ```
 
-## Versioned Models
+## Breaking Changes for `pydantic-yaml` V1
+
+The API for `pydantic-yaml` version 1.0.0 has been greatly simplified!
+
+### Mixin Class
+
+This functionality has currently been removed!
+`YamlModel` and `YamlModelMixin` base classes are no longer needed.
+The plan is to re-add it before v1 fully releases,
+to allow the `.yaml()` or `.parse_*()` methods.
+However, this will be availble only for `pydantic<2`.
+
+### Versioned Models
 
 This functionality has been removed, as it's questionably useful for most users.
-
-If you were using the `VersionedModel` classes, you can use this snippet
-in your own code:
-
-```python
-# TODO
-```
+There is an [example in the docs](docs/versioned.md) that's available.

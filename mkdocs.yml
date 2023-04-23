@@ -12,6 +12,8 @@ use_directory_urls: false
 nav:
   - Overview: index.md
   - Install: installing.md
+  - Deprecated:
+      - Versioned Models: versioned.md
 
 theme:
   name: "material"
