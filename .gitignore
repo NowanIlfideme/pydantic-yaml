@@ -2,9 +2,11 @@
 *__pycache__*
 *.pyc
 
-*.egg-info
-build/*
-dist/*
+src/*.egg-info
+src/build/*
+src/dist/*
+
+/site/
 
 # Temp files
 condaenv.*.requirements.txt

@@ -25,11 +25,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "pydantic>=1.8",               # including pydantic>=2.0.0!
+    "ruamel.yaml>=0.16.0,<0.18.0", # recommended ~=0.17.21
     "importlib_metadata",
-    "pydantic>=1.8,<2",
-    # "ruamel.yaml~=0.17.21",
-    "deprecated~=1.2.5",
-    "types-Deprecated",
+    "typing_extensions>=4.5.0",
 ]
 urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }
 
@@ -50,11 +49,6 @@ docs = [
     "pymdown-extensions",
     "pygments",
 ]
-pyyaml = ["pyyaml", "types-PyYAML"]
-ruamel = [
-    "ruamel.yaml>=0.15,<0.18",
-] # new API starting from 0.15, but old is still available
-semver = ["semver>=2.13.0,<4"] # Versions 2 or 3 should both work
 
 [project.scripts]
 
@@ -70,7 +64,7 @@ version = { attr = "pydantic_yaml.version.__version__" }
 
 [tool.black]
 line-length = 105
-target-version = ['py39']
+target-version = ['py37']
 include = '^/src/pydantic_yaml.*\.py' # all .py files
 extend-exclude = '''
 ^/setup.py
@@ -80,19 +74,20 @@ extend-exclude = '''
 
 [tool.ruff]
 line-length = 105
+target-version = 'py37'
 src = ["src"]
 select = [
-    "E", # pycodestyle
-    "F", # pyflakes
-    #"UP",  # pyupgrade
-    # "D", # pydocstyle
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "UP", # pyupgrade
+    "D",  # pydocstyle
 ]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
 
 [tool.pytest.ini_options]
-testpaths = ["src/pydantic_yaml"]
+testpaths = ["src/test"]
 
 [tool.mypy]
 files = 'src/pydantic_yaml/**/*.py'
@@ -100,10 +95,6 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = 'ruamel.*'
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = 'semver.*'
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

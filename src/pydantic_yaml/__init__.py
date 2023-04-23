@@ -1,40 +1,23 @@
 """YAML-enabled Pydantic models."""
 
-# ruff: noqa
-
-from .version import __version__
-
-
 __all__ = [
+    # New API
     "__version__",
-    "yaml",
-    "YamlEnum",  # deprecated class
+    "parse_yaml_file_as",
+    "parse_yaml_raw_as",
+    "to_yaml_file",
+    "to_yaml_str",
+    # TODO: Re-add
+    # YamlModelMixin ?
+    # YamlModel ?
+    # Deprecated classes
     "YamlInt",
     "YamlIntEnum",
-    "YamlModel",
-    "YamlModelMixin",
-    "YamlModelMixinConfig",
     "YamlStr",
     "YamlStrEnum",
 ]
-from .main import (
-    YamlEnum,
-    YamlInt,
-    YamlIntEnum,
-    YamlModel,
-    YamlModelMixin,
-    YamlModelMixinConfig,
-    YamlStr,
-    YamlStrEnum,
-    yaml,
-)
 
-try:
-    from .main import (
-        SemVer,
-        VersionedYamlModel,
-    )
-
-    __all__.extend(["SemVer", "VersionedYamlModel"])
-except ImportError:
-    pass
+from .deprecated.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
+from .dumper import to_yaml_file, to_yaml_str
+from .loader import parse_yaml_file_as, parse_yaml_raw_as
+from .version import __version__

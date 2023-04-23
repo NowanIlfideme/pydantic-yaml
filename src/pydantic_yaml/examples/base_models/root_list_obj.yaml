@@ -1,0 +1,5 @@
+# This model has a custom root, List[A | B]
+- a: foo
+- b: bar
+- a: used
+  b: this field is unused (parsed as `A`)
