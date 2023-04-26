@@ -1,12 +1,13 @@
 """Tests for basic functionality."""
 
+from pathlib import Path
 from typing import Type
 
 import pydantic
 import pytest
 from pydantic import BaseModel
 
-from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
+from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str, to_yaml_file
 from pydantic_yaml.examples.base_models import (
     A,
     B,
@@ -77,3 +78,9 @@ def test_secret_yes_rt():
     mdl = parse_yaml_raw_as(SecretTstModelDumpable, raw)
     assert mdl.ss.get_secret_value() == "123"
     assert mdl.sb.get_secret_value() == b"321"
+
+
+def test_write_open_file(tmpdir):
+    """Test writing to a pre-opened file."""
+    with (Path(tmpdir) / "test_write_open_file.yaml").open(mode="w") as f:
+        to_yaml_file(f, A(a="a"))
