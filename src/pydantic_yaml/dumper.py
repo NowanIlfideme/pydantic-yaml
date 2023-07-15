@@ -11,6 +11,7 @@ from io import StringIO, IOBase
 from pathlib import Path
 from typing import Any, Union
 
+import pydantic
 from ruamel.yaml import YAML
 from pydantic import BaseModel
 
@@ -37,9 +38,12 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
         Keyword arguments to pass `model.json()`. FIXME: Add explicit arguments.
     """
     model = _chk_model(model)
-    json_val = model.json(**kwargs)
+    if pydantic.version.VERSION < "2":
+        json_val = model.json(**kwargs)  # type: ignore
+    else:
+        json_val = model.model_dump_json(**kwargs)  # type: ignore
     val = json.loads(json_val)
-    writer = YAML()
+    writer = YAML(typ="safe", pure=True)
     # TODO: Configure writer
     # writer.default_flow_style = True or False or smth like that
     # writer.indent(...) for example
