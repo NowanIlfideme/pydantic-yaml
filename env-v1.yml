@@ -1,5 +1,5 @@
 # This is an example Conda environment, for local development
-name: pyd-yaml
+name: pyd-v1-yaml
 channels:
   - conda-forge
 dependencies:
@@ -7,4 +7,4 @@ dependencies:
   - pip
   - pip:
       - -e ".[dev,docs]"
-      - pydantic>=2.0.0
+      - pydantic<2

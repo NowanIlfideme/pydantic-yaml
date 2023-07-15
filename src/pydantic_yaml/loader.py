@@ -4,7 +4,8 @@ from io import StringIO, BytesIO, IOBase
 from pathlib import Path
 from typing import Type, Union, TypeVar
 
-from pydantic import BaseModel, parse_obj_as
+import pydantic
+from pydantic import BaseModel
 from ruamel.yaml import YAML
 
 T = TypeVar("T", bound=BaseModel)
@@ -31,8 +32,11 @@ def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
         raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
     reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
     objects = reader.load(stream)
-    res = parse_obj_as(model_type, objects)
-    return res
+    if pydantic.__version__ < "2":
+        return pydantic.parse_obj_as(model_type, objects)
+    else:
+        ta = pydantic.TypeAdapter(model_type)
+        return ta.validate_python(objects)
 
 
 def parse_yaml_file_as(model_type: Type[T], file: Union[Path, str, IOBase]) -> T:
