@@ -39,7 +39,7 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
     model = _chk_model(model)
     json_val = model.json(**kwargs)
     val = json.loads(json_val)
-    writer = YAML()
+    writer = YAML(typ="safe", pure=True)
     # TODO: Configure writer
     # writer.default_flow_style = True or False or smth like that
     # writer.indent(...) for example
