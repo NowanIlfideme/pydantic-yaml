@@ -1,7 +1,6 @@
 """Models used for testing, just normal `pydantic.BaseModel` objects."""
 
-# type: ignore
-
+# mypy: ignore-errors
 
 from typing import List, Optional, Union
 

@@ -39,9 +39,9 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
     """
     model = _chk_model(model)
     if pydantic.version.VERSION < "2":
-        json_val = model.json(**kwargs)
+        json_val = model.json(**kwargs)  # type: ignore
     else:
-        json_val = model.model_dump_json(**kwargs)
+        json_val = model.model_dump_json(**kwargs)  # type: ignore
     val = json.loads(json_val)
     writer = YAML(typ="safe", pure=True)
     # TODO: Configure writer

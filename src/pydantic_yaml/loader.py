@@ -33,9 +33,9 @@ def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
     reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
     objects = reader.load(stream)
     if pydantic.version.VERSION < "2":
-        return pydantic.parse_obj_as(model_type, objects)
+        return pydantic.parse_obj_as(model_type, objects)  # type:ignore
     else:
-        ta = pydantic.TypeAdapter(model_type)
+        ta = pydantic.TypeAdapter(model_type)  # type: ignore
         return ta.validate_python(objects)
 
 
