@@ -38,7 +38,7 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
         Keyword arguments to pass `model.json()`. FIXME: Add explicit arguments.
     """
     model = _chk_model(model)
-    if pydantic.__version__ < "2":
+    if pydantic.version.VERSION < "2":
         json_val = model.json(**kwargs)
     else:
         json_val = model.model_dump_json(**kwargs)

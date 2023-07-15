@@ -4,7 +4,7 @@ import pytest
 import pydantic
 
 
-@pytest.mark.skipif(pydantic.__version__ >= "2", reason="Example is for Pydantic V1")
+@pytest.mark.skipif(pydantic.version.VERSION >= "2", reason="Example is for Pydantic V1")
 def test_readme_basic_usage_v1():
     """Basic usage example from README."""
     from enum import Enum
@@ -57,7 +57,7 @@ def test_readme_basic_usage_v1():
     assert m1 == m3
 
 
-@pytest.mark.skipif(pydantic.__version__ < "2", reason="Example is for Pydantic V2")
+@pytest.mark.skipif(pydantic.version.VERSION < "2", reason="Example is for Pydantic V2")
 def test_readme_basic_usage_v2():
     """Basic usage example from README."""
     from enum import Enum

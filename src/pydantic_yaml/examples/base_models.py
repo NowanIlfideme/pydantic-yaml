@@ -26,7 +26,7 @@ from .common import MyIntEnum, MyStrEnum
 
 root = Path(__file__).resolve().parent / "base_models"
 
-if pydantic.__version__ < "2":
+if pydantic.version.VERSION < "2":
     from .v1.base_models import (
         A,
         B,
