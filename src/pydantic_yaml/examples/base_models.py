@@ -1,5 +1,7 @@
 """Models used for testing, just normal `pydantic.BaseModel` objects."""
 
+# type: ignore
+
 __all__ = [
     "Empty",
     "A",

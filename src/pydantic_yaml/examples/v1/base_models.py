@@ -1,98 +1,111 @@
 """Models used for testing, just normal `pydantic.BaseModel` objects."""
 
+# type: ignore
 
-import pydantic
 
-if pydantic.__version__ < "2":
-    from typing import List, Optional, Union
+from typing import List, Optional, Union
 
-    from pydantic import BaseModel, Field
-    from pydantic.types import SecretBytes, SecretStr
+from pydantic import BaseModel, Field
+from pydantic.types import SecretBytes, SecretStr
 
-    from pydantic_yaml.examples.common import MyIntEnum, MyStrEnum
+from pydantic_yaml.examples.common import MyIntEnum, MyStrEnum
 
-    class Empty(BaseModel):
-        """Empty model."""
 
-    class A(BaseModel):
-        """Class A."""
+class Empty(BaseModel):
+    """Empty model."""
 
-        a: str
 
-    class B(BaseModel):
-        """Class B."""
+class A(BaseModel):
+    """Class A."""
 
-        b: str
+    a: str
 
-    class Recursive(BaseModel):
-        """Recursive model, which is actually unsupported."""
 
-        inner: Optional["Recursive"]
-        a: int  # Doesn't work!
+class B(BaseModel):
+    """Class B."""
 
-    Recursive.update_forward_refs()
+    b: str
 
-    class SecretTstModel(BaseModel):
-        """Normal model with secret fields. This can't be roundtripped."""
 
-        ss: SecretStr
-        sb: SecretBytes
+class Recursive(BaseModel):
+    """Recursive model, which is actually unsupported."""
 
-    def _encode_secret(obj: Union[SecretStr, SecretBytes, None]) -> Union[str, bytes, None]:
-        """Encode secret value."""
-        if obj is None:
-            return None
-        return obj.get_secret_value()
+    inner: Optional["Recursive"]
+    a: int  # Doesn't work!
 
-    class SecretTstModelDumpable(SecretTstModel):
-        """Round-trippable model. This will save secret fields as the raw values."""
 
-        class Config:
-            """Configuration."""
+Recursive.update_forward_refs()
 
-            json_encoders = {SecretStr: _encode_secret, SecretBytes: _encode_secret}
 
-    class HasEnums(BaseModel):
-        """Base model with enums."""
+class SecretTstModel(BaseModel):
+    """Normal model with secret fields. This can't be roundtripped."""
 
-        opts: MyStrEnum
-        vals: List[MyIntEnum]
+    ss: SecretStr
+    sb: SecretBytes
 
-    # pydantic v1
 
-    class _Name(BaseModel):
-        """First/last names."""
+def _encode_secret(obj: Union[SecretStr, SecretBytes, None]) -> Union[str, bytes, None]:
+    """Encode secret value."""
+    if obj is None:
+        return None
+    return obj.get_secret_value()
 
-        given: str
-        family: str
 
-    class UsesRefs(BaseModel):
-        """Example for the reference data."""
+class SecretTstModelDumpable(SecretTstModel):
+    """Round-trippable model. This will save secret fields as the raw values."""
 
-        bill_to: _Name = Field(alias="bill-to")
-        ship_to: _Name = Field(alias="ship-to")
+    class Config:
+        """Configuration."""
 
-        class Config:
-            """Pydantic configuration class."""
+        json_encoders = {SecretStr: _encode_secret, SecretBytes: _encode_secret}
 
-            allow_population_by_field_name = True
 
-    class CustomRootListStr(BaseModel):
-        """Model with a custom root type.
+class HasEnums(BaseModel):
+    """Base model with enums."""
 
-        See Also
-        --------
-        https://docs.pydantic.dev/usage/models/#custom-root-types
-        """
+    opts: MyStrEnum
+    vals: List[MyIntEnum]
 
-        __root__: List[str]
 
-    class CustomRootListObj(BaseModel):
-        """Model with a custom root type, list of objects.
+# pydantic v1
 
-        See Also
-        --------
-        https://docs.pydantic.dev/usage/models/#custom-root-types
-        """
 
-        __root__: List[Union[A, B]]
+class _Name(BaseModel):
+    """First/last names."""
+
+    given: str
+    family: str
+
+
+class UsesRefs(BaseModel):
+    """Example for the reference data."""
+
+    bill_to: _Name = Field(alias="bill-to")
+    ship_to: _Name = Field(alias="ship-to")
+
+    class Config:
+        """Pydantic configuration class."""
+
+        allow_population_by_field_name = True
+
+
+class CustomRootListStr(BaseModel):
+    """Model with a custom root type.
+
+    See Also
+    --------
+    https://docs.pydantic.dev/usage/models/#custom-root-types
+    """
+
+    __root__: List[str]
+
+
+class CustomRootListObj(BaseModel):
+    """Model with a custom root type, list of objects.
+
+    See Also
+    --------
+    https://docs.pydantic.dev/usage/models/#custom-root-types
+    """
+
+    __root__: List[Union[A, B]]
