@@ -20,10 +20,13 @@ def _chk_model(model: Any) -> BaseModel:
     """Ensure the model passed is a Pydantic model."""
     if isinstance(model, BaseModel):
         return model
-    raise TypeError(f"We can currently only write `pydantic.BaseModel`, but recieved: {model!r}")
+    raise TypeError(("We can currently only write `pydantic.BaseModel`, "
+                     f"but recieved: {model!r}"))
 
 
-def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
+def _write_yaml_model(stream: IOBase,
+                      model: BaseModel,
+                      default_flow_style: bool, **kwargs) -> None:
     """Write YAML model to the stream object.
 
     This uses JSON dumping as an intermediary.
@@ -35,7 +38,8 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
     model : BaseModel
         The model to convert.
     kwargs : Any
-        Keyword arguments to pass `model.json()`. FIXME: Add explicit arguments.
+        Keyword arguments to pass `model.json()`.
+        FIXME: Add explicit arguments.
     """
     model = _chk_model(model)
     if pydantic.version.VERSION < "2":
@@ -44,13 +48,14 @@ def _write_yaml_model(stream: IOBase, model: BaseModel, **kwargs) -> None:
         json_val = model.model_dump_json(**kwargs)  # type: ignore
     val = json.loads(json_val)
     writer = YAML(typ="safe", pure=True)
-    # TODO: Configure writer
-    # writer.default_flow_style = True or False or smth like that
+    writer.default_flow_style = default_flow_style
+    # TODO: Configure writer further
     # writer.indent(...) for example
     writer.dump(val, stream)
 
 
-def to_yaml_str(model: BaseModel, **kwargs) -> str:
+def to_yaml_str(model: BaseModel,
+                default_flow_style: bool = True, **kwargs) -> str:
     """Generate a YAML string representation of the model.
 
     Parameters
@@ -58,7 +63,8 @@ def to_yaml_str(model: BaseModel, **kwargs) -> str:
     model : BaseModel
         The model to convert.
     kwargs : Any
-        Keyword arguments to pass `model.json()`. FIXME: Add explicit arguments.
+        Keyword arguments to pass `model.json()`.
+        FIXME: Add explicit arguments.
 
     Notes
     -----
@@ -67,12 +73,16 @@ def to_yaml_str(model: BaseModel, **kwargs) -> str:
     """
     model = _chk_model(model)
     stream = StringIO()
-    _write_yaml_model(stream, model, **kwargs)
+    _write_yaml_model(stream, model, default_flow_style, **kwargs)
     stream.seek(0)
     return stream.read()
 
 
-def to_yaml_file(file: Union[Path, str, IOBase], model: BaseModel, **kwargs) -> None:
+def to_yaml_file(
+    file: Union[Path, str, IOBase],
+    model: BaseModel,
+    default_flow_style: bool = True, **kwargs
+) -> None:
     """Write a YAML file representation of the model.
 
     Parameters
@@ -82,7 +92,8 @@ def to_yaml_file(file: Union[Path, str, IOBase], model: BaseModel, **kwargs) -> 
     model : BaseModel
         The model to convert.
     kwargs : Any
-        Keyword arguments to pass `model.json()`. FIXME: Add explicit arguments.
+        Keyword arguments to pass `model.json()`.
+        FIXME: Add explicit arguments.
 
     Notes
     -----
@@ -91,7 +102,7 @@ def to_yaml_file(file: Union[Path, str, IOBase], model: BaseModel, **kwargs) -> 
     """
     model = _chk_model(model)
     if isinstance(file, IOBase):
-        _write_yaml_model(file, model, **kwargs)
+        _write_yaml_model(file, model, default_flow_style, **kwargs)
         return
 
     if isinstance(file, str):
