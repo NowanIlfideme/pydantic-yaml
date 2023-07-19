@@ -75,11 +75,23 @@ class MyModel(BaseModel):
         allow_mutation = False
 ```
 
-A separate configuration for YAML specifically will be added later.
+You can control some YAML-specfic options via the keyword options:
 
 ```python
-# TODO
+to_yaml_str(model, indent=4)  # Makes it wider
+to_yaml_str(model, map_indent=9, sequence_indent=7)  # ... you monster.
 ```
+
+You can additionally pass your own `YAML` instance:
+
+```python
+from ruamel.yaml import YAML
+my_writer = YAML(typ="safe")
+my_writer.default_flow_style = True
+to_yaml_file("foo.yaml", model, custom_yaml_writer=my_writer)
+```
+
+A separate configuration for YAML specifically will be added later, likely in v2.
 
 ## Breaking Changes for `pydantic-yaml` V1
 
@@ -96,4 +108,4 @@ However, this will be availble only for `pydantic<2`.
 ### Versioned Models
 
 This functionality has been removed, as it's questionably useful for most users.
-There is an [example in the docs](docs/versioned.md) that's available.
+There is an [example in the docs](versioned.md) that's available.
