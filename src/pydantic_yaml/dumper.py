@@ -20,13 +20,10 @@ def _chk_model(model: Any) -> BaseModel:
     """Ensure the model passed is a Pydantic model."""
     if isinstance(model, BaseModel):
         return model
-    raise TypeError(("We can currently only write `pydantic.BaseModel`, "
-                     f"but recieved: {model!r}"))
+    raise TypeError("We can currently only write `pydantic.BaseModel`, " f"but recieved: {model!r}")
 
 
-def _write_yaml_model(stream: IOBase,
-                      model: BaseModel,
-                      default_flow_style: bool, **kwargs) -> None:
+def _write_yaml_model(stream: IOBase, model: BaseModel, default_flow_style: bool, **kwargs) -> None:
     """Write YAML model to the stream object.
 
     This uses JSON dumping as an intermediary.
@@ -54,8 +51,7 @@ def _write_yaml_model(stream: IOBase,
     writer.dump(val, stream)
 
 
-def to_yaml_str(model: BaseModel,
-                default_flow_style: bool = True, **kwargs) -> str:
+def to_yaml_str(model: BaseModel, default_flow_style: bool = True, **kwargs) -> str:
     """Generate a YAML string representation of the model.
 
     Parameters
@@ -79,9 +75,7 @@ def to_yaml_str(model: BaseModel,
 
 
 def to_yaml_file(
-    file: Union[Path, str, IOBase],
-    model: BaseModel,
-    default_flow_style: bool = True, **kwargs
+    file: Union[Path, str, IOBase], model: BaseModel, default_flow_style: bool = True, **kwargs
 ) -> None:
     """Write a YAML file representation of the model.
 
