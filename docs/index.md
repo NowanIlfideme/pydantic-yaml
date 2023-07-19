@@ -57,6 +57,24 @@ assert m1 == m3
 
 ```
 
+With Pydantic v2, you can also dump dataclasses:
+
+```python
+from pydantic import RootModel
+from pydantic.dataclasses import dataclass
+from pydantic.version import VERSION as PYDANTIC_VERSION
+from pydantic_yaml import to_yaml_str
+
+assert PYDANTIC_VERSION >= "2"
+
+@dataclass
+class YourType:
+    foo: str = "bar"
+
+obj = YourType(foo="wuz")
+assert to_yaml_str(RootModel[YourType](obj)) == 'foo: wuz\n'
+```
+
 ## Configuration
 
 Currently we use the JSON dumping of Pydantic to perform most of the magic.
