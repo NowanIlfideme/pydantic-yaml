@@ -85,7 +85,7 @@ def _write_yaml_model(
 def to_yaml_str(
     model: BaseModel,
     *,
-    default_flow_style: Optional[bool] = True,
+    default_flow_style: Optional[bool] = False,
     indent: Optional[int] = None,
     map_indent: Optional[int] = None,
     sequence_indent: Optional[int] = None,
@@ -138,7 +138,7 @@ def to_yaml_file(
     file: Union[Path, str, IOBase],
     model: BaseModel,
     *,
-    default_flow_style: Optional[bool] = True,
+    default_flow_style: Optional[bool] = False,
     indent: Optional[int] = True,
     map_indent: Optional[int] = None,
     sequence_indent: Optional[int] = None,
