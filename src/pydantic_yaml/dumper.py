@@ -85,7 +85,7 @@ def _write_yaml_model(
 def to_yaml_str(
     model: BaseModel,
     *,
-    default_flow_style: Optional[bool] = None,
+    default_flow_style: Optional[bool] = True,
     indent: Optional[int] = None,
     map_indent: Optional[int] = None,
     sequence_indent: Optional[int] = None,
@@ -138,7 +138,7 @@ def to_yaml_file(
     file: Union[Path, str, IOBase],
     model: BaseModel,
     *,
-    default_flow_style: Optional[bool] = None,
+    default_flow_style: Optional[bool] = True,
     indent: Optional[int] = True,
     map_indent: Optional[int] = None,
     sequence_indent: Optional[int] = None,
@@ -154,6 +154,16 @@ def to_yaml_file(
         The file path or stream to write to.
     model : BaseModel
         The model to write.
+    default_flow_style : bool
+        Whether to use "flow style" (more human-readable).
+        https://yaml.readthedocs.io/en/latest/detail.html?highlight=default_flow_style#indentation-of-block-sequences
+    indent : None or int
+        General indent value. Leave as None for the default.
+    map_indent, sequence_indent, sequence_dash_offset : None or int
+        More specific indent values.
+    custom_yaml_writer : None or YAML
+        An instance of ruamel.yaml.YAML (or a subclass) to use as the writer.
+        The above options will be set on it, if given.
     json_kwargs : Any
         Keyword arguments to pass `model.json()`.
 
