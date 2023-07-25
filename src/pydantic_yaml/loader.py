@@ -11,6 +11,26 @@ from ruamel.yaml import YAML
 T = TypeVar("T", bound=BaseModel)
 
 
+def parse_yaml_raw_section_as(
+    section_name: str, model_type: Type[T], raw: Union[str, bytes, IOBase]
+) -> T:
+    """Parse raw YAML string as the passed model type.
+
+    Parameters
+    ----------
+    section_name : str
+        The name of the section in the YAML string
+        to be parsed as model_type
+    model_type : Type[BaseModel]
+        The resulting model type.
+    raw : str or bytes or IOBase
+        The YAML string or stream.
+    """
+    stream = _get_stream_from_raw(raw)
+    reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
+    objects = reader.load(stream)
+    return _parse_dict_as(model_type, objects[section_name])
+
 def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
     """Parse raw YAML string as the passed model type.
 
@@ -21,17 +41,26 @@ def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
     raw : str or bytes or IOBase
         The YAML string or stream.
     """
-    stream: IOBase
-    if isinstance(raw, str):
-        stream = StringIO(raw)
-    elif isinstance(raw, bytes):
-        stream = BytesIO(raw)
-    elif isinstance(raw, IOBase):
-        stream = raw
-    else:
-        raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
+    stream = _get_stream_from_raw(raw)
     reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
     objects = reader.load(stream)
+    return _parse_dict_as(model_type, objects)
+
+
+def _get_stream_from_raw(raw: Union[str, bytes, IOBase]) -> Union[StringIO, BytesIO, IOBase]:
+    if isinstance(raw, str):
+        return StringIO(raw)
+    if isinstance(raw, bytes):
+        return BytesIO(raw)
+    if isinstance(raw, IOBase):
+        return raw
+    raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
+
+
+def _parse_dict_as(model_type: Type[T], objects: dict) -> T:
+    """Internal function to turn a dict representation of yaml file into
+    a pydantic object"""
+
     if pydantic.version.VERSION < "2":
         return pydantic.parse_obj_as(model_type, objects)  # type:ignore
     else:

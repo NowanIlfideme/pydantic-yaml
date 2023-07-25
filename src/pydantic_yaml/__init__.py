@@ -4,6 +4,7 @@ __all__ = [
     # New API
     "__version__",
     "parse_yaml_file_as",
+    "parse_yaml_raw_section_as",
     "parse_yaml_raw_as",
     "to_yaml_file",
     "to_yaml_str",
@@ -19,5 +20,8 @@ __all__ = [
 
 from .deprecated.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
 from .dumper import to_yaml_file, to_yaml_str
-from .loader import parse_yaml_file_as, parse_yaml_raw_as
+from .loader import (
+    parse_yaml_file_as,
+    parse_yaml_raw_as,
+    parse_yaml_raw_section_as)
 from .version import __version__
