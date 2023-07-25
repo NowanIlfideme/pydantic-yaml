@@ -153,12 +153,6 @@ def to_yaml_file(
     file : Path or str or IOBase
         The file path or stream to write to.
     model : BaseModel
-<<<<<<< HEAD
-        The model to convert.
-    kwargs : Any
-        Keyword arguments to pass `model.json()`.
-        FIXME: Add explicit arguments.
-=======
         The model to write.
     default_flow_style : bool
         Whether to use "flow style" (more human-readable).
