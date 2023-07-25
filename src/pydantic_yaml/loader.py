@@ -47,7 +47,7 @@ def parse_yaml_file_as(model_type: Type[T], file: Union[Path, str, IOBase]) -> T
     model_type : Type[BaseModel]
         The resulting model type.
     file : Path or str or IOBase
-        The file path or stream to write to.
+        The file path or stream to read from.
     """
     # Short-circuit
     if isinstance(file, IOBase):
