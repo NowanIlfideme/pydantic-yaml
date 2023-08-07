@@ -195,4 +195,14 @@ def to_yaml_file(
         raise TypeError(f"Expected Path, str, or stream, but got {file!r}")
 
     with file.open(mode="w") as f:
-        _write_yaml_model(f, model, **json_kwargs)
+        _write_yaml_model(
+            f,
+            model,
+            default_flow_style=default_flow_style,
+            indent=indent,
+            map_indent=map_indent,
+            sequence_indent=sequence_indent,
+            sequence_dash_offset=sequence_dash_offset,
+            custom_yaml_writer=custom_yaml_writer,
+            **json_kwargs
+        )
