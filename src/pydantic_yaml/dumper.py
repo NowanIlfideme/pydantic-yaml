@@ -139,7 +139,7 @@ def to_yaml_file(
     model: BaseModel,
     *,
     default_flow_style: Optional[bool] = False,
-    indent: Optional[int] = True,
+    indent: Optional[int] = None,
     map_indent: Optional[int] = None,
     sequence_indent: Optional[int] = None,
     sequence_dash_offset: Optional[int] = None,
