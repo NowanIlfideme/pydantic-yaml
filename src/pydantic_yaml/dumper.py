@@ -173,21 +173,20 @@ def to_yaml_file(
     This means that you can use `json_encoders` in your model.
     """
     model = _chk_model(model)
-    if isinstance(file, IOBase):
-        _write_yaml_model(
-            file,
-            model,
-            default_flow_style=default_flow_style,
-            indent=indent,
-            map_indent=map_indent,
-            sequence_indent=sequence_indent,
-            sequence_dash_offset=sequence_dash_offset,
-            custom_yaml_writer=custom_yaml_writer,
-            **json_kwargs,
-        )
+    write_kwargs = dict(
+        default_flow_style=default_flow_style,
+        indent=indent,
+        map_indent=map_indent,
+        sequence_indent=sequence_indent,
+        sequence_dash_offset=sequence_dash_offset,
+        custom_yaml_writer=custom_yaml_writer,
+        **json_kwargs,
+    )
+    if isinstance(file, IOBase):  # open file handle
+        _write_yaml_model(file, model, **write_kwargs)
         return
 
-    if isinstance(file, str):
+    if isinstance(file, str):  # local path to file
         file = Path(file).resolve()
     elif isinstance(file, Path):
         file = file.resolve()
@@ -195,14 +194,5 @@ def to_yaml_file(
         raise TypeError(f"Expected Path, str, or stream, but got {file!r}")
 
     with file.open(mode="w") as f:
-        _write_yaml_model(
-            f,
-            model,
-            default_flow_style=default_flow_style,
-            indent=indent,
-            map_indent=map_indent,
-            sequence_indent=sequence_indent,
-            sequence_dash_offset=sequence_dash_offset,
-            custom_yaml_writer=custom_yaml_writer,
-            **json_kwargs
-        )
+        _write_yaml_model(f, model, **write_kwargs)
+        return
