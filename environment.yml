@@ -3,7 +3,7 @@ name: pyd-yaml
 channels:
   - conda-forge
 dependencies:
-  - python=3.8 # minimum targeted version is currently 3.7, but docs need 3.8
+  - python=3.8 # docs need 3.8
   - pip
   - pip:
       - -e ".[dev,docs]"
