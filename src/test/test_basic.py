@@ -7,7 +7,13 @@ import pydantic
 import pytest
 from pydantic import BaseModel
 
-from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str, to_yaml_file
+from pydantic_yaml import (
+    parse_yaml_file_as,
+    parse_yaml_raw_as,
+    parse_yaml_raw_section_as,
+    to_yaml_str,
+    to_yaml_file,
+)
 
 from pydantic_yaml.examples.base_models import (
     A,
@@ -53,6 +59,15 @@ def test_load_rt_simple_files(model_type: Type[BaseModel], fn: str):
 def test_write_simple_model(model: BaseModel):
     """Test output of simple models."""
     to_yaml_str(model)  # TODO: Check output vs expected?
+
+
+def test_load_model_from_section():
+    yml = """
+A:
+    a: 'test'
+"""
+    a = parse_yaml_raw_section_as("A", A, yml)
+    assert a.a == "test"
 
 
 @pytest.mark.xfail(pydantic.VERSION >= "2", reason="Pydantic v2 is stricter for Bytes types.")
