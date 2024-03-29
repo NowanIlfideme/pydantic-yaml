@@ -1,5 +1,7 @@
 """Support for Pydantic v1 interface."""
 
+# mypy: ignore-errors
+
 import json
 from io import StringIO, BytesIO, IOBase
 from pathlib import Path

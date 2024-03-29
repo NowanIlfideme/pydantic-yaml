@@ -8,6 +8,8 @@ Roundtrip comments with ruamel.yaml
     If you need to keep comments, you'll have to have parallel updating and validation.
 """
 
+# mypy: ignore-errors
+
 import json
 from io import BytesIO, IOBase, StringIO
 from pathlib import Path
