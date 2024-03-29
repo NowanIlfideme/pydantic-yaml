@@ -1,7 +1,5 @@
 """Models used for testing, just normal `pydantic.BaseModel` objects."""
 
-# type: ignore
-
 __all__ = [
     "Empty",
     "A",
@@ -40,7 +38,7 @@ if pydantic.version.VERSION < "2":
         UsesRefs,
     )
 else:
-    from .v2.base_models import (
+    from .v2.base_models import (  # type: ignore
         A,
         B,
         CustomRootListObj,
