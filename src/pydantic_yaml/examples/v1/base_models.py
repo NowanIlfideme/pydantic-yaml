@@ -4,8 +4,14 @@
 
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field
-from pydantic.types import SecretBytes, SecretStr
+from pydantic import __version__ as PYDANTIC_VERSION
+
+if PYDANTIC_VERSION > "2":
+    from pydantic.v1 import BaseModel, Field
+    from pydantic.v1.types import SecretBytes, SecretStr
+else:
+    from pydantic import BaseModel, Field
+    from pydantic.types import SecretBytes, SecretStr
 
 from pydantic_yaml.examples.common import MyIntEnum, MyStrEnum
 

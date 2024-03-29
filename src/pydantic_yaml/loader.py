@@ -2,11 +2,27 @@
 
 from io import StringIO, BytesIO, IOBase
 from pathlib import Path
-from typing import Type, Union, TypeVar
+from typing import Tuple, Type, Union, TypeVar
 
 import pydantic
-from pydantic import BaseModel
 from ruamel.yaml import YAML
+
+
+BaseModel: Type
+BaseModelTuple: Tuple[Type, ...]
+
+if pydantic.version.VERSION < "2":
+    from pydantic import BaseModel as BaseModelV1
+
+    BaseModel = BaseModelV1
+    BaseModelTuple = (BaseModelV1,)
+else:
+    from pydantic import BaseModel as BaseModelV2
+    from pydantic.v1 import BaseModel as BaseModelV1
+
+    BaseModel = Union[BaseModelV1, BaseModelV2]
+    BaseModelTuple = (BaseModelV1, BaseModelV2)
+
 
 T = TypeVar("T", bound=BaseModel)
 

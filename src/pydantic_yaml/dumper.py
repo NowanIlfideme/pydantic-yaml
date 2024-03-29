@@ -8,6 +8,7 @@ Roundtrip comments with ruamel.yaml
     If you need to keep comments, you'll have to have parallel updating and validation.
 """
 
+from typing import Tuple, Type
 import json
 from io import StringIO, IOBase
 from pathlib import Path
@@ -15,12 +16,26 @@ from typing import Any, Optional, Union
 
 import pydantic
 from ruamel.yaml import YAML
-from pydantic import BaseModel
+
+BaseModel: Type
+BaseModelTuple: Tuple[Type, ...]
+
+if pydantic.version.VERSION < "2":
+    from pydantic import BaseModel as BaseModelV1
+
+    BaseModel = BaseModelV1
+    BaseModelTuple = (BaseModelV1,)
+else:
+    from pydantic import BaseModel as BaseModelV2
+    from pydantic.v1 import BaseModel as BaseModelV1
+
+    BaseModel = Union[BaseModelV1, BaseModelV2]
+    BaseModelTuple = (BaseModelV1, BaseModelV2)
 
 
 def _chk_model(model: Any) -> BaseModel:
     """Ensure the model passed is a Pydantic model."""
-    if isinstance(model, BaseModel):
+    if isinstance(model, BaseModelTuple):
         return model
     raise TypeError("We can currently only write `pydantic.BaseModel`, " f"but recieved: {model!r}")
 
