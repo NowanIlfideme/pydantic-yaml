@@ -38,7 +38,7 @@ dev = [
     "ruff==0.4.0",
     "black==24.3.0",
     "mypy==1.5.1",
-    "pytest==8.0.0",
+    "pytest==8.2.0",
 ]
 docs = [
     "mkdocs",
