@@ -235,7 +235,7 @@ def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
         raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
     reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
     objects = reader.load(stream)
-    if issubclass(model_type, BaseModelV1):
+    if isinstance(model_type, type) and issubclass(model_type, BaseModelV1):
         return parse_obj_as(model_type, objects)  # type:ignore
     else:
         ta = TypeAdapter(model_type)  # type: ignore
