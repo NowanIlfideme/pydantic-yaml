@@ -35,9 +35,9 @@ dev = [
     "setuptools>=61.0.0",
     "setuptools-scm[toml]>=6.2",
     "pre-commit==2.21.0",
-    "ruff==0.4.0",
+    "ruff==0.6.0",
     "black==24.8.0",
-    "mypy==1.5.1",
+    "mypy==1.11.1",
     "pytest==8.0.0",
 ]
 docs = [
