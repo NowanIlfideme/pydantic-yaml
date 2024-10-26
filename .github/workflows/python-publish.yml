@@ -10,7 +10,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    # environment: "pypi-publish"
+    permissions:
+      id-token: write # required for trusted publishing
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -27,10 +29,8 @@ jobs:
       - name: Test with pytest
         run: |
           pytest
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      - name: Build
         run: |
           python setup.py sdist bdist_wheel
-          twine upload dist/*
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
