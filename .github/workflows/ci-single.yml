@@ -1,0 +1,93 @@
+# Run CI for a single step; this is called within ci-cd-matrix.yml
+name: Single-Step CI
+on:
+  workflow_call:
+    inputs:
+      python-version: # the variable you can use in place of a matrix
+        required: true
+        type: string
+      pydantic-install:
+        required: true
+        type: string
+      lib-install:
+        required: true
+        type: string
+jobs:
+  lint-ruff:
+    name: "Lint (ruff)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Package with dependencies
+        run: |
+          pip install ${{ inputs.pydantic-install }}
+          pip install ${{ inputs.lib-install }}
+      - name: Lint with ruff
+        run: ruff check .
+  lint-mypy:
+    name: "Type Check (mypy)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Package with dependencies
+        run: |
+          pip install ${{ inputs.pydantic-install }}
+          pip install ${{ inputs.lib-install }}
+      - name: Lint with mypy
+        run: mypy
+  lint-pyright:
+    name: "Type Check (pyright)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Package with dependencies
+        run: |
+          pip install ${{ inputs.pydantic-install }}
+          pip install ${{ inputs.lib-install }}
+      - name: Lint with pyright
+        run: pyright
+  test-unit:
+    name: "Unit Testing (pytest)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Package with dependencies
+        run: |
+          pip install ${{ inputs.pydantic-install }}
+          pip install ${{ inputs.lib-install }}
+      - name: Test with pytest
+        run: pytest
+  test-docs:
+    name: "Test Docs Build (mkdocs)"
+    # NOTE: We don't actually upload these docs - this is done automatically by ReadTheDocs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Package with dependencies
+        run: |
+          pip install ${{ inputs.pydantic-install }}
+          pip install ${{ inputs.lib-install }}
+      - name: Build with mkdocs
+        env:
+          JUPYTER_PLATFORM_DIRS: 1  # suppress warning for Jupyter build in mkdocs
+        run: mkdocs build
