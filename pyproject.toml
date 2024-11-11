@@ -20,10 +20,7 @@ classifiers = [
     "Typing :: Typed",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "pydantic>=2",              # including pydantic>=2.0.0!
-    "typing_extensions>=4.5.0",
-]
+dependencies = ["pydantic>=2"]
 urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }
 
 [project.optional-dependencies]
