@@ -7,14 +7,6 @@ __all__ = [
     "parse_yaml_raw_as",
     "to_yaml_file",
     "to_yaml_str",
-    # TODO: Re-add
-    # YamlModelMixin ?
-    # YamlModel ?
-    # Deprecated classes
-    "YamlInt",
-    "YamlIntEnum",
-    "YamlStr",
-    "YamlStrEnum",
 ]
 
 
@@ -37,5 +29,4 @@ elif (PYDANTIC_VERSION > "2") and (PYDANTIC_VERSION < "3"):
 else:
     raise ImportError(f"Unsupported version of Pydantic: {PYDANTIC_VERSION!r}")
 
-from .deprecated.types import YamlInt, YamlIntEnum, YamlStr, YamlStrEnum
 from .version import __version__
