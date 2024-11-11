@@ -34,7 +34,7 @@ class B(BaseModel):
 class Recursive(BaseModel):
     """Recursive model, which is actually unsupported."""
 
-    inner: "Recursive" | None
+    inner: "Recursive | None"
     a: int  # Doesn't work!
 
 
