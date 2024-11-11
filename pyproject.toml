@@ -79,3 +79,8 @@ warn_unused_configs = true
 [[tool.mypy.overrides]]
 module = 'setuptools_scm.*'
 ignore_missing_imports = true
+
+[tool.pyright]
+include = ["src"]
+executionEnvironments = [{ root = "src" }]
+reportMissingImports = "warning"
