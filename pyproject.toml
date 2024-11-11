@@ -37,7 +37,7 @@ dev = [
     "pre-commit==2.21.0",
     "ruff==0.7.3",
     "black==24.8.0",
-    "mypy==1.11.1",
+    "mypy==1.13.0",
     "pytest==8.3.2",
 ]
 docs = [
