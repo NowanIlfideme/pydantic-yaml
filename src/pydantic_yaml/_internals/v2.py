@@ -14,7 +14,7 @@ import json
 from io import BytesIO, IOBase, StringIO
 from pathlib import Path
 from typing import Any, Optional, Tuple, Type, TypeVar, Union
-from typing_extensions import Literal
+from typing_extensions import Literal  # noqa
 
 from pydantic.version import VERSION as PYDANTIC_VERSION
 from ruamel.yaml import YAML
