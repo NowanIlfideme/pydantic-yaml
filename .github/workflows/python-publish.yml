@@ -8,9 +8,59 @@ on:
     types: [created]
 
 jobs:
-  deploy:
+  ci-check:
+    name: "Pre-publishing CI Checks"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true  # we want CI to immediately fail for releases
+      matrix:
+        python-version:
+          - "3.8"
+          - "3.11"
+        deps:
+          - dev
+          - dev,docs
+        lib-pydantic:
+          - "1.8.2"
+          - "1.9.0"
+          - "1.10.0"
+          - "2.0.3" # test with pydantic 2
+        lib-ruamel:
+          - "NOTSET"
+          - "0.16.0"
+          - "0.17.21"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Package with dependencies ${{ matrix.deps }} and other libs
+        run: |
+          if [ ${{ matrix.lib-ruamel }} != "NOTSET" ]
+          then
+            pip install "ruamel.yaml~=${{ matrix.lib-ruamel }}"
+          fi
+          pip install "pydantic~=${{ matrix.lib-pydantic }}"
+          pip install -e ".[${{ matrix.deps }}]"
+      - name: Lint with ruff
+        run: |
+          ruff check .
+      - name: Test with pytest
+        run: |
+          pytest
+      - name: Test with mypy
+        run: |
+          mypy -p pydantic_yaml
 
+  publish-pypi:
+    name: "Publish to PyPI"
+    needs:
+      - "ci-check"
+    runs-on: ubuntu-latest
+    environment: "publish-pypi"
+    permissions:
+      id-token: write # required for trusted publishing
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -24,13 +74,8 @@ jobs:
       - name: Install Package
         run: |
           pip install -e ".[dev,docs]"
-      - name: Test with pytest
-        run: |
-          pytest
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      - name: Build
         run: |
           python setup.py sdist bdist_wheel
-          twine upload dist/*
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
