@@ -2,7 +2,7 @@
 
 
 def test_import():
-    """Ensure pydantic_yaml can be imported."""
+    """Ensure pydantic_yaml can be imported properly."""
     from pydantic_yaml import __version__
 
     assert __version__ != "0.0.0"
