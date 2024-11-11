@@ -1,9 +1,10 @@
 # This is an example Conda environment, for local development
+# Note, this is also used for building documentation
 name: pyd-yaml
 channels:
   - conda-forge
 dependencies:
-  - python=3.8 # docs need 3.8
+  - python=3.10
   - pip
   - pip:
       - -e ".[dev,docs]"

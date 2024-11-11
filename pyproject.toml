@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pydantic_yaml"
 description = "Adds some YAML functionality to the excellent `pydantic` library."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dynamic = ["version"]
 keywords = ["pydantic", "yaml"]
 license = { file = "LICENSE" }
@@ -21,8 +21,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pydantic>=1.8",               # including pydantic>=2.0.0!
-    "ruamel.yaml>=0.16.0,<0.19.0", # recommended ~=0.17.21
+    "pydantic>=2",              # including pydantic>=2.0.0!
     "typing_extensions>=4.5.0",
 ]
 urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }
@@ -33,7 +32,6 @@ dev = [
     "setuptools-scm[toml]>=6.2",
     "pre-commit==3.5.0",
     "ruff==0.7.3",
-    "black==24.8.0",
     "mypy==1.13.0",
     "pytest==8.3.3",
 ]
@@ -57,19 +55,9 @@ packages = ["pydantic_yaml"]
 [tool.setuptools.dynamic]
 version = { attr = "pydantic_yaml.version.__version__" }
 
-[tool.black]
-line-length = 105
-target-version = ['py38']
-include = '^/src/pydantic_yaml.*\.py' # all .py files
-extend-exclude = '''
-^/setup.py
-|^/docs
-|^/dist
-'''
-
 [tool.ruff]
 line-length = 105
-target-version = 'py38'
+target-version = 'py310'
 src = ["src"]
 select = [
     "E",  # pycodestyle
@@ -87,10 +75,6 @@ testpaths = ["src/test"]
 [tool.mypy]
 files = 'src/pydantic_yaml/**/*.py'
 warn_unused_configs = true
-
-[[tool.mypy.overrides]]
-module = 'ruamel.*'
-ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = 'setuptools_scm.*'

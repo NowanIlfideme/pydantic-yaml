@@ -9,12 +9,10 @@ mkdocs:
   configuration: mkdocs.yml
   fail_on_warning: false
 
-python:
-  version: "3.8"
-  install:
-    # We are using "pip" to install
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
-        - pyyaml
+build:
+  os: "ubuntu-22.04"
+  tools:
+    python: "mambaforge-23.11"
+
+conda:
+  environment: environment.yml
