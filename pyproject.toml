@@ -32,7 +32,7 @@ dev = [
     "setuptools>=61.0.0",
     "setuptools-scm[toml]>=6.2",
     "pre-commit==3.5.0",
-    "ruff==0.8.1",
+    "ruff==0.9.9",
     "black==24.8.0",
     "mypy==1.13.0",
     "pytest==8.3.5",
