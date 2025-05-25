@@ -1,6 +1,6 @@
 """Bad behaviors that should cause errors."""
 
-from typing import Any, Type
+from typing import Any
 
 import pytest
 from pydantic import BaseModel
@@ -31,7 +31,7 @@ def test_no_dump(obj: Any):
         (A, "aaaaaaaaaaa"),
     ],
 )
-def test_no_load(model_type: Type[BaseModel], raw: Any):
+def test_no_load(model_type: type[BaseModel], raw: Any):
     """Ensure that we don't support loading these objects."""
     with pytest.raises((ValueError, TypeError)):
         parse_yaml_raw_as(model_type, raw)

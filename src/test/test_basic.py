@@ -1,7 +1,6 @@
 """Tests for basic functionality."""
 
 from pathlib import Path
-from typing import Type
 
 import pydantic
 import pytest
@@ -37,7 +36,7 @@ from pydantic_yaml.examples.base_models import (
         (CustomRootListObj, "root_list_obj.yaml"),
     ],
 )
-def test_load_rt_simple_files(model_type: Type[BaseModel], fn: str):
+def test_load_rt_simple_files(model_type: type[BaseModel], fn: str):
     """Test simple file loading and roundtripping."""
     # Load file
     file = root / fn

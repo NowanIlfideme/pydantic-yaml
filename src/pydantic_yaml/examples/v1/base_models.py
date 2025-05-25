@@ -2,7 +2,7 @@
 
 # mypy: ignore-errors
 
-from typing import List, Optional, Union
+from typing import Optional
 
 from pydantic import BaseModel, Field
 from pydantic.types import SecretBytes, SecretStr
@@ -43,7 +43,7 @@ class SecretTstModel(BaseModel):
     sb: SecretBytes
 
 
-def _encode_secret(obj: Union[SecretStr, SecretBytes, None]) -> Union[str, bytes, None]:
+def _encode_secret(obj: SecretStr | SecretBytes | None) -> str | bytes | None:
     """Encode secret value."""
     if obj is None:
         return None
@@ -63,7 +63,7 @@ class HasEnums(BaseModel):
     """Base model with enums."""
 
     opts: MyStrEnum
-    vals: List[MyIntEnum]
+    vals: list[MyIntEnum]
 
 
 # pydantic v1
@@ -96,7 +96,7 @@ class CustomRootListStr(BaseModel):
     https://docs.pydantic.dev/usage/models/#custom-root-types
     """
 
-    __root__: List[str]
+    __root__: list[str]
 
 
 class CustomRootListObj(BaseModel):
@@ -107,4 +107,4 @@ class CustomRootListObj(BaseModel):
     https://docs.pydantic.dev/usage/models/#custom-root-types
     """
 
-    __root__: List[Union[A, B]]
+    __root__: list[A | B]
