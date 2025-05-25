@@ -19,13 +19,13 @@ jobs:
       matrix:
         python-version:
           - "3.10"
-          - "3.13"
+          - "3.12"
         deps:
           - dev
           - dev,docs
         lib-pydantic:
           - "1.10.22"  # last supported versions of Pydantic v1
-          - "2.0.3"
+          - "2.5.0"  # first version to support python 3.12
           - "2.11.5"
         lib-ruamel:
           - "NOTSET"
