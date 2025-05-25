@@ -95,5 +95,5 @@ print(to_yaml_str(ex, add_comments="fields-only"))
 gives
 
 ```yaml
-print(to_yaml_str(ex, add_comments=True))
+c:  # See three?
 ```
