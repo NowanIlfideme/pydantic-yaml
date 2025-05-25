@@ -3,7 +3,7 @@ name: pyd-v1-yaml
 channels:
   - conda-forge
 dependencies:
-  - python=3.8 # docs need 3.8
+  - python=3.10 # docs need 3.10
   - pip
   - pip:
       - -e ".[dev,docs]"

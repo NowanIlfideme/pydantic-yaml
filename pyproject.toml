@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pydantic_yaml"
 description = "Adds some YAML functionality to the excellent `pydantic` library."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dynamic = ["version"]
 keywords = ["pydantic", "yaml"]
 license = { file = "LICENSE" }
