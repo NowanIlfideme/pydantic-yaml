@@ -24,10 +24,9 @@ jobs:
           - dev
           - dev,docs
         lib-pydantic:
-          - "1.8.2"
-          - "1.9.0"
-          - "1.10.0"
-          - "2.0.3" # test with pydantic 2
+          - "1.10.22"  # last supported versions of Pydantic v1
+          - "2.0.3"
+          - "2.11.5"
         lib-ruamel:
           - "NOTSET"
           - "0.16.0"
