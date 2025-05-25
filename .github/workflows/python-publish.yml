@@ -26,8 +26,8 @@ jobs:
           - "2.11.5"
         lib-ruamel:
           - "NOTSET"
-          - "0.16.0"
-          - "0.17.21"
+          - "0.17.40"
+          - "0.18.11"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
