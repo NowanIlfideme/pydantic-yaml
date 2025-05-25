@@ -58,20 +58,11 @@ packages = ["pydantic_yaml"]
 [tool.setuptools.dynamic]
 version = { attr = "pydantic_yaml.version.__version__" }
 
-# Removed the Black tool; fully around Ruff
-# [tool.black]
-# line-length = 105
-# target-version = ['py310']
-# include = '^/src/pydantic_yaml.*\.py' # all .py files
-# extend-exclude = '''
-# ^/setup.py
-# |^/docs
-# |^/dist
-# '''
 
 [tool.ruff]
+# NOTE: target-version is same as requires-python
+# See: https://astral.sh/blog/ruff-v0.10.0
 line-length = 105
-target-version = 'py310'
 src = ["src"]
 
 [tool.ruff.lint]
