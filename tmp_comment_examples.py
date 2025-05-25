@@ -3,6 +3,7 @@
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
+
 from pydantic_yaml import to_yaml_str
 
 
@@ -48,3 +49,8 @@ class ModelR(RootModel[list[ModelA]]):
 
 mr = ModelR(root=[ma])
 print(to_yaml_str(mr, add_comments=True))
+
+
+# Try constructed model
+ma_bad = ModelA.model_construct(a=None, b=None, c=None)
+print(to_yaml_str(ma_bad, add_comments=True))
