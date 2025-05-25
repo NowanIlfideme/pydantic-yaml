@@ -12,6 +12,7 @@ use_directory_urls: false
 nav:
   - Overview: index.md
   - Install: installing.md
+  - Comments: comments.md
   - Deprecated:
       - Versioned Models: versioned.md
 
