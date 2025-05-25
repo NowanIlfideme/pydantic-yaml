@@ -2,7 +2,7 @@
 
 # mypy: ignore-errors
 
-from typing import Optional
+from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field
 from pydantic.types import SecretBytes, SecretStr
@@ -72,15 +72,15 @@ class HasEnums(BaseModel):
 class _Name(BaseModel):
     """First/last names."""
 
-    given: str
-    family: str
+    given: str = Field(description="Given name(s), often called 'first name' in English.")
+    family: Annotated[str, Field(description="Family name(s), often called 'last name' in English.")]
 
 
 class UsesRefs(BaseModel):
     """Example for the reference data."""
 
-    bill_to: _Name = Field(alias="bill-to")
-    ship_to: _Name = Field(alias="ship-to")
+    bill_to: _Name = Field(alias="bill-to", description="Billing information")
+    ship_to: _Name = Field(alias="ship-to", description="Shipping information (no address)")
 
     class Config:
         """Pydantic configuration class."""

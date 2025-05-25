@@ -23,6 +23,7 @@ import pydantic
 from .common import MyIntEnum, MyStrEnum
 
 root = Path(__file__).resolve().parent / "base_models"
+commented = Path(__file__).resolve().parent / "commented"
 
 if pydantic.version.VERSION < "2":
     from .v1.base_models import (

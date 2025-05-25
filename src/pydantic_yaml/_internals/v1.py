@@ -5,18 +5,18 @@
 import json
 import warnings
 from collections.abc import Mapping, Sequence
-from io import StringIO, BytesIO, IOBase
+from io import BytesIO, IOBase, StringIO
 from pathlib import Path
 from typing import Any, TypeVar
 
 from pydantic.version import VERSION as PYDANTIC_VERSION
-from ruamel.yaml import CommentedMap, CommentedSeq, YAML
+from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 
 if PYDANTIC_VERSION > "2":
     raise ImportError("This module can only be imported in Pydantic v1.")
 
 from pydantic import BaseModel, parse_obj_as
-from pydantic.fields import FieldInfo
+from pydantic.fields import FieldInfo, ModelField
 
 from .comments import CommentsOptions
 
@@ -27,12 +27,10 @@ def _chk_model(model: Any) -> BaseModel:
     """Ensure the model passed is a Pydantic model."""
     if isinstance(model, BaseModel):
         return model
-    raise TypeError(
-        "We can currently only write `pydantic.BaseModel`, " f"but recieved: {model!r}"
-    )
+    raise TypeError(f"We can currently only write `pydantic.BaseModel`, but recieved: {model!r}")
 
 
-def _get_doc(obj: BaseModel | FieldInfo | Any, opts: CommentsOptions) -> str | None:
+def _get_doc(obj: BaseModel | FieldInfo | ModelField | Any, opts: CommentsOptions) -> str | None:
     """Get documentation for the model or field, taking options into account."""
     if isinstance(obj, BaseModel):
         if opts in (True, "models-only"):
@@ -42,6 +40,8 @@ def _get_doc(obj: BaseModel | FieldInfo | Any, opts: CommentsOptions) -> str | N
         if opts in (True, "fields-only"):
             return obj.description
         return None
+    elif isinstance(obj, ModelField):
+        return _get_doc(obj.field_info, opts=opts)
     return None
 
 
@@ -63,7 +63,7 @@ def _add_descriptions(
             indent = 0
         ystruct.yaml_set_start_comment(top_lvl, indent=indent)
 
-    if obj.__custom_root_type__:
+    if isinstance(obj, BaseModel) and obj.__custom_root_type__:
         # RootModel should probably work
         obj = obj.__dict__["__root__"]
 
@@ -188,16 +188,12 @@ def _write_yaml_model(
     elif isinstance(custom_yaml_writer, YAML):
         writer = custom_yaml_writer
     else:
-        raise TypeError(
-            f"Please pass a YAML instance or subclass. Got {custom_yaml_writer!r}"
-        )
+        raise TypeError(f"Please pass a YAML instance or subclass. Got {custom_yaml_writer!r}")
     # Set options
     if default_flow_style is not None:
         writer.default_flow_style = default_flow_style
     writer.indent(mapping=indent, sequence=indent, offset=indent)
-    writer.indent(
-        mapping=map_indent, sequence=sequence_indent, offset=sequence_dash_offset
-    )
+    writer.indent(mapping=map_indent, sequence=sequence_indent, offset=sequence_dash_offset)
     # TODO: Configure writer further?
     if add_comments is False:
         writer.dump(val, stream)

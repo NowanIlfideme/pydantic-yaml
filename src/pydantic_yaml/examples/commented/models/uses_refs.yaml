@@ -1,0 +1,9 @@
+# Example for the reference data.
+bill_to:
+  # First/last names.
+  family: Dumars
+  given: Chris
+ship_to:
+  # First/last names.
+  family: Dumars
+  given: Chris

@@ -16,19 +16,20 @@ from collections.abc import Mapping, Sequence
 from io import BytesIO, IOBase, StringIO
 from pathlib import Path
 from typing import Any, TypeVar
-from typing_extensions import Literal  # noqa
 
 from pydantic.version import VERSION as PYDANTIC_VERSION
-from ruamel.yaml import CommentedMap, CommentedSeq, YAML
+from ruamel.yaml import YAML, CommentedMap, CommentedSeq
+from typing_extensions import Literal  # noqa
 
 if (PYDANTIC_VERSION < "2") or (PYDANTIC_VERSION > "3"):
     raise ImportError("This module can only be imported in Pydantic v2.")
 
 from pydantic import BaseModel, RootModel, TypeAdapter
+from pydantic.fields import FieldInfo
 from pydantic.v1 import BaseModel as BaseModelV1
 from pydantic.v1 import parse_obj_as
 from pydantic.v1.fields import FieldInfo as FieldInfoV1
-from pydantic.fields import FieldInfo
+from pydantic.v1.fields import ModelField as ModelFieldV1
 
 from .comments import CommentsOptions
 
@@ -48,7 +49,7 @@ def _chk_model(model: Any) -> tuple[BaseModel | BaseModelV1, Literal[1, 2]]:
 
 
 def _get_doc(
-    obj: BaseModel | BaseModelV1 | FieldInfo | FieldInfoV1 | Any, opts: CommentsOptions
+    obj: BaseModel | BaseModelV1 | FieldInfo | FieldInfoV1 | ModelFieldV1 | Any, opts: CommentsOptions
 ) -> str | None:
     """Get documentation for the model or field, taking options into account."""
     if isinstance(obj, BaseModel | BaseModelV1):
@@ -59,6 +60,8 @@ def _get_doc(
         if opts in (True, "fields-only"):
             return obj.description
         return None
+    elif isinstance(obj, ModelFieldV1):
+        return _get_doc(obj.field_info, opts=opts)
     return None
 
 
@@ -170,16 +173,12 @@ def _write_yaml_model(
     elif isinstance(custom_yaml_writer, YAML):
         writer = custom_yaml_writer
     else:
-        raise TypeError(
-            f"Please pass a YAML instance or subclass. Got {custom_yaml_writer!r}"
-        )
+        raise TypeError(f"Please pass a YAML instance or subclass. Got {custom_yaml_writer!r}")
     # Set options
     if default_flow_style is not None:
         writer.default_flow_style = default_flow_style
     writer.indent(mapping=indent, sequence=indent, offset=indent)
-    writer.indent(
-        mapping=map_indent, sequence=sequence_indent, offset=sequence_dash_offset
-    )
+    writer.indent(mapping=map_indent, sequence=sequence_indent, offset=sequence_dash_offset)
     # TODO: Configure writer further?
     if add_comments is False:
         writer.dump(val, stream)
