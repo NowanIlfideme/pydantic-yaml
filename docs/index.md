@@ -55,7 +55,11 @@ assert m1 == m2
 m3 = parse_yaml_raw_as(MyModel, jsn)
 assert m1 == m3
 
+# You can also auto-generate comments in YAML from the model docstrings and field descriptions
+print(to_yaml_str(m1, add_comments=True))
 ```
+
+See [comment generation docs](comments.md) for more info.
 
 With Pydantic v2, you can also dump dataclasses:
 

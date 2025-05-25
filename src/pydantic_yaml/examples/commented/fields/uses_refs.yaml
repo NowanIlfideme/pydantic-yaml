@@ -1,0 +1,6 @@
+bill_to:  # Billing information
+  family: Dumars  # Family name(s), often called 'last name' in English.
+  given: Chris  # Given name(s), often called 'first name' in English.
+ship_to: # Shipping information (no address)
+  family: Dumars  # Family name(s), often called 'last name' in English.
+  given: Chris  # Given name(s), often called 'first name' in English.
