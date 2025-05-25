@@ -18,20 +18,19 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.8"
-          - "3.11"
+          - "3.10"
+          - "3.12"
         deps:
           - dev
           - dev,docs
         lib-pydantic:
-          - "1.8.2"
-          - "1.9.0"
-          - "1.10.0"
-          - "2.0.3" # test with pydantic 2
+          - "1.10.22"  # last supported versions of Pydantic v1
+          - "2.5.0"  # first version to support python 3.12
+          - "2.11.5"
         lib-ruamel:
           - "NOTSET"
-          - "0.16.0"
-          - "0.17.21"
+          - "0.17.40"
+          - "0.18.11"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
