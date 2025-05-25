@@ -1,7 +1,8 @@
 # Dumping Comments
 
-Writing YAML models with comments has been a hotly-requested feature,
-as comments are one of the (many) features why YAML is nicer than JSON for human-facing things.
+Writing YAML models with comments has been
+[a hotly-requested feature](https://github.com/NowanIlfideme/pydantic-yaml/issues/83),
+as comments are one of the (many) features why YAML is nicer than JSON for human-facing configuration.
 
 ## Adding Descriptions
 
