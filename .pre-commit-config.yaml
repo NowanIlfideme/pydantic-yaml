@@ -13,20 +13,15 @@ repos:
       - id: check-toml
       - id: end-of-file-fixer
       - id: detect-private-key
-  - repo: https://github.com/psf/black
-    # docs: https://black.readthedocs.io/en/stable/integrations/source_version_control.html
-    rev: "23.3.0"
-    hooks:
-      - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.0.260"
+    rev: "v0.11.11"
     hooks:
       - id: ruff
   - repo: https://github.com/pre-commit/mirrors-mypy
     # NOTE: This passes ALL files to `mypy`. mypy will cache these.
     # However, we must ignore all missing imports, because pre-commit runs in a separate env
-    rev: "v1.1.1"
+    rev: "v1.15.0"
     hooks:
       - id: mypy
         pass_filenames: false

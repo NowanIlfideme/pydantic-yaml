@@ -2,7 +2,7 @@
 
 # mypy: ignore-errors
 
-from typing import List, Optional, Union
+from typing import Optional
 
 from pydantic import (
     BaseModel,
@@ -50,7 +50,7 @@ class SecretTstModel(BaseModel):
     sb: SecretBytes
 
 
-def _encode_secret(obj: Union[SecretStr, SecretBytes, None]) -> Union[str, bytes, None]:
+def _encode_secret(obj: SecretStr | SecretBytes | None) -> str | bytes | None:
     """Encode secret value."""
     if obj is None:
         return None
@@ -61,7 +61,7 @@ class SecretTstModelDumpable(SecretTstModel):
     """Round-trippable model. This will save secret fields as the raw values."""
 
     @field_serializer("ss", "sb")
-    def _serialize_secrets(self, secret: Union[SecretStr, SecretBytes], _info):
+    def _serialize_secrets(self, secret: SecretStr | SecretBytes, _info):
         """Serialize secret fields.
 
         See Also
@@ -75,7 +75,7 @@ class HasEnums(BaseModel):
     """Base model with enums."""
 
     opts: MyStrEnum
-    vals: List[MyIntEnum]
+    vals: list[MyIntEnum]
 
 
 class _Name(BaseModel):  # type: ignore[no-redef]
@@ -104,7 +104,7 @@ class CustomRootListStr(BaseModel):  # type: ignore[no-redef]
     https://github.com/pydantic/pydantic/blob/2b9459f20d094a46fa3093b43c34444240f03646/tests/test_parse.py#L95-L113
     """
 
-    root: List[str]
+    root: list[str]
 
     @model_validator(mode="before")
     @classmethod
@@ -136,7 +136,7 @@ class CustomRootListObj(BaseModel):  # type: ignore[no-redef]
     https://github.com/pydantic/pydantic/blob/2b9459f20d094a46fa3093b43c34444240f03646/tests/test_parse.py#L95-L113
     """
 
-    root: List[Union[A, B]]
+    root: list[A | B]
 
     @model_validator(mode="before")
     @classmethod

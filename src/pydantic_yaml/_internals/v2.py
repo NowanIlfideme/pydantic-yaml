@@ -13,7 +13,7 @@ Roundtrip comments with ruamel.yaml
 import json
 from io import BytesIO, IOBase, StringIO
 from pathlib import Path
-from typing import Any, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, TypeVar
 from typing_extensions import Literal  # noqa
 
 from pydantic.version import VERSION as PYDANTIC_VERSION
@@ -26,10 +26,10 @@ from pydantic import BaseModel, TypeAdapter
 from pydantic.v1 import BaseModel as BaseModelV1
 from pydantic.v1 import parse_obj_as
 
-T = TypeVar("T", bound=Union[BaseModel, BaseModelV1])
+T = TypeVar("T", bound=BaseModel | BaseModelV1)
 
 
-def _chk_model(model: Any) -> Tuple[Union[BaseModel, BaseModelV1], Literal[1, 2]]:
+def _chk_model(model: Any) -> tuple[BaseModel | BaseModelV1, Literal[1, 2]]:
     """Ensure the model passed is a Pydantic model."""
     if isinstance(model, BaseModel):
         return model, 2
@@ -43,14 +43,14 @@ def _chk_model(model: Any) -> Tuple[Union[BaseModel, BaseModelV1], Literal[1, 2]
 
 def _write_yaml_model(
     stream: IOBase,
-    model: Union[BaseModel, BaseModelV1],
+    model: BaseModel | BaseModelV1,
     *,
-    default_flow_style: Optional[bool] = None,
-    indent: Optional[int] = None,
-    map_indent: Optional[int] = None,
-    sequence_indent: Optional[int] = None,
-    sequence_dash_offset: Optional[int] = None,
-    custom_yaml_writer: Optional[YAML] = None,
+    default_flow_style: bool | None = None,
+    indent: int | None = None,
+    map_indent: int | None = None,
+    sequence_indent: int | None = None,
+    sequence_dash_offset: int | None = None,
+    custom_yaml_writer: YAML | None = None,
     **json_kwargs,
 ) -> None:
     """Write YAML model to the stream object.
@@ -99,14 +99,14 @@ def _write_yaml_model(
 
 
 def to_yaml_str(
-    model: Union[BaseModel, BaseModelV1],
+    model: BaseModel | BaseModelV1,
     *,
-    default_flow_style: Optional[bool] = False,
-    indent: Optional[int] = None,
-    map_indent: Optional[int] = None,
-    sequence_indent: Optional[int] = None,
-    sequence_dash_offset: Optional[int] = None,
-    custom_yaml_writer: Optional[YAML] = None,
+    default_flow_style: bool | None = False,
+    indent: int | None = None,
+    map_indent: int | None = None,
+    sequence_indent: int | None = None,
+    sequence_dash_offset: int | None = None,
+    custom_yaml_writer: YAML | None = None,
     **json_kwargs,
 ) -> str:
     """Generate a YAML string representation of the model.
@@ -151,15 +151,15 @@ def to_yaml_str(
 
 
 def to_yaml_file(
-    file: Union[Path, str, IOBase],
-    model: Union[BaseModel, BaseModelV1],
+    file: Path | str | IOBase,
+    model: BaseModel | BaseModelV1,
     *,
-    default_flow_style: Optional[bool] = False,
-    indent: Optional[int] = None,
-    map_indent: Optional[int] = None,
-    sequence_indent: Optional[int] = None,
-    sequence_dash_offset: Optional[int] = None,
-    custom_yaml_writer: Optional[YAML] = None,
+    default_flow_style: bool | None = False,
+    indent: int | None = None,
+    map_indent: int | None = None,
+    sequence_indent: int | None = None,
+    sequence_dash_offset: int | None = None,
+    custom_yaml_writer: YAML | None = None,
     **json_kwargs,
 ) -> None:
     """Write a YAML file representation of the model.
@@ -214,7 +214,7 @@ def to_yaml_file(
         return
 
 
-def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
+def parse_yaml_raw_as(model_type: type[T], raw: str | bytes | IOBase) -> T:
     """Parse raw YAML string as the passed model type.
 
     Parameters
@@ -242,7 +242,7 @@ def parse_yaml_raw_as(model_type: Type[T], raw: Union[str, bytes, IOBase]) -> T:
         return ta.validate_python(objects)
 
 
-def parse_yaml_file_as(model_type: Type[T], file: Union[Path, str, IOBase]) -> T:
+def parse_yaml_file_as(model_type: type[T], file: Path | str | IOBase) -> T:
     """Parse YAML file as the passed model type.
 
     Parameters
