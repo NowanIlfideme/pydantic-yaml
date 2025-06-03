@@ -2,9 +2,15 @@
 requires = ["setuptools >= 61.0.0", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
+[project.urls]
+github = "https://github.com/NowanIlfideme/pydantic-yaml"
+docs = "https://pydantic-yaml.readthedocs.io/en/latest/"
+issues = "https://github.com/NowanIlfideme/pydantic-yaml/issues"
+releasenotes = "https://github.com/NowanIlfideme/pydantic-yaml/releases"
+
 [project]
 name = "pydantic_yaml"
-description = "YAML reading/writing for Pydantic models."
+description = "YAML reading/writing for Pydantic models"
 readme = "README.md"
 requires-python = ">=3.10"
 dynamic = ["version"]
@@ -25,7 +31,6 @@ dependencies = [
     "ruamel.yaml>=0.17.0,<0.19.0", # recommended ~=0.18.x
     "typing_extensions>=4.5.0",
 ]
-urls = { github = "https://github.com/NowanIlfideme/pydantic-yaml", docs = "https://pydantic-yaml.readthedocs.io/en/latest/" }
 
 [project.optional-dependencies]
 dev = [
@@ -78,6 +83,7 @@ convention = "numpy"
 
 [tool.pytest.ini_options]
 testpaths = ["src/test"]
+# filterwarnings = ["error"]  # TODO: Consider enabling to avoid warnings.
 
 [tool.mypy]
 files = 'src/pydantic_yaml/**/*.py'
