@@ -39,7 +39,7 @@ dev = [
     "pre-commit==4.2.0",
     "ruff==0.11.13",
     "mypy==1.16.0",
-    "pytest==8.4.0",
+    "pytest==8.4.1",
 ]
 docs = [
     "mkdocs",
