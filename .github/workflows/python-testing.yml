@@ -32,7 +32,7 @@ jobs:
           - "0.17.40"
           - "0.18.11"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
