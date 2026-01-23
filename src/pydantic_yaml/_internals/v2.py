@@ -98,7 +98,7 @@ def _add_descriptions(
         flds: dict[str, FieldInfo] | dict[str, FieldInfoV1]
 
         if isinstance(obj, BaseModel):
-            flds = obj.model_fields
+            flds = BaseModel.model_fields
         elif isinstance(obj, BaseModelV1):
             flds = obj.__fields__
 
