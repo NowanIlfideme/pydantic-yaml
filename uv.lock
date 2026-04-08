@@ -760,6 +760,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "hatch-vcs" },
+    { name = "hatchling" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -783,6 +784,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "hatch-vcs", specifier = ">=0.5.0" },
+    { name = "hatchling", specifier = ">=1.29.0" },
     { name = "mypy", specifier = "==1.19.1" },
     { name = "pre-commit", specifier = "==4.5.1" },
     { name = "pytest", specifier = "==9.0.2" },
