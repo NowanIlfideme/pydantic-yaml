@@ -12,10 +12,10 @@
 version: 2
 
 updates:
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "/"
 
-    # Do pip dependency checks every day
+    # Do dependency checks every day
     schedule:
       interval: "daily"
       time: "08:00"
