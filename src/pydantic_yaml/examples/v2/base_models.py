@@ -4,14 +4,7 @@
 
 from typing import Annotated, Optional
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    field_serializer,
-    model_serializer,
-    model_validator,
-)
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, model_serializer, model_validator
 from pydantic.types import SecretBytes, SecretStr
 
 from pydantic_yaml.examples.common import MyIntEnum, MyStrEnum
@@ -157,3 +150,23 @@ class CustomRootListObj(BaseModel):  # type: ignore[no-redef]
     def model_modify_json_schema(cls, json_schema):
         """JSON schema changer."""
         return json_schema["properties"]["root"]
+
+
+class CommentedModel(BaseModel):
+    """Model for testing advanced commenting cases.
+
+    See Also
+    --------
+    [Issue #333](https://github.com/NowanIlfideme/pydantic-yaml/issues/333)
+    """
+
+    ann1: float = Field(3, description="See three?\nPO")
+    ann2: Annotated[float, Field(description="See three?\nPO")] = 3
+    ann3: float = 3
+    """This is an annotation with multiple lines.
+    
+    This particular case is not supported by Pydantic v1, but is by v2.
+    """
+
+    model_config = ConfigDict(use_attribute_docstrings=True)
+    # NOTE: Pydantic v2 DOES support descriptions from docstrings

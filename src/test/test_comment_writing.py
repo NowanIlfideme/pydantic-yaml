@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from pydantic_yaml import parse_yaml_file_as, to_yaml_str
 from pydantic_yaml._internals.comments import CommentsOptions
-from pydantic_yaml.examples.base_models import UsesRefs, commented, root
+from pydantic_yaml.examples.base_models import CommentedModel, UsesRefs, commented, root
 
 sub_ps: dict[CommentsOptions, Path] = {
     False: commented / "false",
@@ -21,6 +21,7 @@ sub_ps: dict[CommentsOptions, Path] = {
     ["model_type", "fn"],
     [
         (UsesRefs, "uses_refs.yaml"),
+        (CommentedModel, "commented_model.yaml"),
     ],
 )
 def test_load_rt_simple_files(model_type: type[BaseModel], fn: str):
