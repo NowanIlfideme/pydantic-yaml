@@ -1,0 +1,7 @@
+ann1: 3.0  # See three?
+PO
+ann2: 3.0 # See three?
+PO
+ann3: 3.0 # This is an annotation with multiple lines.
+
+This particular case is not supported by Pydantic v1, but is by v2.
