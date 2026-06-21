@@ -1,4 +1,3 @@
-
 *__pycache__*
 *.pyc
 
@@ -11,3 +10,9 @@ src/dist/*
 # Temp files
 condaenv.*.requirements.txt
 *.py.*.tmp
+
+# Python version pinning (use pyproject.toml instead)
+.python-version
+
+# uv lock file (generated based on pyproject.toml)
+uv.lock
