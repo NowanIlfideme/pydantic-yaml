@@ -107,8 +107,9 @@ def _add_descriptions(
                 # Add field description (if any/allowed)
                 fld_desc = _get_doc(fld_info, opts=opts)
                 if fld_desc is not None:
-                    # FIXME: This doesn't properly handle multi-line comments!
-                    ystruct.yaml_add_eol_comment(fld_desc, key=fld_name)
+                    # Convert multi-line descriptions to single-line by replacing newlines with spaces
+                    fld_desc_single = fld_desc.replace("\n", " ").strip()
+                    ystruct.yaml_add_eol_comment(fld_desc_single, key=fld_name)
 
                 # Recurse into fields
                 fld_obj = getattr(obj, fld_name, None)
