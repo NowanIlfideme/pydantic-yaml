@@ -33,7 +33,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pydantic==1.10.22",            # including pydantic>=2.0.0!
+    "pydantic>=1.10.0,<3",         # including pydantic>=2.0.0!
     "ruamel.yaml>=0.17.0,<0.20.0", # recommended ~=0.18.x
     "typing_extensions>=4.5.0",
 ]
