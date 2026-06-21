@@ -33,7 +33,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pydantic>=2,<3",
+    "pydantic>=2.8,<3",
+    "pydantic-core>=2.35.0,<3",    # minimal requirement
     "ruamel.yaml>=0.17.0,<0.20.0", # recommended ~=0.18.x
     "typing_extensions>=4.5.0",
 ]
@@ -50,11 +51,11 @@ dev = [
     "prek>=0.4.4",
 ]
 docs = [
-    "mkdocs<2",             # To be updated to Zensical
-    "mkdocs-material",
-    "mkdocstrings[python]",
-    "pymdown-extensions",
-    "pygments",
+    "mkdocs>=1.6,<2",              # To be updated to Zensical
+    "mkdocs-material>=9.7.0",
+    "mkdocstrings[python]>=1.0.4",
+    "pymdown-extensions>=10.21.3",
+    "pygments>=2.20.0",
 ]
 
 [project.scripts]
