@@ -28,12 +28,12 @@ jobs:
           - "--all-groups"
         lib-pydantic:
           - "1.10.22" # last supported versions of Pydantic v1
-          # - "2.5.0" # first version to support python 3.12 - we are testing 3.13 now
           - "2.12.5"
         lib-ruamel:
           - "NOTSET"
           - "0.17.40"
           - "0.18.11"
+          - "0.19.1"
     steps:
       - uses: actions/checkout@v7
 
