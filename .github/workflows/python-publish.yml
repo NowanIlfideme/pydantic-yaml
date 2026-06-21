@@ -11,60 +11,18 @@ on:
     types: [created]
 
 env:
-  gha-uv-version: "0.11.5"
+  gha-uv-version: "0.11.23"
   gha-python-version: "3.10"
 
 jobs:
   ci-check:
     name: "Pre-publishing CI Checks"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: true # we want CI to immediately fail for releases
-      matrix:
-        python-version:
-          - "3.10"
-          - "3.13"
-        dep-groups:
-          - "--only-dev"
-          - "--all-groups"
-        lib-pydantic:
-          - "1.10.22" # last supported versions of Pydantic v1
-          # - "2.5.0" # first version to support python 3.12 - we are testing 3.13 now
-          - "2.12.5"
-        lib-ruamel:
-          - "NOTSET"
-          - "0.17.40"
-          - "0.18.11"
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: "Install uv and python ${{ matrix.python-version }}"
-        uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-          python-version: ${{ matrix.python-version }}
-          version: ${{ env.gha-uv-version }}
-
-      - name: Install package and dependencies according to matrix
-        run: |
-          uv sync ${{ matrix.dep-groups }}
-          if [ ${{ matrix.lib-ruamel }} != "NOTSET" ]
-          then
-            uv add "ruamel.yaml~=${{ matrix.lib-ruamel }}"
-          fi
-          uv add "pydantic~=${{ matrix.lib-pydantic }}"
-
-      - name: Lint with ruff
-        run: |
-          uv run ruff check .
-      - name: Test with pytest
-        run: |
-          uv run pytest
-      - name: Test with mypy
-        run: |
-          uv run mypy -p pydantic_yaml
+    uses: ./.github/workflows/test-matrix.yml
+    with:
+      python-versions: '["3.10", "3.12", "3.14"]'
+      dependency-resolution: '["lowest-direct", "highest"]'
+      dep-groups: '["--only-dev", "--all-groups"]'
+      fail-fast: true
 
   publish-pypi:
     name: "Publish to PyPI"

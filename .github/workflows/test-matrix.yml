@@ -1,0 +1,61 @@
+name: Run Tests
+
+on:
+  workflow_call:
+    inputs:
+      python-versions:
+        description: "JSON array of Python versions to test (e.g., ['3.10', '3.14'])"
+        required: true
+        type: string
+      dependency-resolution:
+        description: "JSON array of uv resolution modes (out of ['lowest', 'lowest-direct' and 'highest'])"
+        required: true
+        type: string
+      dep-groups:
+        description: "JSON array of dependency groups to test"
+        required: true
+        type: string
+      fail-fast:
+        description: "Whether to fail fast on first test failure"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  gha-uv-version: "0.11.23"
+
+jobs:
+  test:
+    name: "Testing"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: ${{ inputs.fail-fast }}
+      matrix:
+        python-version: ${{ fromJson(inputs.python-versions) }}
+        dep-groups: ${{ fromJson(inputs.dep-groups) }}
+        dependency-resolution: ${{ fromJson(inputs.dependency-resolution) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Install uv and python ${{ matrix.python-version }}"
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+          version: ${{ env.gha-uv-version }}
+
+      - name: "Sync dependencies (${{ matrix.dependency-resolution }})"
+        run: |
+          uv sync ${{ matrix.dep-groups }} --resolution ${{ matrix.dependency-resolution }}
+
+      - name: Lint with ruff
+        run: |
+          uv run ruff check .
+      - name: Test with pytest
+        run: |
+          uv run pytest
+      - name: Test with mypy
+        run: |
+          uv run mypy -p pydantic_yaml

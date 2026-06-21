@@ -18,7 +18,7 @@ name = "pydantic_yaml"
 # version is dynamic
 description = "YAML reading/writing for Pydantic models"
 readme = "README.md"
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.10"
 dynamic = ["version"]
 keywords = ["pydantic", "yaml"]
 license = { file = "LICENSE" }
@@ -78,7 +78,6 @@ packages = ["pydantic_yaml"]
 
 
 [tool.ruff]
-# NOTE: target-version is same as requires-python
 # See: https://astral.sh/blog/ruff-v0.10.0
 line-length = 105
 src = ["src"]
