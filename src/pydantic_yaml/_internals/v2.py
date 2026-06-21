@@ -13,13 +13,23 @@ import warnings
 from collections.abc import Mapping, Sequence
 from io import BytesIO, IOBase, StringIO
 from pathlib import Path
-from typing import Any, TypeVar
+from textwrap import dedent
+from typing import Any, Literal, TypeVar
 
 from pydantic import BaseModel, RootModel, TypeAdapter
 from pydantic.fields import FieldInfo
 from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 
-from .comments import CommentsOptions
+CommentsOptions = Literal["fields-only", "models-only"] | bool
+
+
+def as_yaml_comment(value: str | None) -> str | None:
+    """Convert a value (e.g. docstring) into a YAML comment."""
+    if value is None:
+        return None
+    lines = dedent(value.lstrip("\n").rstrip()).split("\n")
+    return "\n".join([f"# {v}".strip() for v in lines])
+
 
 T = TypeVar("T", bound=BaseModel)
 

@@ -46,6 +46,7 @@ repos:
       - id: pyrefly-check
         pass_filenames: false # Recommended to do full repo checks. However, you can change this to `true` to only check changed files
         language: system # Use system-installed pyrefly
+        entry: uv run pyrefly check .
 
   - repo: https://github.com/astral-sh/ty-pre-commit
     # ty version.

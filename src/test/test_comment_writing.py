@@ -6,7 +6,7 @@ import pytest
 from pydantic import BaseModel
 
 from pydantic_yaml import parse_yaml_file_as, to_yaml_str
-from pydantic_yaml._internals.comments import CommentsOptions
+from pydantic_yaml._internals.v2 import CommentsOptions
 from pydantic_yaml.examples.base_models import CommentedModel, UsesRefs, commented, root
 
 sub_ps: dict[CommentsOptions, Path] = {
