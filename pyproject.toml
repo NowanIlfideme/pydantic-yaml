@@ -18,7 +18,7 @@ name = "pydantic_yaml"
 # version is dynamic
 description = "YAML reading/writing for Pydantic models"
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<3.15"
 dynamic = ["version"]
 keywords = ["pydantic", "yaml"]
 license = { file = "LICENSE" }
