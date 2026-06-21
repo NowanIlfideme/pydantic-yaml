@@ -20,8 +20,6 @@ jobs:
     uses: ./.github/workflows/test-matrix.yml
     with:
       python-versions: '["3.10", "3.14"]'
+      dependency-resolution: '["highest"]'
       dep-groups: '["--only-dev", "--all-groups"]'
-      pydantic-versions: '["1.10.22", "2.12.5"]'
-      ruamel-versions: '["NOTSET", "0.17.40", "0.18.11", "0.19.1"]'
-      exclude-matrix: '[{"python-version": "3.14", "lib-pydantic": "1.10.22"}]'
       fail-fast: false
