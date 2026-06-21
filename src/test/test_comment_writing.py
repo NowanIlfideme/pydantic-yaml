@@ -18,8 +18,11 @@ sub_ps: dict[CommentsOptions, Path] = {
 
 
 def clean_but_keep_newlines(s: str) -> str:
-    """Clean a string by removing extra spaces but keeping newlines."""
-    lines = s.splitlines()
+    """Clean a string by removing extra spaces but keeping newlines.
+
+    Extra newlines are "compressed" into a single newline.
+    """
+    lines = [line for line in s.splitlines() if line.strip() != ""]
     cleaned_lines = [" ".join(line.split()) for line in lines]
     return "\n".join(cleaned_lines)
 
