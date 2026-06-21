@@ -17,19 +17,14 @@ from io import BytesIO, IOBase, StringIO
 from pathlib import Path
 from typing import Any, TypeVar
 
-from pydantic.version import VERSION as PYDANTIC_VERSION
-from ruamel.yaml import YAML, CommentedMap, CommentedSeq
-from typing_extensions import Literal  # noqa
-
-if (PYDANTIC_VERSION < "2") or (PYDANTIC_VERSION > "3"):
-    raise ImportError("This module can only be imported in Pydantic v2.")
-
 from pydantic import BaseModel, RootModel, TypeAdapter
 from pydantic.fields import FieldInfo
 from pydantic.v1 import BaseModel as BaseModelV1
 from pydantic.v1 import parse_obj_as
 from pydantic.v1.fields import FieldInfo as FieldInfoV1
 from pydantic.v1.fields import ModelField as ModelFieldV1
+from ruamel.yaml import YAML, CommentedMap, CommentedSeq
+from typing_extensions import Literal  # noqa
 
 from .comments import CommentsOptions
 
@@ -103,6 +98,8 @@ def _add_descriptions(
             flds = obj.__fields__
 
         for fld_name, fld_info in flds.items():
+            if not isinstance(ystruct, CommentedMap):
+                raise NotImplementedError("Can't add field descriptions to non-mapping YAML structures.")
             if fld_name in ystruct.keys():
                 # Add field description (if any/allowed)
                 fld_desc = _get_doc(fld_info, opts=opts)

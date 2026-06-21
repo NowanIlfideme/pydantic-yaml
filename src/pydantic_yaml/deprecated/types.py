@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from typing_extensions import deprecated  # type: ignore
+from typing_extensions import deprecated
 
 __all__ = [
     "YamlInt",
