@@ -78,7 +78,6 @@ packages = ["pydantic_yaml"]
 
 
 [tool.ruff]
-# NOTE: target-version is same as requires-python
 # See: https://astral.sh/blog/ruff-v0.10.0
 line-length = 105
 src = ["src"]
