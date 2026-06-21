@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       python-versions:
-        description: "JSON array of Python versions (e.g., ['earliest', '3.13', 'latest'])"
+        description: "JSON array of Python versions to test (e.g., ['3.10', '3.13', 'latest'])"
         required: true
         type: string
       dependency-resolution:
@@ -39,9 +39,6 @@ jobs:
           # Parse pyproject.toml to get Python version requirements
           requires_python=$(grep 'requires-python' pyproject.toml | sed 's/.*requires-python[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/')
 
-          # Extract minimum version (e.g., ">=3.10" -> "3.10")
-          min_version=$(echo "$requires_python" | sed 's/.*>=//' | sed 's/[,<].*//')
-
           # Get latest stable Python version from endoflife.date API
           latest_version=$(curl -s 'https://endoflife.date/api/python.json' | \
             grep -o '"cycle":"[^"]*' | head -1 | sed 's/"cycle":"//')
@@ -51,9 +48,8 @@ jobs:
 
           # Resolve version keywords using jq for safe JSON manipulation
           python_specs=$(echo '${{ inputs.python-versions }}' | jq \
-            --arg min "$min_version" \
             --arg latest "$latest_version" \
-            'map(if . == "earliest" then $min elif . == "latest" then $latest else . end)')
+            'map(if . == "latest" then $latest else . end)')
 
           echo "python-versions=$python_specs" >> "$GITHUB_OUTPUT"
 

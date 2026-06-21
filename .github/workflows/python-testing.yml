@@ -19,7 +19,7 @@ jobs:
     name: "Unit Tests"
     uses: ./.github/workflows/test-matrix.yml
     with:
-      python-versions: '["earliest", "latest"]'
+      python-versions: '["3.10", "latest"]'
       dependency-resolution: '["highest"]'
       dep-groups: '["--only-dev", "--all-groups"]'
       fail-fast: false
