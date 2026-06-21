@@ -56,6 +56,15 @@ jobs:
       - name: Test with pytest
         run: |
           uv run pytest
-      - name: Test with mypy
+      - name: Type check with mypy
         run: |
           uv run mypy -p pydantic_yaml
+      - name: Type check with pyrefly
+        run: |
+          uv run pyrefly check .
+      - name: Type check with ty
+        run: |
+          uv run ty check .
+      - name: Build docs with mkdocs
+        run: |
+          uv run mkdocs build --strict
