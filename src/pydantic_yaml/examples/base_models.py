@@ -13,6 +13,7 @@ __all__ = [
     "UsesRefs",
     "CustomRootListStr",
     "CustomRootListObj",
+    "CommentedModel",
     "root",
 ]
 
@@ -29,6 +30,7 @@ if pydantic.version.VERSION < "2":
     from .v1.base_models import (
         A,
         B,
+        CommentedModel,
         CustomRootListObj,
         CustomRootListStr,
         Empty,
@@ -42,6 +44,7 @@ else:
     from .v2.base_models import (  # type: ignore
         A,
         B,
+        CommentedModel,
         CustomRootListObj,
         CustomRootListStr,
         Empty,

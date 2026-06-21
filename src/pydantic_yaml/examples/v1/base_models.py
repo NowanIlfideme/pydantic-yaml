@@ -108,3 +108,28 @@ class CustomRootListObj(BaseModel):
     """
 
     __root__: list[A | B]
+
+
+class CommentedModel(BaseModel):
+    """Model for testing advanced commenting cases.
+
+    See Also
+    --------
+    [Issue #333](https://github.com/NowanIlfideme/pydantic-yaml/issues/333)
+    """
+
+    ann1: float = Field(3, description="See three?\nPO")
+    ann2: Annotated[float, Field(description="See three?\nPO")] = 3
+    ann3: float = Field(
+        3,
+        description="""This is an annotation with multiple lines.
+
+    This particular case is not supported by Pydantic v1, but is by v2.
+    """,
+    )
+
+    class Config:
+        """Pydantic configuration class."""
+
+        # NOTE: Pydantic v1 does NOT support descriptions from docstrings,
+        # so the above is placed in a `Field`.

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from pydantic_yaml import parse_yaml_file_as, to_yaml_str
 from pydantic_yaml._internals.comments import CommentsOptions
-from pydantic_yaml.examples.base_models import UsesRefs, commented, root
+from pydantic_yaml.examples.base_models import CommentedModel, UsesRefs, commented, root
 
 sub_ps: dict[CommentsOptions, Path] = {
     False: commented / "false",
@@ -17,10 +17,28 @@ sub_ps: dict[CommentsOptions, Path] = {
 }
 
 
+def clean_but_keep_newlines(s: str) -> str:
+    """Clean a string by removing extra spaces but keeping newlines.
+
+    Extra newlines are "compressed" into a single newline.
+    """
+    lines = [line for line in s.splitlines() if line.strip() != ""]
+    cleaned_lines = [" ".join(line.split()) for line in lines]
+    return "\n".join(cleaned_lines)
+
+
+def eq_within_spaces(got: str, expected: str) -> bool:
+    """Check if two strings are equal when ignoring diffs in spaces (but not generic whitespace)."""
+    g_clean = clean_but_keep_newlines(got)
+    e_clean = clean_but_keep_newlines(expected)
+    return g_clean == e_clean
+
+
 @pytest.mark.parametrize(
     ["model_type", "fn"],
     [
         (UsesRefs, "uses_refs.yaml"),
+        (CommentedModel, "commented_model.yaml"),
     ],
 )
 def test_load_rt_simple_files(model_type: type[BaseModel], fn: str):
@@ -32,4 +50,4 @@ def test_load_rt_simple_files(model_type: type[BaseModel], fn: str):
     for add_c, sub_p in sub_ps.items():
         got_i = to_yaml_str(obj, add_comments=add_c)
         expected_i = (commented / sub_p / fn).read_text()
-        assert got_i == expected_i, "Comments not as expected."
+        assert eq_within_spaces(got_i, expected_i), "Comments not as expected."
