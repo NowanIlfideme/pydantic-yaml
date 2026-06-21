@@ -22,7 +22,7 @@ jobs:
       matrix:
         python-version:
           - "3.10"
-          - "3.13"
+          - "3.14"
         dep-groups:
           - "--only-dev"
           - "--all-groups"
