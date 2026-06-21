@@ -40,11 +40,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pre-commit==4.5.1",
-    "ruff==0.15.9",
-    "mypy==1.20.1",
-    "pytest==9.0.3",
-    "hatchling>=1.29.0",
+    "pre-commit==4.6.0",
+    "ruff==0.15.18",
+    "mypy==2.1.0",
+    "pytest==9.1.1",
+    "hatchling>=1.30.1",
     "hatch-vcs>=0.5.0",
 ]
 docs = [
