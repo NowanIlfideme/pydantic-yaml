@@ -35,7 +35,7 @@ jobs:
           - "0.17.40"
           - "0.18.11"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: "Install uv and python ${{ matrix.python-version }}"
         uses: astral-sh/setup-uv@v7
