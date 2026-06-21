@@ -49,9 +49,11 @@ jobs:
           # Fallback to 3.14 if API call fails
           latest_version=${latest_version:-3.14}
 
-          # Resolve version keywords
-          python_specs=$(echo '${{ inputs.python-versions }}' | sed 's/"earliest"/"'"$min_version"'"/g')
-          python_specs=$(echo "$python_specs" | sed 's/"latest"/"'"$latest_version"'"/g')
+          # Resolve version keywords using jq for safe JSON manipulation
+          python_specs=$(echo '${{ inputs.python-versions }}' | jq \
+            --arg min "$min_version" \
+            --arg latest "$latest_version" \
+            'map(if . == "earliest" then $min elif . == "latest" then $latest else . end)')
 
           echo "python-versions=$python_specs" >> "$GITHUB_OUTPUT"
 
