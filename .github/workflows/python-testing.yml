@@ -34,6 +34,10 @@ jobs:
           - "0.17.40"
           - "0.18.11"
           - "0.19.1"
+        exclude:
+          - # Pydantic 1.x not compatible with Python 3.14
+            python-version: "3.14"
+            lib-pydantic: "1.10.22"
     steps:
       - uses: actions/checkout@v7
 
