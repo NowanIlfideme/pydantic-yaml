@@ -19,7 +19,7 @@ jobs:
     name: "Pre-publishing CI Checks"
     uses: ./.github/workflows/test-matrix.yml
     with:
-      python-versions: '["3.10", "3.12", "latest"]'
+      python-versions: '["3.10", "3.12", "3.14"]'
       dependency-resolution: '["lowest-direct", "highest"]'
       dep-groups: '["--only-dev", "--all-groups"]'
       fail-fast: true

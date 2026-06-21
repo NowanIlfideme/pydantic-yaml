@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       python-versions:
-        description: "JSON array of Python versions to test (e.g., ['3.10', '3.13', 'latest'])"
+        description: "JSON array of Python versions to test (e.g., ['3.10', '3.14'])"
         required: true
         type: string
       dependency-resolution:
@@ -25,44 +25,15 @@ env:
   gha-uv-version: "0.11.23"
 
 jobs:
-  resolve-versions:
-    name: "Resolve Python Versions"
-    runs-on: ubuntu-latest
-    outputs:
-      python-versions: ${{ steps.resolve.outputs.python-versions }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Resolve version keywords
-        id: resolve
-        run: |
-          # Parse pyproject.toml to get Python version requirements
-          requires_python=$(grep 'requires-python' pyproject.toml | sed 's/.*requires-python[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/')
-
-          # Get latest stable Python version from endoflife.date API
-          latest_version=$(curl -s 'https://endoflife.date/api/python.json' | \
-            grep -o '"cycle":"[^"]*' | head -1 | sed 's/"cycle":"//')
-
-          # Fallback to 3.14 if API call fails
-          latest_version=${latest_version:-3.14}
-
-          # Resolve version keywords using jq for safe JSON manipulation
-          python_specs=$(echo '${{ inputs.python-versions }}' | jq \
-            --arg latest "$latest_version" \
-            'map(if . == "latest" then $latest else . end)')
-
-          echo "python-versions=$python_specs" >> "$GITHUB_OUTPUT"
-
   test:
-    name: "Test"
-    needs: resolve-versions
+    name: "Testing"
     runs-on: ubuntu-latest
     permissions:
       contents: read
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
-        python-version: ${{ fromJson(needs.resolve-versions.outputs.python-versions) }}
+        python-version: ${{ fromJson(inputs.python-versions) }}
         dep-groups: ${{ fromJson(inputs.dep-groups) }}
         dependency-resolution: ${{ fromJson(inputs.dependency-resolution) }}
     steps:
