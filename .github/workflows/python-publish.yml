@@ -18,6 +18,8 @@ jobs:
   ci-check:
     name: "Pre-publishing CI Checks"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: true # we want CI to immediately fail for releases
       matrix:
