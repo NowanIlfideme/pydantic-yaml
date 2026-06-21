@@ -3,6 +3,7 @@
 # See Also
 # --------
 # [Issue #333](https://github.com/NowanIlfideme/pydantic-yaml/issues/333)
+
 ann1: 3.0
 ann2: 3.0
 ann3: 3.0
