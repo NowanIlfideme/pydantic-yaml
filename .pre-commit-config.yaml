@@ -10,6 +10,7 @@ repos:
         # 1 MB - Don't commit notebooks with output!
       - id: trailing-whitespace
       - id: check-yaml
+        exclude: "^src/pydantic_yaml/examples/base_models/recursive.yaml$"
       - id: check-toml
       - id: end-of-file-fixer
       - id: detect-private-key

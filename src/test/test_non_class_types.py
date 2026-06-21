@@ -35,12 +35,12 @@ def test_non_class_types_union() -> None:
 
 def test_non_class_types_uniontype() -> None:
     """Test non-class types."""
-    inst1: MyStrModel | MyListModel = parse_yaml_raw_as(  # type: ignore
+    inst1: MyStrModel | MyListModel = parse_yaml_raw_as(
         MyStrModel | MyListModel,  # type: ignore
         "my_prop: my_yaml_string",
     )
     assert isinstance(inst1, MyStrModel)
-    inst2: MyStrModel | MyListModel = parse_yaml_raw_as(  # type: ignore
+    inst2: MyStrModel | MyListModel = parse_yaml_raw_as(
         MyStrModel | MyListModel,  # type: ignore
         "my_prop: [my_yaml_string]",
     )

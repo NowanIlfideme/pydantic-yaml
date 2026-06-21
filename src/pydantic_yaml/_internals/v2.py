@@ -8,8 +8,6 @@ Roundtrip comments with ruamel.yaml
     If you need to keep comments, you'll have to have parallel updating and validation.
 """
 
-# mypy: ignore-errors
-
 import json
 import warnings
 from collections.abc import Mapping, Sequence
@@ -19,50 +17,29 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel, RootModel, TypeAdapter
 from pydantic.fields import FieldInfo
-from pydantic.v1 import BaseModel as BaseModelV1
-from pydantic.v1 import parse_obj_as
-from pydantic.v1.fields import FieldInfo as FieldInfoV1
-from pydantic.v1.fields import ModelField as ModelFieldV1
 from ruamel.yaml import YAML, CommentedMap, CommentedSeq
-from typing_extensions import Literal  # noqa
 
 from .comments import CommentsOptions
 
-T = TypeVar("T", bound=BaseModel | BaseModelV1)
+T = TypeVar("T", bound=BaseModel)
 
 
-def _chk_model(model: Any) -> tuple[BaseModel | BaseModelV1, Literal[1, 2]]:
-    """Ensure the model passed is a Pydantic model."""
-    if isinstance(model, BaseModel):
-        return model, 2
-    elif isinstance(model, BaseModelV1):
-        return model, 1
-    raise TypeError(
-        "We can currently only write `pydantic.BaseModel` or `pydantic.v1.BaseModel`"
-        f"but recieved: {model!r}"
-    )
-
-
-def _get_doc(
-    obj: BaseModel | BaseModelV1 | FieldInfo | FieldInfoV1 | ModelFieldV1 | Any, opts: CommentsOptions
-) -> str | None:
+def _get_doc(obj: BaseModel | FieldInfo | Any, opts: CommentsOptions) -> str | None:
     """Get documentation for the model or field, taking options into account."""
-    if isinstance(obj, BaseModel | BaseModelV1):
+    if isinstance(obj, BaseModel):
         if opts in (True, "models-only"):
             return getattr(obj, "__doc__", None)
         return None
-    elif isinstance(obj, FieldInfo | FieldInfoV1):
+    elif isinstance(obj, FieldInfo):
         if opts in (True, "fields-only"):
             return obj.description
         return None
-    elif isinstance(obj, ModelFieldV1):
-        return _get_doc(obj.field_info, opts=opts)
     return None
 
 
 def _add_descriptions(
     ystruct: CommentedMap | CommentedSeq,  # or other stuff...
-    obj: BaseModel | BaseModelV1 | Mapping | Sequence | Any,
+    obj: BaseModel | Mapping | Sequence | Any,
     opts: CommentsOptions,
 ) -> None:
     """Add descriptions from the object to the yaml struct (modifying it).
@@ -73,7 +50,7 @@ def _add_descriptions(
     top_lvl = _get_doc(obj, opts=opts)
     if top_lvl is not None:
         try:
-            indent = ystruct.lc.col  # type: ignore  # HACK
+            indent = ystruct.lc.col
         except Exception:
             indent = 0
         ystruct.yaml_set_start_comment(top_lvl, indent=indent)
@@ -83,19 +60,13 @@ def _add_descriptions(
             # RootModel should probably work
             assert isinstance(obj, RootModel), "Model incorrectly set as RootModel."
             obj = obj.root
-    elif isinstance(obj, BaseModelV1):
-        if obj.__custom_root_type__:
-            # RootModel should probably work
-            obj = obj.__dict__["__root__"]
 
-    if isinstance(obj, BaseModel | BaseModelV1):
+    if isinstance(obj, BaseModel):
         # Add field information
-        flds: dict[str, FieldInfo] | dict[str, FieldInfoV1]
+        flds: dict[str, FieldInfo]
 
         if isinstance(obj, BaseModel):
             flds = type(obj).model_fields
-        elif isinstance(obj, BaseModelV1):
-            flds = obj.__fields__
 
         for fld_name, fld_info in flds.items():
             if not isinstance(ystruct, CommentedMap):
@@ -110,7 +81,7 @@ def _add_descriptions(
 
                 # Recurse into fields
                 fld_obj = getattr(obj, fld_name, None)
-                if isinstance(fld_obj, BaseModel | BaseModelV1 | Sequence | Mapping):
+                if isinstance(fld_obj, BaseModel | Sequence | Mapping):
                     _add_descriptions(ystruct[fld_name], fld_obj, opts=opts)
                 # otherwise - no additional descriptions
     elif isinstance(obj, Sequence) and isinstance(ystruct, CommentedSeq):
@@ -124,7 +95,7 @@ def _add_descriptions(
 
 def _write_yaml_model(
     stream: IOBase,
-    model: BaseModel | BaseModelV1,
+    model: BaseModel,
     *,
     add_comments: CommentsOptions = False,
     default_flow_style: bool | None = None,
@@ -160,11 +131,9 @@ def _write_yaml_model(
     json_kwargs : Any
         Keyword arguments to pass `model.model_dump_json()`.
     """
-    model, vers = _chk_model(model)
-    if vers == 1:
-        json_val = model.json(**json_kwargs)  # type: ignore
-    else:
-        json_val = model.model_dump_json(**json_kwargs)  # type: ignore
+    if not isinstance(model, BaseModel):
+        raise TypeError(f"Expected a Pydantic BaseModel, but got {type(model)}")
+    json_val = model.model_dump_json(**json_kwargs)
     val = json.loads(json_val)
     # Allow setting custom writer
     if custom_yaml_writer is None:
@@ -200,7 +169,7 @@ def _write_yaml_model(
 
 
 def to_yaml_str(
-    model: BaseModel | BaseModelV1,
+    model: BaseModel,
     *,
     add_comments: CommentsOptions = False,
     default_flow_style: bool | None = False,
@@ -237,7 +206,6 @@ def to_yaml_str(
     This currently uses JSON dumping as an intermediary.
     This means that you can use `json_encoders` in your model.
     """
-    model, _ = _chk_model(model)
     stream = StringIO()
     _write_yaml_model(
         stream,
@@ -257,7 +225,7 @@ def to_yaml_str(
 
 def to_yaml_file(
     file: Path | str | IOBase,
-    model: BaseModel | BaseModelV1,
+    model: BaseModel,
     *,
     add_comments: CommentsOptions = False,
     default_flow_style: bool | None = False,
@@ -296,7 +264,6 @@ def to_yaml_file(
     This currently uses JSON dumping as an intermediary.
     This means that you can use `json_encoders` in your model.
     """
-    model, _ = _chk_model(model)
     write_kwargs = dict(
         add_comments=add_comments,
         default_flow_style=default_flow_style,
@@ -308,7 +275,7 @@ def to_yaml_file(
         **json_kwargs,
     )
     if isinstance(file, IOBase):  # open file handle
-        _write_yaml_model(file, model, **write_kwargs)
+        _write_yaml_model(file, model, **write_kwargs)  # type: ignore
         return
 
     if isinstance(file, str):  # local path to file
@@ -319,7 +286,7 @@ def to_yaml_file(
         raise TypeError(f"Expected Path, str, or stream, but got {file!r}")
 
     with file.open(mode="w") as f:
-        _write_yaml_model(f, model, **write_kwargs)
+        _write_yaml_model(f, model, **write_kwargs)  # type: ignore
         return
 
 
@@ -344,11 +311,8 @@ def parse_yaml_raw_as(model_type: type[T], raw: str | bytes | IOBase) -> T:
         raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
     reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
     objects = reader.load(stream)
-    if isinstance(model_type, type) and issubclass(model_type, BaseModelV1):
-        return parse_obj_as(model_type, objects)  # type:ignore
-    else:
-        ta = TypeAdapter(model_type)  # type: ignore
-        return ta.validate_python(objects)
+    ta = TypeAdapter(model_type)
+    return ta.validate_python(objects)
 
 
 def parse_yaml_file_as(model_type: type[T], file: Path | str | IOBase) -> T:
