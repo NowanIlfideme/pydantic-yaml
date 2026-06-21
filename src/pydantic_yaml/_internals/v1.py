@@ -76,6 +76,7 @@ def _add_descriptions(
                 # Add field description (if any/allowed)
                 fld_desc = _get_doc(fld_info, opts=opts)
                 if fld_desc is not None:
+                    # FIXME: This doesn't properly handle multi-line comments!
                     ystruct.yaml_add_eol_comment(fld_desc, key=fld_name)
 
                 # Recurse into fields
