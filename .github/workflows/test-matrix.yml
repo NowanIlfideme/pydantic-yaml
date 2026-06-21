@@ -1,0 +1,76 @@
+name: Run Tests
+
+on:
+  workflow_call:
+    inputs:
+      python-versions:
+        description: "JSON array of Python versions to test"
+        required: true
+        type: string
+      dep-groups:
+        description: "JSON array of dependency groups to test"
+        required: true
+        type: string
+      pydantic-versions:
+        description: "JSON array of Pydantic versions to test"
+        required: true
+        type: string
+      ruamel-versions:
+        description: "JSON array of ruamel.yaml versions to test"
+        required: true
+        type: string
+      exclude-matrix:
+        description: "JSON array of matrix exclusions"
+        required: false
+        type: string
+        default: "[]"
+      fail-fast:
+        description: "Whether to fail fast on first test failure"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  gha-uv-version: "0.11.5"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: ${{ inputs.fail-fast }}
+      matrix:
+        python-version: ${{ fromJson(inputs.python-versions) }}
+        dep-groups: ${{ fromJson(inputs.dep-groups) }}
+        lib-pydantic: ${{ fromJson(inputs.pydantic-versions) }}
+        lib-ruamel: ${{ fromJson(inputs.ruamel-versions) }}
+        exclude: ${{ fromJson(inputs.exclude-matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Install uv and python ${{ matrix.python-version }}"
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+          version: ${{ env.gha-uv-version }}
+
+      - name: Install package and dependencies according to matrix
+        run: |
+          uv sync ${{ matrix.dep-groups }}
+          if [ ${{ matrix.lib-ruamel }} != "NOTSET" ]
+          then
+            uv add "ruamel.yaml~=${{ matrix.lib-ruamel }}"
+          fi
+          uv add "pydantic~=${{ matrix.lib-pydantic }}"
+
+      - name: Lint with ruff
+        run: |
+          uv run ruff check .
+      - name: Test with pytest
+        run: |
+          uv run pytest
+      - name: Test with mypy
+        run: |
+          uv run mypy -p pydantic_yaml
