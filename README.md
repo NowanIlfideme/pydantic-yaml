@@ -117,19 +117,26 @@ A separate configuration for YAML specifically will be added later, likely in v2
 
 ## YAML Engine
 
-By default, `pydantic-yaml` reads and writes YAML using [`ruamel.yaml`](https://yaml.readthedocs.io/).
-As tracked in [issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338), an
-optional, Rust-backed engine using [`yamlrocks`](https://yaml.rocks) is also available - it's
-YAML 1.2 spec-compliant and, unlike `ruamel.yaml`, passes the
-[yaml-test-suite](https://github.com/yaml/yaml-test-suite).
+`pydantic-yaml` supports two YAML backends, as tracked in
+[issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338):
 
-Install it as an extra:
+- [`ruamel.yaml`](https://yaml.readthedocs.io/) - the historical default.
+- [`yamlrocks`](https://yaml.rocks) - a Rust-backed engine that's YAML 1.2 spec-compliant and,
+  unlike `ruamel.yaml`, passes the [yaml-test-suite](https://github.com/yaml/yaml-test-suite).
+
+Neither is a core dependency - **at least one must be installed, but either one suffices**:
 
 ```sh
+pip install "pydantic-yaml[ruamel]"     # matches the historical default
 pip install "pydantic-yaml[yamlrocks]"  # requires Python >=3.12
+pip install "pydantic-yaml[all]"        # both
 ```
 
-Then select it per-call:
+If you don't pick one explicitly, whichever is installed is used automatically (preferring
+`ruamel.yaml` if both are present). Installing neither raises a clear `ImportError` the first
+time you actually read or write YAML (importing `pydantic_yaml` itself still works).
+
+Select an engine per-call:
 
 ```python
 to_yaml_str(model, engine="yamlrocks")
@@ -144,7 +151,6 @@ from pydantic_yaml import set_default_engine
 set_default_engine("yamlrocks")  # or set PYDANTIC_YAML_ENGINE=yamlrocks
 ```
 
-`ruamel.yaml` remains the default in the interim, so existing code keeps working unchanged.
 Some `ruamel`-specific options (`custom_yaml_writer`, independently-configurable
 `map_indent`/`sequence_indent`/`sequence_dash_offset`) aren't supported by the `yamlrocks`
 engine, since that library doesn't expose equivalent knobs.

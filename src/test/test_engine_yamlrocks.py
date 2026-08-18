@@ -20,7 +20,6 @@ from pydantic_yaml import (  # noqa: E402
     to_yaml_file,
     to_yaml_str,
 )
-from pydantic_yaml._internals.v2 import _ENGINE_ENV_VAR, _engine_from_env  # noqa: E402
 from pydantic_yaml.examples.base_models import A, CommentedModel, HasEnums, UsesRefs, commented, root  # noqa: E402
 from pydantic_yaml.examples.common import MyIntEnum, MyStrEnum  # noqa: E402
 
@@ -129,33 +128,15 @@ def test_commented_model_smoke():
 
 
 def test_engine_selection():
-    """`engine=` overrides the default; `set_default_engine` changes it for subsequent calls."""
-    assert get_default_engine() == "ruamel"
+    """`engine="yamlrocks"` works as the explicit default, bypassing autodetection.
+
+    See test_engine_selection.py for the (backend-independent) autodetection/env-var logic.
+    """
+    original = get_default_engine()
     try:
         set_default_engine("yamlrocks")
         assert get_default_engine() == "yamlrocks"
         # No engine passed -> uses the new default.
         assert to_yaml_str(A(a="a")) == to_yaml_str(A(a="a"), engine="yamlrocks")
     finally:
-        set_default_engine("ruamel")
-    assert get_default_engine() == "ruamel"
-
-
-def test_unknown_engine_raises():
-    """An unrecognized engine name raises `ValueError` rather than silently falling back."""
-    bad_engine: str = "not-a-real-engine"
-    with pytest.raises(ValueError):
-        to_yaml_str(A(a="a"), engine=bad_engine)  # ty: ignore[invalid-argument-type]
-    with pytest.raises(ValueError):
-        set_default_engine(bad_engine)  # ty: ignore[invalid-argument-type]
-
-
-def test_engine_env_var(monkeypatch):
-    """`PYDANTIC_YAML_ENGINE` (read once, at import time) seeds the default engine."""
-    monkeypatch.delenv(_ENGINE_ENV_VAR, raising=False)
-    assert _engine_from_env() == "ruamel"
-    monkeypatch.setenv(_ENGINE_ENV_VAR, "yamlrocks")
-    assert _engine_from_env() == "yamlrocks"
-    monkeypatch.setenv(_ENGINE_ENV_VAR, "not-a-real-engine")
-    with pytest.raises(ValueError):
-        _engine_from_env()
+        set_default_engine(original)
