@@ -98,3 +98,11 @@ gives
 ```yaml
 c:  # See three?
 ```
+
+## Engines
+
+Comment generation is supported by both the default `ruamel` engine and the optional
+[`yamlrocks`](installing.md) engine (`to_yaml_str(mdl, add_comments=True, engine="yamlrocks")`).
+Exact comment placement can differ slightly between the two - notably, `ruamel.yaml` sometimes
+drops a nested model's docstring when `add_comments=True` and that same field also has its own
+description (a known `ruamel.yaml` inconsistency); `yamlrocks` includes both.

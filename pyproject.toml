@@ -39,6 +39,11 @@ dependencies = [
     "typing_extensions>=4.5.0",
 ]
 
+[project.optional-dependencies]
+# Optional, Rust-backed YAML engine; see https://github.com/NowanIlfideme/pydantic-yaml/issues/338
+# Requires Python >=3.12. `ruamel.yaml` remains the default engine in the interim.
+yamlrocks = ["yamlrocks>=0.5.0,<0.7; python_version >= '3.12'"]
+
 [dependency-groups]
 dev = [
     "ruff>=0.15.15",
@@ -49,6 +54,7 @@ dev = [
     "ty>=0.0.49",
     "pyrefly>=1.0.0",
     "prek>=0.4.4",
+    "yamlrocks>=0.5.0,<0.7; python_version >= '3.12'",
 ]
 docs = [
     "mkdocs>=1.6,<2",              # To be updated to Zensical
@@ -108,10 +114,21 @@ warn_unused_configs = true
 module = 'ruamel.*'
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# Optional dependency; only installed on Python >=3.12 via the `yamlrocks` extra.
+module = 'yamlrocks.*'
+ignore_missing_imports = true
+
 
 [tool.pyrefly]
 project-includes = ["src/pydantic_yaml/**/*.py"]
 preset = "legacy"
-ignore-missing-imports = ["ruamel.*", "setuptools_scm.*"]
+ignore-missing-imports = ["ruamel.*", "setuptools_scm.*", "yamlrocks.*"]
 
 [tool.ty]
+
+[tool.ty.rules]
+# `yamlrocks` is an optional dependency (Python >=3.12 only); the module that imports it
+# guards the import with try/except ImportError, but on interpreters where it can never be
+# installed (e.g. Python <3.12 in CI), ty can't resolve it either.
+unresolved-import = "warn"

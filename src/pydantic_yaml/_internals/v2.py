@@ -9,6 +9,7 @@ Roundtrip comments with ruamel.yaml
 """
 
 import json
+import os
 import warnings
 from collections.abc import Mapping, Sequence
 from io import BytesIO, IOBase, StringIO
@@ -20,7 +21,65 @@ from pydantic import BaseModel, RootModel, TypeAdapter
 from pydantic.fields import FieldInfo
 from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 
-CommentsOptions = Literal["fields-only", "models-only"] | bool
+from pydantic_yaml._internals.comments import CommentsOptions, get_doc as _get_doc
+
+EngineName = Literal["ruamel", "yamlrocks"]
+"""Which YAML library is used to read/write.
+
+`"ruamel"` (the `ruamel.yaml` package) is the default for now. `"yamlrocks"` is an
+optional, Rust-backed engine (see `pydantic_yaml._internals.engine_yamlrocks` and
+`issue #338 <https://github.com/NowanIlfideme/pydantic-yaml/issues/338>`_) that requires
+installing `pydantic-yaml[yamlrocks]`.
+"""
+
+_ENGINES: tuple[EngineName, ...] = ("ruamel", "yamlrocks")
+_ENGINE_ENV_VAR = "PYDANTIC_YAML_ENGINE"
+
+
+def _validate_engine(engine: str) -> EngineName:
+    if engine == "ruamel":
+        return "ruamel"
+    if engine == "yamlrocks":
+        return "yamlrocks"
+    raise ValueError(f"Unknown YAML engine {engine!r}; expected one of {_ENGINES!r}.")
+
+
+def _engine_from_env() -> EngineName:
+    raw = os.environ.get(_ENGINE_ENV_VAR)
+    if raw is None:
+        return "ruamel"
+    return _validate_engine(raw)
+
+
+_default_engine: EngineName = _engine_from_env()
+
+
+def get_default_engine() -> EngineName:
+    """Get the default YAML engine used when `engine=None` is passed to the public functions.
+
+    Defaults to `"ruamel"`, or the value of the `PYDANTIC_YAML_ENGINE` environment variable
+    (read once, at import time) if set.
+    """
+    return _default_engine
+
+
+def set_default_engine(engine: EngineName) -> None:
+    """Set the default YAML engine used when `engine=None` is passed to the public functions.
+
+    Parameters
+    ----------
+    engine : "ruamel" or "yamlrocks"
+        The engine to use by default from now on. `"yamlrocks"` requires the optional
+        `yamlrocks` dependency; install it with `pip install pydantic-yaml[yamlrocks]`.
+    """
+    global _default_engine
+    _default_engine = _validate_engine(engine)
+
+
+def _resolve_engine(engine: EngineName | None) -> EngineName:
+    if engine is None:
+        return _default_engine
+    return _validate_engine(engine)
 
 
 def as_yaml_comment(value: str | None) -> str | None:
@@ -32,19 +91,6 @@ def as_yaml_comment(value: str | None) -> str | None:
 
 
 T = TypeVar("T", bound=BaseModel)
-
-
-def _get_doc(obj: BaseModel | FieldInfo | Any, opts: CommentsOptions) -> str | None:
-    """Get documentation for the model or field, taking options into account."""
-    if isinstance(obj, BaseModel):
-        if opts in (True, "models-only"):
-            return getattr(obj, "__doc__", None)
-        return None
-    elif isinstance(obj, FieldInfo):
-        if opts in (True, "fields-only"):
-            return obj.description
-        return None
-    return None
 
 
 def _add_descriptions(
@@ -114,6 +160,7 @@ def _write_yaml_model(
     sequence_indent: int | None = None,
     sequence_dash_offset: int | None = None,
     custom_yaml_writer: YAML | None = None,
+    engine: EngineName | None = None,
     **json_kwargs,
 ) -> None:
     """Write YAML model to the stream object.
@@ -134,15 +181,40 @@ def _write_yaml_model(
     indent : None or int
         General indent value. Leave as None for the default.
     map_indent, sequence_indent, sequence_dash_offset : None or int
-        More specific indent values.
+        More specific indent values. Only supported by the `"ruamel"` engine.
     custom_yaml_writer : None or YAML
         An instance of ruamel.yaml.YAML (or a subclass) to use as the writer.
-        The above options will be set on it, if given.
+        The above options will be set on it, if given. Only supported by the `"ruamel"` engine.
+    engine : "ruamel" or "yamlrocks" or None
+        Which YAML library to use. Defaults to `get_default_engine()`.
     json_kwargs : Any
         Keyword arguments to pass `model.model_dump_json()`.
     """
     if not isinstance(model, BaseModel):
         raise TypeError(f"Expected a Pydantic BaseModel, but got {type(model)}")
+
+    resolved_engine = _resolve_engine(engine)
+    if resolved_engine == "yamlrocks":
+        if custom_yaml_writer is not None:
+            raise TypeError(
+                "`custom_yaml_writer` is specific to the 'ruamel' engine and cannot be "
+                "combined with engine='yamlrocks'."
+            )
+        from pydantic_yaml._internals import engine_yamlrocks
+
+        engine_yamlrocks.write_yaml_model(
+            stream,
+            model,
+            add_comments=add_comments,
+            default_flow_style=default_flow_style,
+            indent=indent,
+            map_indent=map_indent,
+            sequence_indent=sequence_indent,
+            sequence_dash_offset=sequence_dash_offset,
+            **json_kwargs,
+        )
+        return
+
     json_val = model.model_dump_json(**json_kwargs)
     val = json.loads(json_val)
     # Allow setting custom writer
@@ -188,6 +260,7 @@ def to_yaml_str(
     sequence_indent: int | None = None,
     sequence_dash_offset: int | None = None,
     custom_yaml_writer: YAML | None = None,
+    engine: EngineName | None = None,
     **json_kwargs,
 ) -> str:
     """Generate a YAML string representation of the model.
@@ -204,10 +277,14 @@ def to_yaml_str(
     indent : None or int
         General indent value. Leave as None for the default.
     map_indent, sequence_indent, sequence_dash_offset : None or int
-        More specific indent values.
+        More specific indent values. Only supported by the `"ruamel"` engine.
     custom_yaml_writer : None or YAML
         An instance of ruamel.yaml.YAML (or a subclass) to use as the writer.
-        The above options will be set on it, if given.
+        The above options will be set on it, if given. Only supported by the `"ruamel"` engine.
+    engine : "ruamel" or "yamlrocks" or None
+        Which YAML library to use. Defaults to `get_default_engine()` (currently `"ruamel"`
+        unless changed via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var).
+        `"yamlrocks"` requires the optional `pydantic-yaml[yamlrocks]` dependency.
     json_kwargs : Any
         Keyword arguments to pass `model.model_dump_json()`.
 
@@ -227,6 +304,7 @@ def to_yaml_str(
         sequence_indent=sequence_indent,
         sequence_dash_offset=sequence_dash_offset,
         custom_yaml_writer=custom_yaml_writer,
+        engine=engine,
         **json_kwargs,
     )
     stream.seek(0)
@@ -244,6 +322,7 @@ def to_yaml_file(
     sequence_indent: int | None = None,
     sequence_dash_offset: int | None = None,
     custom_yaml_writer: YAML | None = None,
+    engine: EngineName | None = None,
     **json_kwargs,
 ) -> None:
     """Write a YAML file representation of the model.
@@ -262,10 +341,14 @@ def to_yaml_file(
     indent : None or int
         General indent value. Leave as None for the default.
     map_indent, sequence_indent, sequence_dash_offset : None or int
-        More specific indent values.
+        More specific indent values. Only supported by the `"ruamel"` engine.
     custom_yaml_writer : None or YAML
         An instance of ruamel.yaml.YAML (or a subclass) to use as the writer.
-        The above options will be set on it, if given.
+        The above options will be set on it, if given. Only supported by the `"ruamel"` engine.
+    engine : "ruamel" or "yamlrocks" or None
+        Which YAML library to use. Defaults to `get_default_engine()` (currently `"ruamel"`
+        unless changed via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var).
+        `"yamlrocks"` requires the optional `pydantic-yaml[yamlrocks]` dependency.
     json_kwargs : Any
         Keyword arguments to pass `model.model_dump_json()`.
 
@@ -282,6 +365,7 @@ def to_yaml_file(
         sequence_indent=sequence_indent,
         sequence_dash_offset=sequence_dash_offset,
         custom_yaml_writer=custom_yaml_writer,
+        engine=engine,
         **json_kwargs,
     )
     if isinstance(file, IOBase):  # open file handle
@@ -300,7 +384,12 @@ def to_yaml_file(
         return
 
 
-def parse_yaml_raw_as(model_type: type[T], raw: str | bytes | IOBase) -> T:
+def parse_yaml_raw_as(
+    model_type: type[T],
+    raw: str | bytes | IOBase,
+    *,
+    engine: EngineName | None = None,
+) -> T:
     """Parse raw YAML string as the passed model type.
 
     Parameters
@@ -309,6 +398,10 @@ def parse_yaml_raw_as(model_type: type[T], raw: str | bytes | IOBase) -> T:
         The resulting model type.
     raw : str or bytes or IOBase
         The YAML string or stream.
+    engine : "ruamel" or "yamlrocks" or None
+        Which YAML library to use. Defaults to `get_default_engine()` (currently `"ruamel"`
+        unless changed via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var).
+        `"yamlrocks"` requires the optional `pydantic-yaml[yamlrocks]` dependency.
     """
     stream: IOBase
     if isinstance(raw, str):
@@ -319,13 +412,25 @@ def parse_yaml_raw_as(model_type: type[T], raw: str | bytes | IOBase) -> T:
         stream = raw
     else:
         raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
-    reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
-    objects = reader.load(stream)
+
+    resolved_engine = _resolve_engine(engine)
+    if resolved_engine == "yamlrocks":
+        from pydantic_yaml._internals import engine_yamlrocks
+
+        objects = engine_yamlrocks.read_yaml_stream(stream)
+    else:
+        reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
+        objects = reader.load(stream)
     ta = TypeAdapter(model_type)
     return ta.validate_python(objects)
 
 
-def parse_yaml_file_as(model_type: type[T], file: Path | str | IOBase) -> T:
+def parse_yaml_file_as(
+    model_type: type[T],
+    file: Path | str | IOBase,
+    *,
+    engine: EngineName | None = None,
+) -> T:
     """Parse YAML file as the passed model type.
 
     Parameters
@@ -334,10 +439,14 @@ def parse_yaml_file_as(model_type: type[T], file: Path | str | IOBase) -> T:
         The resulting model type.
     file : Path or str or IOBase
         The file path or stream to read from.
+    engine : "ruamel" or "yamlrocks" or None
+        Which YAML library to use. Defaults to `get_default_engine()` (currently `"ruamel"`
+        unless changed via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var).
+        `"yamlrocks"` requires the optional `pydantic-yaml[yamlrocks]` dependency.
     """
     # Short-circuit
     if isinstance(file, IOBase):
-        return parse_yaml_raw_as(model_type, raw=file)
+        return parse_yaml_raw_as(model_type, raw=file, engine=engine)
 
     if isinstance(file, str):
         file = Path(file).resolve()
@@ -347,4 +456,4 @@ def parse_yaml_file_as(model_type: type[T], file: Path | str | IOBase) -> T:
         raise TypeError(f"Expected Path, str or IO, but got {file!r}")
 
     with file.open(mode="r") as f:
-        return parse_yaml_raw_as(model_type, f)
+        return parse_yaml_raw_as(model_type, f, engine=engine)

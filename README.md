@@ -115,6 +115,40 @@ to_yaml_file("foo.yaml", model, custom_yaml_writer=my_writer)
 
 A separate configuration for YAML specifically will be added later, likely in v2.
 
+## YAML Engine
+
+By default, `pydantic-yaml` reads and writes YAML using [`ruamel.yaml`](https://yaml.readthedocs.io/).
+As tracked in [issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338), an
+optional, Rust-backed engine using [`yamlrocks`](https://yaml.rocks) is also available - it's
+YAML 1.2 spec-compliant and, unlike `ruamel.yaml`, passes the
+[yaml-test-suite](https://github.com/yaml/yaml-test-suite).
+
+Install it as an extra:
+
+```sh
+pip install "pydantic-yaml[yamlrocks]"  # requires Python >=3.12
+```
+
+Then select it per-call:
+
+```python
+to_yaml_str(model, engine="yamlrocks")
+parse_yaml_raw_as(MyModel, yml, engine="yamlrocks")
+```
+
+or switch the default for the whole process:
+
+```python
+from pydantic_yaml import set_default_engine
+
+set_default_engine("yamlrocks")  # or set PYDANTIC_YAML_ENGINE=yamlrocks
+```
+
+`ruamel.yaml` remains the default in the interim, so existing code keeps working unchanged.
+Some `ruamel`-specific options (`custom_yaml_writer`, independently-configurable
+`map_indent`/`sequence_indent`/`sequence_dash_offset`) aren't supported by the `yamlrocks`
+engine, since that library doesn't expose equivalent knobs.
+
 ## Breaking Changes for `pydantic-yaml` V1
 
 The API for `pydantic-yaml` version 1.0.0 has been greatly simplified!
