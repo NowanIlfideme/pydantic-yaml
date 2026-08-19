@@ -2,16 +2,19 @@
 
 `ruamel.yaml` and `yamlrocks` are both optional dependencies - at least one must be installed,
 either one suffices, and whichever is installed is picked automatically if not chosen
-explicitly (preferring `ruamel`, the historical default, if both are present).
+explicitly (preferring `yamlrocks` if both are present).
 
-Unlike test_engine_yamlrocks.py, these don't require `yamlrocks` to actually be installed:
-only the selection *logic* is exercised here, via a monkeypatched `_module_available`, so this
-file runs the same way regardless of which backend(s) happen to be present.
+Most of these don't require either backend to actually be installed: the selection *logic* is
+exercised via a monkeypatched `_module_available`, so those run the same way regardless of which
+backend(s) happen to be present. `test_set_default_engine_changes_runtime_behavior` is the
+exception - it's a real (non-mocked) integration check.
 """
 
 import pytest
 
+from pydantic_yaml import EngineName, get_default_engine, set_default_engine, to_yaml_str
 from pydantic_yaml._internals import v2
+from pydantic_yaml.examples.base_models import A
 
 
 @pytest.fixture(autouse=True)
@@ -28,19 +31,19 @@ def test_validate_engine():
         v2._validate_engine("not-a-real-engine")
 
 
-def test_autodetect_prefers_ruamel_when_both_available(monkeypatch):
-    """`"ruamel"` is preferred (historical default) when both backends are installed."""
+def test_autodetect_prefers_yamlrocks_when_both_available(monkeypatch):
+    """`"yamlrocks"` is preferred when both backends are installed."""
     monkeypatch.setattr(v2, "_module_available", lambda name: True)
-    assert v2.get_default_engine() == "ruamel"
+    assert v2.get_default_engine() == "yamlrocks"
 
 
-def test_autodetect_falls_back_to_yamlrocks_only(monkeypatch):
+def test_autodetect_uses_yamlrocks_only(monkeypatch):
     """`"yamlrocks"` is picked when it's the only backend installed."""
     monkeypatch.setattr(v2, "_module_available", lambda name: name == "yamlrocks")
     assert v2.get_default_engine() == "yamlrocks"
 
 
-def test_autodetect_uses_ruamel_only(monkeypatch):
+def test_autodetect_falls_back_to_ruamel_only(monkeypatch):
     """`"ruamel"` is picked when it's the only backend installed."""
     monkeypatch.setattr(v2, "_module_available", lambda name: name == "ruamel.yaml")
     assert v2.get_default_engine() == "ruamel"
@@ -59,12 +62,12 @@ def test_default_engine_is_cached(monkeypatch):
 
     def tracked(name: str) -> bool:
         calls.append(name)
-        return name == "yamlrocks"
+        return name == "ruamel.yaml"
 
     monkeypatch.setattr(v2, "_module_available", tracked)
-    assert v2.get_default_engine() == "yamlrocks"
+    assert v2.get_default_engine() == "ruamel"
     n_calls = len(calls)
-    assert v2.get_default_engine() == "yamlrocks"
+    assert v2.get_default_engine() == "ruamel"
     assert len(calls) == n_calls  # not re-invoked
 
 
@@ -105,3 +108,15 @@ def test_engine_kwarg_bypasses_default_resolution(monkeypatch):
     assert v2._resolve_engine("yamlrocks") == "yamlrocks"
     with pytest.raises(ValueError):
         v2._resolve_engine("not-a-real-engine")  # ty: ignore[invalid-argument-type]
+
+
+def test_set_default_engine_changes_runtime_behavior(engine: EngineName):
+    """`set_default_engine` (real, not mocked) actually changes what `engine=None` calls do."""
+    original = get_default_engine()
+    try:
+        set_default_engine(engine)
+        assert get_default_engine() == engine
+        # No engine passed -> uses the new default.
+        assert to_yaml_str(A(a="a")) == to_yaml_str(A(a="a"), engine=engine)
+    finally:
+        set_default_engine(original)

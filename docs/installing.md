@@ -7,12 +7,12 @@ one - install at least one of the following extras (see
 [issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338)):
 
 ```sh
-pip install "pydantic_yaml[ruamel]"     # ruamel.yaml, the historical default
 pip install "pydantic_yaml[yamlrocks]"  # yamlrocks, a Rust-backed engine; requires Python >=3.12
+pip install "pydantic_yaml[ruamel]"     # ruamel.yaml, the historical default
 pip install "pydantic_yaml[all]"        # both
 ```
 
-If you install both, `ruamel.yaml` is used by default; see
+If you install both, `yamlrocks` is used by default; see
 [Configuration](index.md#yaml-engine) for how to pick or switch engines.
 
 ## Development Installation

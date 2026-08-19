@@ -120,20 +120,21 @@ A separate configuration for YAML specifically will be added later, likely in v2
 `pydantic-yaml` supports two YAML backends, as tracked in
 [issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338):
 
-- [`ruamel.yaml`](https://yaml.readthedocs.io/) - the historical default.
 - [`yamlrocks`](https://yaml.rocks) - a Rust-backed engine that's YAML 1.2 spec-compliant and,
   unlike `ruamel.yaml`, passes the [yaml-test-suite](https://github.com/yaml/yaml-test-suite).
+  **Recommended.**
+- [`ruamel.yaml`](https://yaml.readthedocs.io/) - the historical default.
 
 Neither is a core dependency - **at least one must be installed, but either one suffices**:
 
 ```sh
+pip install "pydantic-yaml[yamlrocks]"  # recommended; requires Python >=3.12
 pip install "pydantic-yaml[ruamel]"     # matches the historical default
-pip install "pydantic-yaml[yamlrocks]"  # requires Python >=3.12
 pip install "pydantic-yaml[all]"        # both
 ```
 
 If you don't pick one explicitly, whichever is installed is used automatically (preferring
-`ruamel.yaml` if both are present). Installing neither raises a clear `ImportError` the first
+`yamlrocks` if both are present). Installing neither raises a clear `ImportError` the first
 time you actually read or write YAML (importing `pydantic_yaml` itself still works).
 
 Select an engine per-call:

@@ -1,9 +1,9 @@
 """Engine-agnostic YAML <-> Pydantic model plumbing.
 
-The actual reading/writing is delegated to `pydantic_yaml._internals.engine_ruamel` or
-`pydantic_yaml._internals.engine_yamlrocks`, imported lazily, since both YAML backends are
+The actual reading/writing is delegated to `pydantic_yaml._internals.engine_yamlrocks` or
+`pydantic_yaml._internals.engine_ruamel`, imported lazily, since both YAML backends are
 optional dependencies (see `issue #338 <https://github.com/NowanIlfideme/pydantic-yaml/issues/338>`_):
-at least one of `pydantic-yaml[ruamel]` / `pydantic-yaml[yamlrocks]` must be installed, but
+at least one of `pydantic-yaml[yamlrocks]` / `pydantic-yaml[ruamel]` must be installed, but
 either one suffices.
 """
 
@@ -25,14 +25,14 @@ if TYPE_CHECKING:
 EngineName = Literal["ruamel", "yamlrocks"]
 """Which YAML library is used to read/write.
 
-`"ruamel"` (the `ruamel.yaml` package) and `"yamlrocks"` (a Rust-backed engine, see
-`pydantic_yaml._internals.engine_yamlrocks`) are both optional dependencies; at least one must
-be installed. If neither `engine=` nor `set_default_engine()`/`PYDANTIC_YAML_ENGINE` picks one
-explicitly, whichever is installed is used automatically (preferring `"ruamel"`, the historical
-default, if both are present).
+`"yamlrocks"` (a Rust-backed engine, see `pydantic_yaml._internals.engine_yamlrocks`) and
+`"ruamel"` (the `ruamel.yaml` package, the historical default) are both optional dependencies;
+at least one must be installed. If neither `engine=` nor
+`set_default_engine()`/`PYDANTIC_YAML_ENGINE` picks one explicitly, whichever is installed is
+used automatically (preferring `"yamlrocks"` if both are present).
 """
 
-_ENGINES: tuple[EngineName, ...] = ("ruamel", "yamlrocks")
+_ENGINES: tuple[EngineName, ...] = ("yamlrocks", "ruamel")
 _ENGINE_MODULES: dict[EngineName, str] = {"ruamel": "ruamel.yaml", "yamlrocks": "yamlrocks"}
 _ENGINE_ENV_VAR = "PYDANTIC_YAML_ENGINE"
 
@@ -58,8 +58,8 @@ def _autodetect_engine() -> EngineName:
             return name
     raise ImportError(
         "pydantic-yaml requires at least one YAML backend to be installed. Install one with "
-        "`pip install pydantic-yaml[ruamel]` (matches the historical default) or "
-        "`pip install pydantic-yaml[yamlrocks]`."
+        "`pip install pydantic-yaml[yamlrocks]` or `pip install pydantic-yaml[ruamel]` "
+        "(matches the historical default)."
     )
 
 
@@ -79,8 +79,8 @@ def get_default_engine() -> EngineName:
     """Get the default YAML engine used when `engine=None` is passed to the public functions.
 
     Resolved once (and cached) on first use: the `PYDANTIC_YAML_ENGINE` environment variable if
-    set, otherwise whichever of `"ruamel"`/`"yamlrocks"` is installed (preferring `"ruamel"`,
-    the historical default, if both are present). Raises `ImportError` if neither is installed.
+    set, otherwise whichever of `"yamlrocks"`/`"ruamel"` is installed (preferring `"yamlrocks"`
+    if both are present). Raises `ImportError` if neither is installed.
     """
     global _default_engine
     if _default_engine is None:
@@ -95,7 +95,7 @@ def set_default_engine(engine: EngineName) -> None:
     ----------
     engine : "ruamel" or "yamlrocks"
         The engine to use by default from now on. Must already be installed; install it with
-        `pip install pydantic-yaml[ruamel]` or `pip install pydantic-yaml[yamlrocks]`.
+        `pip install pydantic-yaml[yamlrocks]` or `pip install pydantic-yaml[ruamel]`.
     """
     global _default_engine
     validated = _validate_engine(engine)
@@ -231,10 +231,10 @@ def to_yaml_str(
         An instance of ruamel.yaml.YAML (or a subclass) to use as the writer.
         The above options will be set on it, if given. Only supported by the `"ruamel"` engine.
     engine : "ruamel" or "yamlrocks" or None
-        Which YAML library to use. Defaults to `get_default_engine()`: whichever of `"ruamel"` /
-        `"yamlrocks"` is installed (preferring `"ruamel"` if both are), unless overridden via
-        `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least one of
-        `pydantic-yaml[ruamel]` / `pydantic-yaml[yamlrocks]` must be installed.
+        Which YAML library to use. Defaults to `get_default_engine()`: whichever of
+        `"yamlrocks"` / `"ruamel"` is installed (preferring `"yamlrocks"` if both are), unless
+        overridden via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least
+        one of `pydantic-yaml[yamlrocks]` / `pydantic-yaml[ruamel]` must be installed.
     json_kwargs : Any
         Keyword arguments to pass `model.model_dump_json()`.
 
@@ -296,10 +296,10 @@ def to_yaml_file(
         An instance of ruamel.yaml.YAML (or a subclass) to use as the writer.
         The above options will be set on it, if given. Only supported by the `"ruamel"` engine.
     engine : "ruamel" or "yamlrocks" or None
-        Which YAML library to use. Defaults to `get_default_engine()`: whichever of `"ruamel"` /
-        `"yamlrocks"` is installed (preferring `"ruamel"` if both are), unless overridden via
-        `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least one of
-        `pydantic-yaml[ruamel]` / `pydantic-yaml[yamlrocks]` must be installed.
+        Which YAML library to use. Defaults to `get_default_engine()`: whichever of
+        `"yamlrocks"` / `"ruamel"` is installed (preferring `"yamlrocks"` if both are), unless
+        overridden via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least
+        one of `pydantic-yaml[yamlrocks]` / `pydantic-yaml[ruamel]` must be installed.
     json_kwargs : Any
         Keyword arguments to pass `model.model_dump_json()`.
 
@@ -350,10 +350,10 @@ def parse_yaml_raw_as(
     raw : str or bytes or IOBase
         The YAML string or stream.
     engine : "ruamel" or "yamlrocks" or None
-        Which YAML library to use. Defaults to `get_default_engine()`: whichever of `"ruamel"` /
-        `"yamlrocks"` is installed (preferring `"ruamel"` if both are), unless overridden via
-        `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least one of
-        `pydantic-yaml[ruamel]` / `pydantic-yaml[yamlrocks]` must be installed.
+        Which YAML library to use. Defaults to `get_default_engine()`: whichever of
+        `"yamlrocks"` / `"ruamel"` is installed (preferring `"yamlrocks"` if both are), unless
+        overridden via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least
+        one of `pydantic-yaml[yamlrocks]` / `pydantic-yaml[ruamel]` must be installed.
     """
     stream: IOBase
     if isinstance(raw, str):
@@ -393,10 +393,10 @@ def parse_yaml_file_as(
     file : Path or str or IOBase
         The file path or stream to read from.
     engine : "ruamel" or "yamlrocks" or None
-        Which YAML library to use. Defaults to `get_default_engine()`: whichever of `"ruamel"` /
-        `"yamlrocks"` is installed (preferring `"ruamel"` if both are), unless overridden via
-        `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least one of
-        `pydantic-yaml[ruamel]` / `pydantic-yaml[yamlrocks]` must be installed.
+        Which YAML library to use. Defaults to `get_default_engine()`: whichever of
+        `"yamlrocks"` / `"ruamel"` is installed (preferring `"yamlrocks"` if both are), unless
+        overridden via `set_default_engine()` or the `PYDANTIC_YAML_ENGINE` env var. At least
+        one of `pydantic-yaml[yamlrocks]` / `pydantic-yaml[ruamel]` must be installed.
     """
     # Short-circuit
     if isinstance(file, IOBase):
