@@ -36,10 +36,10 @@ class MyModel(BaseModel):
 Both of these options will work to create:
 
 ```python
-from pydantic_yaml import to_yaml_str
+from pydantic_yaml import RuamelEngine, to_yaml_str
 
 mdl = MyModel(c=3.14)
-print(to_yaml_str(mdl, add_comments=True))
+print(to_yaml_str(mdl, engine=RuamelEngine(add_comments=True)))
 ```
 
 with output:
@@ -58,7 +58,7 @@ and in [Pydantic v1](https://docs.pydantic.dev/1.10/usage/schema/).
 Note that you can also export just the headers:
 
 ```python
-print(to_yaml_str(mdl, add_comments='models-only'))
+print(to_yaml_str(mdl, engine=RuamelEngine(add_comments="models-only")))
 ```
 
 ```yaml
@@ -69,7 +69,7 @@ c: 3.14
 or just the fields:
 
 ```python
-print(to_yaml_str(mdl, add_comments='fields-only'))
+print(to_yaml_str(mdl, engine=RuamelEngine(add_comments="fields-only")))
 ```
 
 ```yaml
@@ -82,7 +82,7 @@ If you just want to create example YAML files, you have several main options:
 
 1. Create a fully-fledged example showing options. This might be time-consuming, but is probably best for your users.
 2. "Construct" the example models using [`model_construct()` for v2](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_construct)  (just [`construct()` for v1](https://docs.pydantic.dev/1.10/usage/models/#creating-models-without-validation)) and use `None` for fields that are not optional but still need to be added.
-   - Your docstrings and descriptions will still be used, so might be a bit confusing to users. Consider `add_comments="fields-only"`.
+   - Your docstrings and descriptions will still be used, so might be a bit confusing to users. Consider `RuamelEngine(add_comments="fields-only")`.
 3. Create a parallel 'documentation model' where you instruct users in your docstrings/descriptions (rather than document code) and have some examples (or None) as default values.
    - This is the most time-consuming, but gives you the most control.
 
@@ -90,7 +90,7 @@ Example of option 2:
 
 ```python
 ex = MyModel.model_construct(c=None)
-print(to_yaml_str(ex, add_comments="fields-only"))
+print(to_yaml_str(ex, engine=RuamelEngine(add_comments="fields-only")))
 ```
 
 gives
@@ -101,8 +101,12 @@ c:  # See three?
 
 ## Engines
 
-Comment generation is supported by both [YAML engines](installing.md): `yamlrocks` (the
-recommended default) and `ruamel` (the historical default). Exact comment placement can differ
-slightly between the two - notably, `ruamel.yaml` sometimes drops a nested model's docstring
-when `add_comments=True` and that same field also has its own description (a known
-`ruamel.yaml` inconsistency); `yamlrocks` includes both.
+Comment generation is supported by both built-in [YAML engines](installing.md):
+`YamlRocksEngine` (the recommended default) and `RuamelEngine` (the historical default) - it's
+the `add_comments` field on whichever engine object you pass, not a `to_yaml_str` argument. Exact
+comment placement can differ slightly between the two - notably, `RuamelEngine` sometimes drops
+a nested model's docstring when `add_comments=True` and that same field also has its own
+description (a known `ruamel.yaml` inconsistency); `YamlRocksEngine` includes both. A field whose
+*value* happens to be a multiline string (dumped in block-literal style) is also a known,
+cosmetic edge case: its own comment can't sit on the same line as the value, so it lands on a
+dangling line right after - harmless (the data still round-trips correctly), just not pretty.

@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from pydantic_yaml import parse_yaml_file_as, to_yaml_str
-from pydantic_yaml._internals.v2 import CommentsOptions, EngineName
+from pydantic_yaml import RuamelEngine, YamlRocksEngine, parse_yaml_file_as, to_yaml_str
+from pydantic_yaml._internals.comments import CommentsOptions
 from pydantic_yaml.examples.base_models import CommentedModel, UsesRefs, commented, root
 
 sub_ps: dict[CommentsOptions, Path] = {
@@ -16,12 +16,12 @@ sub_ps: dict[CommentsOptions, Path] = {
     "models-only": commented / "models",
 }
 
-# Known, documented content difference between engines (not a bug): "yamlrocks" doesn't drop a
-# nested model's docstring the way "ruamel" sometimes does when the field itself also has a
-# trailing description (see issue #338), so `add_comments=True` legitimately includes more
-# content than the ruamel-derived fixture for this one case.
-KNOWN_DIFFERENCES: dict[tuple[str, CommentsOptions, EngineName], str] = {
-    ("uses_refs.yaml", True, "yamlrocks"): "# First/last names.",
+# Known, documented content difference between engines (not a bug): `YamlRocksEngine` doesn't
+# drop a nested model's docstring the way `RuamelEngine` sometimes does when the field itself
+# also has a trailing description (see issue #338), so `add_comments=True` legitimately includes
+# more content than the ruamel-derived fixture for this one case.
+KNOWN_DIFFERENCES: dict[tuple[str, CommentsOptions], str] = {
+    ("uses_refs.yaml", True): "# First/last names.",
 }
 
 
@@ -49,16 +49,19 @@ def eq_within_spaces(got: str, expected: str) -> bool:
         (CommentedModel, "commented_model.yaml"),
     ],
 )
-def test_load_rt_simple_files(engine: EngineName, model_type: type[BaseModel], fn: str):
+def test_load_rt_simple_files(
+    engine: RuamelEngine | YamlRocksEngine, model_type: type[BaseModel], fn: str
+):
     """Test simple file loading and roundtripping, with comments, on both engines."""
     # Load usual file
     in_file = root / fn
     obj = parse_yaml_file_as(model_type, in_file, engine=engine)
     # Compare
     for add_c, sub_p in sub_ps.items():
-        got_i = to_yaml_str(obj, add_comments=add_c, engine=engine)
+        configured = engine.model_copy(update={"add_comments": add_c})
+        got_i = to_yaml_str(obj, engine=configured)
         expected_i = (commented / sub_p / fn).read_text()
-        extra = KNOWN_DIFFERENCES.get((fn, add_c, engine))
+        extra = KNOWN_DIFFERENCES.get((fn, add_c)) if isinstance(engine, YamlRocksEngine) else None
         if extra is not None:
             assert extra in got_i, f"Expected known engine-specific content {extra!r} not found."
             continue

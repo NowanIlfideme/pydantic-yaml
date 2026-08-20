@@ -55,8 +55,10 @@ assert m1 == m2
 m3 = parse_yaml_raw_as(MyModel, jsn)
 assert m1 == m3
 
-# You can also auto-generate comments in YAML from the model docstrings and field descriptions
-print(to_yaml_str(m1, add_comments=True))
+# You can also auto-generate comments in YAML from the model docstrings and field descriptions -
+# see "Configuration" below for how `add_comments` and other options work via the engine object
+from pydantic_yaml import RuamelEngine
+print(to_yaml_str(m1, engine=RuamelEngine(add_comments=True)))
 ```
 
 See [comment generation docs](docs/comments.md) for more info.
@@ -97,35 +99,54 @@ class MyModel(BaseModel):
         allow_mutation = False
 ```
 
-You can control some YAML-specfic options via the keyword options:
+All YAML-specific configuration - formatting, comments, JSON-dump kwargs - lives on the
+**engine** object you pass as `engine=`, not on `to_yaml_str`/`to_yaml_file` themselves. See
+[YAML Engine](#yaml-engine) below for the full picture; in short:
 
 ```python
-to_yaml_str(model, indent=4)  # Makes it wider
-to_yaml_str(model, map_indent=9, sequence_indent=7)  # ... you monster.
+from pydantic_yaml import RuamelEngine, to_yaml_str
+
+to_yaml_str(model, engine=RuamelEngine(indent=4))                        # wider indent
+to_yaml_str(model, engine=RuamelEngine(map_indent=9, sequence_indent=7)) # ... you monster.
+to_yaml_str(model, engine=RuamelEngine(add_comments=True))               # docstrings as comments
+to_yaml_str(model, engine=RuamelEngine(sort_keys=True))                  # alphabetize keys
 ```
 
-You can additionally pass your own `YAML` instance:
+Engines are immutable (frozen `pydantic.BaseModel`s); derive a variant with
+`.model_copy(update=...)` instead of mutating one:
+
+```python
+base_engine = RuamelEngine(indent=4)
+with_comments = base_engine.model_copy(update={"add_comments": True})
+```
+
+You can also pass your own pre-built `ruamel.yaml.YAML` instance:
 
 ```python
 from ruamel.yaml import YAML
+from pydantic_yaml import RuamelEngine, to_yaml_file
+
 my_writer = YAML(typ="safe")
 my_writer.default_flow_style = True
-to_yaml_file("foo.yaml", model, custom_yaml_writer=my_writer)
+to_yaml_file("foo.yaml", model, engine=RuamelEngine(default_flow_style=None, writer=my_writer))
 ```
-
-A separate configuration for YAML specifically will be added later, likely in v2.
 
 ## YAML Engine
 
-`pydantic-yaml` supports two YAML backends, as tracked in
-[issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338):
+`pydantic-yaml` reads/writes YAML through a pluggable **engine** object - any object with
+`read(stream)`/`write(stream, model)` methods works, so you can bring your own YAML library, or
+serialize by hand (bypassing JSON entirely) for full control. See
+[issue #338](https://github.com/NowanIlfideme/pydantic-yaml/issues/338) and the "YAML
+Customization" milestone for the motivation.
 
-- [`yamlrocks`](https://yaml.rocks) - a Rust-backed engine that's YAML 1.2 spec-compliant and,
-  unlike `ruamel.yaml`, passes the [yaml-test-suite](https://github.com/yaml/yaml-test-suite).
-  **Recommended.**
-- [`ruamel.yaml`](https://yaml.readthedocs.io/) - the historical default.
+Two built-in engines ship out of the box:
 
-Neither is a core dependency - **at least one must be installed, but either one suffices**:
+- [`YamlRocksEngine`](https://yaml.rocks) - backed by `yamlrocks`, a Rust engine that's YAML 1.2
+  spec-compliant and, unlike `ruamel.yaml`, passes the
+  [yaml-test-suite](https://github.com/yaml/yaml-test-suite). **Recommended.**
+- [`RuamelEngine`](https://yaml.readthedocs.io/) - backed by `ruamel.yaml`, the historical default.
+
+Neither backend is a core dependency - **at least one must be installed, but either one suffices**:
 
 ```sh
 pip install "pydantic-yaml[yamlrocks]"  # recommended; requires Python >=3.12
@@ -133,28 +154,61 @@ pip install "pydantic-yaml[ruamel]"     # matches the historical default
 pip install "pydantic-yaml[all]"        # both
 ```
 
-If you don't pick one explicitly, whichever is installed is used automatically (preferring
-`yamlrocks` if both are present). Installing neither raises a clear `ImportError` the first
-time you actually read or write YAML (importing `pydantic_yaml` itself still works).
+If you don't pick an engine explicitly, whichever is installed is used automatically (preferring
+`YamlRocksEngine` if both are). Installing neither raises a clear `ImportError` the first time
+you actually read or write YAML (importing `pydantic_yaml` itself still works).
 
-Select an engine per-call:
+Pass a configured engine object per-call:
 
 ```python
-to_yaml_str(model, engine="yamlrocks")
-parse_yaml_raw_as(MyModel, yml, engine="yamlrocks")
+from pydantic_yaml import YamlRocksEngine, to_yaml_str, parse_yaml_raw_as
+
+to_yaml_str(model, engine=YamlRocksEngine(sort_keys=True))
+parse_yaml_raw_as(MyModel, yml, engine=YamlRocksEngine())
 ```
 
 or switch the default for the whole process:
 
 ```python
-from pydantic_yaml import set_default_engine
+from pydantic_yaml import RuamelEngine, set_default_engine
 
-set_default_engine("yamlrocks")  # or set PYDANTIC_YAML_ENGINE=yamlrocks
+set_default_engine(RuamelEngine(indent=4))
 ```
 
-Some `ruamel`-specific options (`custom_yaml_writer`, independently-configurable
-`map_indent`/`sequence_indent`/`sequence_dash_offset`) aren't supported by the `yamlrocks`
-engine, since that library doesn't expose equivalent knobs.
+There's no string-based engine selection (no `engine="yamlrocks"`, no `PYDANTIC_YAML_ENGINE` env
+var) - always an actual engine object, so `engine=`/`set_default_engine()` work identically for
+the built-ins and for anything you write yourself.
+
+Some `RuamelEngine`-only fields (`writer`, independently-configurable
+`map_indent`/`sequence_indent`/`sequence_dash_offset`) simply don't exist on `YamlRocksEngine`,
+since that library has no equivalent knobs - passing them raises a `ValidationError`
+immediately, rather than a runtime error deep inside a dump call. Field order is preserved by
+default on both engines (pass `sort_keys=True` to alphabetize instead), and multiline strings
+dump in block-literal (`|`) style unconditionally on both - there's no toggle for this, since
+`yamlrocks` has no way to disable it either.
+
+### Writing a custom engine
+
+Any object with the right two methods works - no inheritance required:
+
+```python
+from io import IOBase
+from typing import Any
+from pydantic import BaseModel
+from pydantic_yaml import to_yaml_str
+
+class MyEngine:
+    def read(self, stream: IOBase) -> Any:
+        ...  # parse `stream` into plain Python objects
+
+    def write(self, stream: IOBase, model: BaseModel) -> None:
+        ...  # serialize `model` to `stream`, however you like - JSON is not required
+
+to_yaml_str(model, engine=MyEngine())
+```
+
+`isinstance(your_engine, YamlEngine)` works too (`YamlEngine` is a `@runtime_checkable`
+`Protocol`), if you want to check conformance explicitly.
 
 ## Breaking Changes for `pydantic-yaml` V1
 
