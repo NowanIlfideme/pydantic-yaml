@@ -5,21 +5,21 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from pydantic_yaml import parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
+from pydantic_yaml import YamlReader, YamlWriter, parse_yaml_file_as, parse_yaml_raw_as, to_yaml_str
 from pydantic_yaml.examples.base_models import A, B, Recursive, root
 
 
-def test_no_load_recursive():
+def test_no_load_recursive(reader: YamlReader):
     """Test properly rejecting loading a recursive model."""
     with pytest.raises(ValueError):
-        parse_yaml_file_as(Recursive, root / "recursive.yaml")
+        parse_yaml_file_as(Recursive, root / "recursive.yaml", reader=reader)
 
 
 @pytest.mark.parametrize("obj", ["foo", {}, set(), ..., ["some-object", 1]])
-def test_no_dump(obj: Any):
+def test_no_dump(writer: YamlWriter, obj: Any):
     """Ensure that we don't support dumping these objects."""
     with pytest.raises((ValueError, TypeError)):
-        to_yaml_str(obj)
+        to_yaml_str(obj, writer=writer)
 
 
 @pytest.mark.parametrize(
@@ -31,7 +31,7 @@ def test_no_dump(obj: Any):
         (A, "aaaaaaaaaaa"),
     ],
 )
-def test_no_load(model_type: type[BaseModel], raw: Any):
+def test_no_load(reader: YamlReader, model_type: type[BaseModel], raw: Any):
     """Ensure that we don't support loading these objects."""
     with pytest.raises((ValueError, TypeError)):
-        parse_yaml_raw_as(model_type, raw)
+        parse_yaml_raw_as(model_type, raw, reader=reader)

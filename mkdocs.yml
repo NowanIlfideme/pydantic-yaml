@@ -10,11 +10,21 @@ site_url: ""
 use_directory_urls: false
 
 nav:
-  - Overview: index.md
-  - Install: installing.md
-  - Comments: comments.md
-  - Deprecated:
-      - Versioned Models: versioned.md
+  - Home: index.md
+  - Tutorial:
+      - Getting Started: tutorial/getting-started.md
+  - How-To Guides:
+      - Install pydantic-yaml: how-to/install.md
+      - Add Comments to YAML Output: how-to/add-comments.md
+      - Choose and Configure Readers/Writers: how-to/configure-readers-writers.md
+      - Write a Custom Reader/Writer: how-to/write-custom-reader-writer.md
+      - Dump Pydantic Dataclasses: how-to/dump-dataclasses.md
+      - Recover Versioned Models: how-to/recover-versioned-models.md
+  - Reference:
+      - API Reference: reference/api.md
+  - Explanation:
+      - Why Pluggable Readers and Writers?: explanation/engine-design.md
+      - Breaking Changes Across Versions: explanation/changelog.md
 
 theme:
   name: "material"
@@ -41,15 +51,19 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          rendering:
+          options:
             docstring_style: numpy
             show_root_heading: true
+            show_root_full_path: false
             show_object_full_path: false
             show_signature_annotations: true
-          selection:
+            separate_signature: true
+            merge_init_into_class: true
+            show_source: false
             filters:
               - "^__init__$" # but always include __init__ modules and methods
-              - "!^_" # exlude all members starting with _
+              - "^__call__$" # and __call__, since readers/writers are called, not .read()/.write()
+              - "!^_" # exclude all members starting with _
 
 markdown_extensions:
   # - markdown_include.include:

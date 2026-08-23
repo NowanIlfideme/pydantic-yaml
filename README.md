@@ -3,131 +3,49 @@
 [![PyPI version](https://badge.fury.io/py/pydantic-yaml.svg)](https://badge.fury.io/py/pydantic-yaml) [![Documentation Status](https://readthedocs.org/projects/pydantic-yaml/badge/?version=latest)](https://pydantic-yaml.readthedocs.io/en/latest/?badge=latest)
  [![Unit Tests](https://github.com/NowanIlfideme/pydantic-yaml/actions/workflows/python-testing.yml/badge.svg)](https://github.com/NowanIlfideme/pydantic-yaml/actions/workflows/python-testing.yml)
 
-Pydantic-YAML adds YAML capabilities to [Pydantic](https://pydantic-docs.helpmanual.io/),
-which is an _excellent_ Python library for data validation and settings management.
-If you aren't familiar with Pydantic, I would suggest you first check out their
-[docs](https://pydantic-docs.helpmanual.io/).
+Pydantic-YAML adds YAML reading and writing to [Pydantic](https://docs.pydantic.dev/) models:
+dump any `BaseModel` to a YAML string or file, and parse YAML back into a validated model.
 
-[Documentation on ReadTheDocs.org](https://pydantic-yaml.readthedocs.io/en/latest/)
+[Full documentation on ReadTheDocs.org](https://pydantic-yaml.readthedocs.io/en/latest/)
 
-## Basic Usage
+## Installation
+
+```sh
+pip install "pydantic_yaml[yamlrocks]"  # recommended; requires Python >=3.12
+```
+
+`pydantic-yaml` needs at least one YAML backend - `[ruamel]` and `[all]` are also available. See
+[Install pydantic-yaml](docs/how-to/install.md) for the full picture.
+
+## Quick example
 
 ```python
-from enum import Enum
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_str
 
-class MyEnum(str, Enum):
-    """A custom enumeration that is YAML-safe."""
+class Config(BaseModel):
+    name: str
+    retries: int = 3
 
-    a = "a"
-    b = "b"
+cfg = Config(name="prod")
+yml = to_yaml_str(cfg)
+print(yml)
+# name: prod
+# retries: 3
 
-class InnerModel(BaseModel):
-    """A normal pydantic model that can be used as an inner class."""
-
-    fld: float = 1.0
-
-class MyModel(BaseModel):
-    """Our custom Pydantic model."""
-
-    x: int = 1
-    e: MyEnum = MyEnum.a
-    m: InnerModel = InnerModel()
-
-    @validator("x")
-    def _chk_x(cls, v: int) -> int:  # noqa
-        """You can add your normal pydantic validators, like this one."""
-        assert v > 0
-        return v
-
-m1 = MyModel(x=2, e="b", m=InnerModel(fld=1.5))
-
-# This dumps to YAML and JSON respectively
-yml = to_yaml_str(m1)
-jsn = m1.json()
-
-# This parses YAML as the MyModel type
-m2 = parse_yaml_raw_as(MyModel, yml)
-assert m1 == m2
-
-# JSON is also valid YAML, so this works too
-m3 = parse_yaml_raw_as(MyModel, jsn)
-assert m1 == m3
-
-# You can also auto-generate comments in YAML from the model docstrings and field descriptions
-print(to_yaml_str(m1, add_comments=True))
+assert parse_yaml_raw_as(Config, yml) == cfg
 ```
 
-See [comment generation docs](docs/comments.md) for more info.
+`pydantic-yaml` also supports:
 
-With Pydantic v2, you can also dump dataclasses:
+- generating YAML comments from your model's docstrings and field descriptions - see
+  [Add comments to YAML output](docs/how-to/add-comments.md),
+- pluggable readers and writers - bring your own YAML library, or hand-write serialization - see
+  [Choose and configure readers/writers](docs/how-to/configure-readers-writers.md) and
+  [Write a custom reader/writer](docs/how-to/write-custom-reader-writer.md), and
+- dumping Pydantic dataclasses - see [Dump Pydantic dataclasses](docs/how-to/dump-dataclasses.md).
 
-```python
-from pydantic import RootModel
-from pydantic.dataclasses import dataclass
-from pydantic.version import VERSION as PYDANTIC_VERSION
-from pydantic_yaml import to_yaml_str
-
-assert PYDANTIC_VERSION >= "2"
-
-@dataclass
-class YourType:
-    foo: str = "bar"
-
-obj = YourType(foo="wuz")
-assert to_yaml_str(RootModel[YourType](obj)) == 'foo: wuz\n'
-```
-
-## Configuration
-
-Currently we use the JSON dumping of Pydantic to perform most of the magic.
-
-This uses the `Config` inner class,
-[as in Pydantic](https://pydantic-docs.helpmanual.io/usage/model_config/):
-
-```python
-class MyModel(BaseModel):
-    # ...
-    class Config:
-        # You can override these fields, which affect JSON and YAML:
-        json_dumps = my_custom_dumper
-        json_loads = lambda x: MyModel()
-        # As well as other Pydantic configuration:
-        allow_mutation = False
-```
-
-You can control some YAML-specfic options via the keyword options:
-
-```python
-to_yaml_str(model, indent=4)  # Makes it wider
-to_yaml_str(model, map_indent=9, sequence_indent=7)  # ... you monster.
-```
-
-You can additionally pass your own `YAML` instance:
-
-```python
-from ruamel.yaml import YAML
-my_writer = YAML(typ="safe")
-my_writer.default_flow_style = True
-to_yaml_file("foo.yaml", model, custom_yaml_writer=my_writer)
-```
-
-A separate configuration for YAML specifically will be added later, likely in v2.
-
-## Breaking Changes for `pydantic-yaml` V1
-
-The API for `pydantic-yaml` version 1.0.0 has been greatly simplified!
-
-### Mixin Class
-
-This functionality has currently been removed!
-`YamlModel` and `YamlModelMixin` base classes are no longer needed.
-The plan is to re-add it before v1 fully releases,
-to allow the `.yaml()` or `.parse_*()` methods.
-However, this will be availble only for `pydantic<2`.
-
-### Versioned Models
-
-This functionality has been removed, as it's questionably useful for most users.
-There is an [example in the docs](docs/versioned.md) that's available.
+See the [full documentation](https://pydantic-yaml.readthedocs.io/en/latest/) for a guided
+[tutorial](docs/tutorial/getting-started.md), task-focused how-to guides, a complete
+[API reference](docs/reference/api.md), and [design explanations](docs/explanation/engine-design.md) -
+organized following the [Diátaxis](https://diataxis.fr/) framework.

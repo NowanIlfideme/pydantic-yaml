@@ -34,9 +34,21 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=2.8,<3",
-    "pydantic-core>=2.35.0,<3",    # minimal requirement
-    "ruamel.yaml>=0.17.0,<0.20.0", # recommended ~=0.18.x
+    "pydantic-core>=2.35.0,<3", # minimal requirement
     "typing_extensions>=4.5.0",
+]
+
+[project.optional-dependencies]
+# YAML backends; see https://github.com/NowanIlfideme/pydantic-yaml/issues/338. At least one of
+# these must be installed - neither is a core dependency - but either one suffices; whichever
+# is present is picked automatically (preferring `yamlrocks`).
+# Rust-backed YAML engine, YAML 1.2 spec-compliant. Requires Python >=3.12.
+yamlrocks = ["yamlrocks>=0.5.0,<0.7; python_version >= '3.12'"]
+ruamel = ["ruamel.yaml>=0.17.0,<0.20.0"] # the historical default; recommended ~=0.18.x
+# Convenience extra installing both backends.
+all = [
+    "yamlrocks>=0.5.0,<0.7; python_version >= '3.12'",
+    "ruamel.yaml>=0.17.0,<0.20.0",
 ]
 
 [dependency-groups]
@@ -49,6 +61,8 @@ dev = [
     "ty>=0.0.49",
     "pyrefly>=1.0.0",
     "prek>=0.4.4",
+    "yamlrocks>=0.5.0,<0.7; python_version >= '3.12'",
+    "ruamel.yaml>=0.17.0,<0.20.0",
 ]
 docs = [
     "mkdocs>=1.6,<2",              # To be updated to Zensical
@@ -108,10 +122,32 @@ warn_unused_configs = true
 module = 'ruamel.*'
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# Optional dependency; only installed on Python >=3.12 via the `yamlrocks` extra.
+module = 'yamlrocks.*'
+ignore_missing_imports = true
+
 
 [tool.pyrefly]
 project-includes = ["src/pydantic_yaml/**/*.py"]
 preset = "legacy"
-ignore-missing-imports = ["ruamel.*", "setuptools_scm.*"]
+ignore-missing-imports = ["ruamel.*", "setuptools_scm.*", "yamlrocks.*"]
 
 [tool.ty]
+
+[tool.ty.rules]
+# `ruamel.yaml` and `yamlrocks` are both optional dependencies (see the YAML engine modules,
+# which guard their imports with try/except ImportError); on environments missing one of them
+# (e.g. Python <3.12, which can never have `yamlrocks`), ty can't resolve it either. This has to
+# be "ignore" rather than "warn": ty's exit code is non-zero if *any* diagnostic is reported,
+# warnings included, and a per-line `# ty: ignore[unresolved-import]` isn't viable either since
+# it would itself be flagged as an unused suppression on environments where the import *does*
+# resolve (e.g. Python >=3.12 with yamlrocks installed) - the "correct" diagnosis is genuinely
+# conditional on which environment is checking, which only a rule-level ignore can express.
+unresolved-import = "ignore"
+# Whether the `# type: ignore` comments on SecretStr/enum-coercion lines in the test suite are
+# actually needed varies by exact ty/pydantic version resolved (observed: needed on ty 0.0.49 +
+# newer pydantic locally, NOT needed - i.e. flagged as unused - on ty 0.0.49 in CI's
+# "lowest-direct" resolution, and also not needed on ty 0.0.72). Rather than chase a moving
+# target across dependency-resolution matrix legs, don't fail the build either way.
+unused-type-ignore-comment = "ignore"
