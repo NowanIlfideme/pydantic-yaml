@@ -7,7 +7,7 @@ It is an *optional* dependency: install it with ``pip install pydantic-yaml[yaml
 (requires Python >=3.12).
 
 Importing this module never requires `yamlrocks` to be installed - only constructing a
-`YamlRocksReader`/`YamlRocksWriter` (or calling `.read()`/`.write()` on one) does.
+`YamlRocksReader`/`YamlRocksWriter` (or calling one) does.
 
 Reading and writing are deliberately separate classes - see the module docstring in
 `pydantic_yaml.engines._ruamel` for why.
@@ -47,7 +47,7 @@ class YamlRocksReader(BaseModel):
             ) from e
         return self
 
-    def read(self, stream: IOBase) -> Any:
+    def __call__(self, stream: IOBase) -> Any:
         """Read a YAML stream (str, bytes, or file-like object) into plain Python objects."""
         import yamlrocks as yr
 
@@ -174,7 +174,7 @@ class YamlRocksWriter(BaseModel):
             option |= self.option
         return option
 
-    def write(self, stream: IOBase, model: BaseModel) -> None:
+    def __call__(self, stream: IOBase, model: BaseModel) -> None:
         """Write `model` as YAML to `stream`, using this writer's own configuration."""
         import yamlrocks as yr
 

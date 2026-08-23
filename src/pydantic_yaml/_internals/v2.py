@@ -34,7 +34,7 @@ def to_yaml_str(model: BaseModel, *, writer: YamlWriter | None = None) -> str:
     """
     resolved = writer if writer is not None else get_default_writer()
     stream = StringIO()
-    resolved.write(stream, model)
+    resolved(stream, model)
     stream.seek(0)
     return stream.read()
 
@@ -56,7 +56,7 @@ def to_yaml_file(
     resolved = writer if writer is not None else get_default_writer()
 
     if isinstance(file, IOBase):  # open file handle
-        resolved.write(file, model)
+        resolved(file, model)
         return
 
     if isinstance(file, str):  # local path to file
@@ -67,7 +67,7 @@ def to_yaml_file(
         raise TypeError(f"Expected Path, str, or stream, but got {file!r}")
 
     with file.open(mode="w") as f:
-        resolved.write(f, model)  # type: ignore[arg-type]
+        resolved(f, model)  # type: ignore[arg-type]
         return
 
 
@@ -99,7 +99,7 @@ def parse_yaml_raw_as(
         raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
 
     resolved = reader if reader is not None else get_default_reader()
-    objects = resolved.read(stream)
+    objects = resolved(stream)
     ta = TypeAdapter(model_type)
     return ta.validate_python(objects)
 

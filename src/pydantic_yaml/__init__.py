@@ -10,7 +10,6 @@ __all__ = [
     # Readers and writers
     "YamlReader",
     "YamlWriter",
-    "YamlEngine",
     "RuamelReader",
     "RuamelWriter",
     "YamlRocksReader",
@@ -31,7 +30,6 @@ from pydantic_yaml._internals.v2 import (
 from pydantic_yaml.engines import (
     RuamelReader,
     RuamelWriter,
-    YamlEngine,
     YamlReader,
     YamlRocksReader,
     YamlRocksWriter,

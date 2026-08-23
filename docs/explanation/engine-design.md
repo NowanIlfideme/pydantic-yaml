@@ -38,24 +38,31 @@ including one that doesn't go through JSON at all ("dumping by hand").
 
 ## The actual design
 
-`pydantic-yaml` reads YAML through a `YamlReader` object (`read(stream)`) and writes YAML through
-a `YamlWriter` object (`write(stream, model)`) - two separate, `@runtime_checkable` `Protocol`s,
-passed as `reader=`/`writer=`. A few decisions shaped this:
+`pydantic-yaml` reads YAML through a `YamlReader` object (callable as `reader(stream)`) and
+writes YAML through a `YamlWriter` object (callable as `writer(stream, model)`) - two separate,
+`@runtime_checkable` `Protocol`s expressed via `__call__`, passed as `reader=`/`writer=`. A few
+decisions shaped this:
 
 **`typing.Protocol`, not an abstract base class.** A custom reader or writer needs zero dependency
 on `pydantic_yaml` - no import, no inheritance. `@runtime_checkable` still lets you write
 `isinstance(your_writer, YamlWriter)` if you want an explicit conformance check.
 
+**`__call__`, not a named method.** Early designs used `read()`/`write()` methods, which meant
+only class instances (with the right method name) could plug in. Expressing both protocols as
+`__call__` means a bare function - `def my_writer(stream, model): ...` - satisfies `YamlWriter`
+automatically, with nothing to inherit and no method name to remember. The tradeoff: since an
+object's `__call__` can only have one signature, a single object can't cleanly implement both
+`YamlReader` and `YamlWriter` at once (unlike separate `read()`/`write()` methods, which could
+coexist on one class) - a reader and a writer are always a *pair* of callables, matching how the
+built-ins are structured (`RuamelReader`/`RuamelWriter`, not one `RuamelEngine`).
+
 **Reading and writing are separate protocols, not one combined "engine."** Parsing YAML is a
 single, largely unconfigurable operation - `RuamelReader()`/`YamlRocksReader()` take no fields at
 all. Writing has many independent formatting knobs (indentation, key sorting, comments, flow
 style, ...). Bundling both into one object meant every reader silently carried a pile of
-write-only fields it never used, and `read()` had no way to reject a writer-only setting that
+write-only fields it never used, and reading had no way to reject a writer-only setting that
 didn't apply to it. Splitting them means `RuamelReader` and `RuamelWriter` each only have the
-fields relevant to what they actually do. If you want one object that does both anyway (e.g. a
-hand-written engine that's naturally symmetric), implement both methods on it - it then
-automatically satisfies `YamlEngine`, a convenience protocol that's just the intersection of
-`YamlReader` and `YamlWriter`, and you can pass it as both `reader=` and `writer=`.
+fields relevant to what they actually do.
 
 **Readers/writers own their configuration.** Formatting options, `add_comments`, and JSON-dump
 kwargs used to live on `to_yaml_str`/`to_yaml_file` themselves as flat keyword arguments - which

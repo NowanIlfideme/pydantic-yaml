@@ -2,14 +2,15 @@
 
 Reading and writing are separate concerns: parsing YAML is a simple, largely unconfigurable
 operation, while writing has many independent formatting knobs (indentation, comments, flow
-style, ...). Any object implementing `read(stream)` (matching `YamlReader`) can be passed as
-`reader=` to `parse_yaml_raw_as`/`parse_yaml_file_as`; any object implementing
-`write(stream, model)` (matching `YamlWriter`) can be passed as `writer=` to
-`to_yaml_str`/`to_yaml_file`. No inheritance required for either.
+style, ...). A reader is anything *callable* as `reader(stream)` (matching `YamlReader`); a
+writer is anything callable as `writer(stream, model)` (matching `YamlWriter`). Since both
+protocols are expressed via `__call__`, a plain function works just as well as a class instance -
+no inheritance, and no dedicated method name, required for either.
 
 `RuamelReader`/`RuamelWriter` and `YamlRocksReader`/`YamlRocksWriter` are the built-in
-implementations; write your own to bring a different YAML library, or to serialize/parse by hand
-(bypassing this project's default JSON round-trip approach) for full control.
+implementations; write your own (a function or a callable object) to bring a different YAML
+library, or to serialize/parse by hand (bypassing this project's default JSON round-trip
+approach) for full control.
 """
 
 from __future__ import annotations
@@ -25,7 +26,6 @@ from pydantic_yaml.engines._yamlrocks import YamlRocksReader, YamlRocksWriter
 __all__ = [
     "YamlReader",
     "YamlWriter",
-    "YamlEngine",
     "RuamelReader",
     "RuamelWriter",
     "YamlRocksReader",
@@ -41,10 +41,11 @@ __all__ = [
 class YamlReader(Protocol):
     """Structural interface a YAML reader must satisfy to plug into pydantic-yaml.
 
-    Any object with this one method works - no inheritance required.
+    Any callable `reader(stream) -> Any` works - a plain function, a lambda, or a class instance
+    with `__call__` - no inheritance and no particular method name required.
     """
 
-    def read(self, stream: IOBase) -> Any:
+    def __call__(self, stream: IOBase) -> Any:
         """Read a YAML stream into plain Python objects, for TypeAdapter validation."""
         ...
 
@@ -53,25 +54,15 @@ class YamlReader(Protocol):
 class YamlWriter(Protocol):
     """Structural interface a YAML writer must satisfy to plug into pydantic-yaml.
 
-    Any object with this one method works - no inheritance required. Writers carry their own
-    configuration (comment behavior, formatting, JSON-dump kwargs); `write` takes only the
-    stream and the model.
+    Any callable `writer(stream, model) -> None` works - a plain function, a lambda, or a class
+    instance with `__call__` - no inheritance and no particular method name required. Writers
+    carry their own configuration (comment behavior, formatting, JSON-dump kwargs); the call
+    itself takes only the stream and the model.
     """
 
-    def write(self, stream: IOBase, model: BaseModel) -> None:
+    def __call__(self, stream: IOBase, model: BaseModel) -> None:
         """Write `model` as YAML to `stream`, using this writer's own configuration."""
         ...
-
-
-@runtime_checkable
-class YamlEngine(YamlReader, YamlWriter, Protocol):
-    """Convenience protocol for an object that's both a `YamlReader` and a `YamlWriter`.
-
-    Not required anywhere in the public API - `reader=`/`writer=` each only ask for their one
-    method - but handy if you'd rather write a single custom class that does both instead of a
-    matched pair, or want a type covering "either half" of `RuamelReader`/`RuamelWriter` (or the
-    `yamlrocks` equivalents) together.
-    """
 
 
 def _autodetect(verb: str, candidates: tuple[type[Any], ...]) -> Any:
@@ -112,12 +103,12 @@ def set_default_reader(reader: YamlReader) -> None:
     Parameters
     ----------
     reader : YamlReader
-        A pre-constructed reader object, e.g. `RuamelReader()` or a custom reader implementing
-        the `YamlReader` protocol.
+        A callable `reader(stream) -> Any`, e.g. `RuamelReader()`, a plain function, or anything
+        else matching the `YamlReader` protocol.
     """
     global _default_reader
     if not isinstance(reader, YamlReader):
-        raise TypeError(f"Expected an object implementing YamlReader (a read method), got {reader!r}")
+        raise TypeError(f"Expected a callable implementing YamlReader (reader(stream)), got {reader!r}")
     _default_reader = reader
 
 
@@ -141,10 +132,12 @@ def set_default_writer(writer: YamlWriter) -> None:
     Parameters
     ----------
     writer : YamlWriter
-        A pre-constructed (and, for the built-ins, pre-configured) writer object, e.g.
-        `RuamelWriter(sort_keys=True)` or a custom writer implementing the `YamlWriter` protocol.
+        A callable `writer(stream, model) -> None`, e.g. `RuamelWriter(sort_keys=True)`, a plain
+        function, or anything else matching the `YamlWriter` protocol.
     """
     global _default_writer
     if not isinstance(writer, YamlWriter):
-        raise TypeError(f"Expected an object implementing YamlWriter (a write method), got {writer!r}")
+        raise TypeError(
+            f"Expected a callable implementing YamlWriter (writer(stream, model)), got {writer!r}"
+        )
     _default_writer = writer

@@ -5,7 +5,7 @@ like `yamlrocks`, see `issue #338 <https://github.com/NowanIlfideme/pydantic-yam
 install it with ``pip install pydantic-yaml[ruamel]``.
 
 Importing this module never requires `ruamel.yaml` to be installed - only constructing a
-`RuamelReader`/`RuamelWriter` (or calling `.read()`/`.write()` on one) does.
+`RuamelReader`/`RuamelWriter` (or calling one) does.
 
 Reading and writing are deliberately separate classes: parsing YAML is a simple, mostly
 unconfigurable operation, while writing has many independent formatting knobs - bundling both
@@ -55,7 +55,7 @@ class RuamelReader(BaseModel):
             ) from e
         return self
 
-    def read(self, stream: IOBase) -> Any:
+    def __call__(self, stream: IOBase) -> Any:
         """Read a YAML stream (str, bytes, or file-like object) into plain Python objects."""
         from ruamel.yaml import YAML
 
@@ -214,7 +214,7 @@ class RuamelWriter(BaseModel):
         _ensure_literal_scalarstring_registered()
         return self
 
-    def write(self, stream: IOBase, model: BaseModel) -> None:
+    def __call__(self, stream: IOBase, model: BaseModel) -> None:
         """Write `model` as YAML to `stream`, using this writer's own configuration."""
         from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 

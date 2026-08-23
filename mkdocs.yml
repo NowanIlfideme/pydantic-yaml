@@ -62,6 +62,7 @@ plugins:
             show_source: false
             filters:
               - "^__init__$" # but always include __init__ modules and methods
+              - "^__call__$" # and __call__, since readers/writers are called, not .read()/.write()
               - "!^_" # exclude all members starting with _
 
 markdown_extensions:

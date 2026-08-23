@@ -16,10 +16,10 @@ day-to-day usage, see the [how-to guides](../how-to/install.md) instead - this p
   `to_yaml_str(model, writer=RuamelWriter(indent=4))` instead of `to_yaml_str(model, indent=4)`.
   See [Choose and configure readers/writers](../how-to/configure-readers-writers.md).
 - Reading and writing are separate protocols (`YamlReader`/`YamlWriter`), not one combined
-  "engine" - a reader is a plain `read(stream)` object with no formatting config of its own,
-  since parsing needs none. An object implementing both automatically satisfies `YamlEngine`, a
-  convenience protocol for the intersection, and can be passed as both `reader=` and `writer=`.
-  See [Write a custom reader/writer](../how-to/write-custom-reader-writer.md).
+  "engine" - a reader is a plain callable `reader(stream)` with no formatting config of its own,
+  since parsing needs none. Both protocols are expressed via `__call__` rather than a named
+  method, so a bare function satisfies either one - no class or inheritance required. See
+  [Write a custom reader/writer](../how-to/write-custom-reader-writer.md).
 - `reader=`/`writer=` never accept a string (`"ruamel"`/`"yamlrocks"`) - always an actual object.
   There's no `EngineName` type, and no `PYDANTIC_YAML_ENGINE` environment variable.
 - `get_default_reader()`/`get_default_writer()` return `YamlReader`/`YamlWriter` objects, not

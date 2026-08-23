@@ -36,25 +36,25 @@ from pydantic_yaml.examples.base_models import A
 class _FakeYamlRocksReader:
     """Stand-in for `YamlRocksReader` that always "succeeds" (backend "installed")."""
 
-    def read(self, stream: IOBase) -> Any: ...
+    def __call__(self, stream: IOBase) -> Any: ...
 
 
 class _FakeRuamelReader:
     """Stand-in for `RuamelReader` that always "succeeds" (backend "installed")."""
 
-    def read(self, stream: IOBase) -> Any: ...
+    def __call__(self, stream: IOBase) -> Any: ...
 
 
 class _FakeYamlRocksWriter:
     """Stand-in for `YamlRocksWriter` that always "succeeds" (backend "installed")."""
 
-    def write(self, stream: IOBase, model: BaseModel) -> None: ...
+    def __call__(self, stream: IOBase, model: BaseModel) -> None: ...
 
 
 class _FakeRuamelWriter:
     """Stand-in for `RuamelWriter` that always "succeeds" (backend "installed")."""
 
-    def write(self, stream: IOBase, model: BaseModel) -> None: ...
+    def __call__(self, stream: IOBase, model: BaseModel) -> None: ...
 
 
 class _FakeMissing:
@@ -134,21 +134,21 @@ def test_default_reader_is_cached(monkeypatch):
 
 
 def test_set_default_reader_accepts_any_conforming_object():
-    """`set_default_reader` accepts anything with a `read` method, not just built-ins."""
+    """`set_default_reader` accepts any callable, not just built-ins."""
     fake = _FakeRuamelReader()
     set_default_reader(fake)
     assert get_default_reader() is fake
 
 
 def test_set_default_writer_accepts_any_conforming_object():
-    """`set_default_writer` accepts anything with a `write` method, not just built-ins."""
+    """`set_default_writer` accepts any callable, not just built-ins."""
     fake = _FakeRuamelWriter()
     set_default_writer(fake)
     assert get_default_writer() is fake
 
 
 def test_set_default_reader_rejects_non_conforming_object():
-    """An object without a `read` method is rejected with a clear `TypeError`."""
+    """A non-callable object is rejected with a clear `TypeError`."""
     with pytest.raises(TypeError):
         set_default_reader("not-a-reader")  # ty: ignore[invalid-argument-type]
     with pytest.raises(TypeError):
@@ -156,7 +156,7 @@ def test_set_default_reader_rejects_non_conforming_object():
 
 
 def test_set_default_writer_rejects_non_conforming_object():
-    """An object without a `write` method is rejected with a clear `TypeError`."""
+    """A non-callable object is rejected with a clear `TypeError`."""
     with pytest.raises(TypeError):
         set_default_writer("not-a-writer")  # ty: ignore[invalid-argument-type]
     with pytest.raises(TypeError):
