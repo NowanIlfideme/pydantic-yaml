@@ -40,9 +40,9 @@ assert parse_yaml_raw_as(Config, yml) == cfg
 
 - generating YAML comments from your model's docstrings and field descriptions - see
   [Add comments to YAML output](docs/how-to/add-comments.md),
-- a pluggable YAML engine - bring your own YAML library, or hand-write serialization - see
-  [Choose and configure a YAML engine](docs/how-to/configure-engine.md) and
-  [Write a custom YAML engine](docs/how-to/write-custom-engine.md), and
+- pluggable readers and writers - bring your own YAML library, or hand-write serialization - see
+  [Choose and configure readers/writers](docs/how-to/configure-readers-writers.md) and
+  [Write a custom reader/writer](docs/how-to/write-custom-reader-writer.md), and
 - dumping Pydantic dataclasses - see [Dump Pydantic dataclasses](docs/how-to/dump-dataclasses.md).
 
 See the [full documentation](https://pydantic-yaml.readthedocs.io/en/latest/) for a guided

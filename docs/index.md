@@ -20,8 +20,8 @@ assert parse_yaml_raw_as(Config, "name: prod\nretries: 3\n") == cfg
 ```
 
 It also supports generating YAML comments from your model's docstrings and field descriptions,
-and a pluggable YAML engine - bring your own YAML library, or hand-write serialization, if the
-two built-in engines don't do what you need.
+and pluggable readers and writers - bring your own YAML library, or hand-write serialization, if
+the two built-in backends don't do what you need.
 
 ## Where to go next
 
@@ -33,11 +33,11 @@ sections:
 - **How-to guides** - task-focused recipes for specific things you want to do:
     - [Install pydantic-yaml](how-to/install.md)
     - [Add comments to YAML output](how-to/add-comments.md)
-    - [Choose and configure a YAML engine](how-to/configure-engine.md)
-    - [Write a custom YAML engine](how-to/write-custom-engine.md)
+    - [Choose and configure readers/writers](how-to/configure-readers-writers.md)
+    - [Write a custom reader/writer](how-to/write-custom-reader-writer.md)
     - [Dump Pydantic dataclasses](how-to/dump-dataclasses.md)
     - [Recover versioned models](how-to/recover-versioned-models.md) (a feature removed in v1)
 - **[Reference](reference/api.md)** - complete API documentation, generated from the source.
 - **Explanation** - background and design rationale:
-    - [Why a pluggable YAML engine?](explanation/engine-design.md)
+    - [Why pluggable readers and writers?](explanation/engine-design.md)
     - [Breaking changes across versions](explanation/changelog.md)

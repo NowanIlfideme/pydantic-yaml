@@ -16,14 +16,14 @@ nav:
   - How-To Guides:
       - Install pydantic-yaml: how-to/install.md
       - Add Comments to YAML Output: how-to/add-comments.md
-      - Choose and Configure a YAML Engine: how-to/configure-engine.md
-      - Write a Custom YAML Engine: how-to/write-custom-engine.md
+      - Choose and Configure Readers/Writers: how-to/configure-readers-writers.md
+      - Write a Custom Reader/Writer: how-to/write-custom-reader-writer.md
       - Dump Pydantic Dataclasses: how-to/dump-dataclasses.md
       - Recover Versioned Models: how-to/recover-versioned-models.md
   - Reference:
       - API Reference: reference/api.md
   - Explanation:
-      - Why a Pluggable YAML Engine?: explanation/engine-design.md
+      - Why Pluggable Readers and Writers?: explanation/engine-design.md
       - Breaking Changes Across Versions: explanation/changelog.md
 
 theme:

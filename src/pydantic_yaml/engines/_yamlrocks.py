@@ -1,4 +1,4 @@
-"""YAML engine backed by the `yamlrocks` library.
+"""YAML reader/writer backed by the `yamlrocks` library.
 
 `yamlrocks` is a Rust-based YAML 1.2 implementation that passes the yaml-test-suite
 (unlike `ruamel.yaml`, see
@@ -7,7 +7,10 @@ It is an *optional* dependency: install it with ``pip install pydantic-yaml[yaml
 (requires Python >=3.12).
 
 Importing this module never requires `yamlrocks` to be installed - only constructing a
-`YamlRocksEngine` (or calling `.read()`/`.write()` on one) does.
+`YamlRocksReader`/`YamlRocksWriter` (or calling `.read()`/`.write()` on one) does.
+
+Reading and writing are deliberately separate classes - see the module docstring in
+`pydantic_yaml.engines._ruamel` for why.
 """
 
 from __future__ import annotations
@@ -22,7 +25,33 @@ from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
 
 from pydantic_yaml._internals.comments import CommentsOptions, get_doc
 
-__all__ = ["YamlRocksEngine"]
+__all__ = ["YamlRocksReader", "YamlRocksWriter"]
+
+
+class YamlRocksReader(BaseModel):
+    """YAML reader backed by `yamlrocks` (Rust-based, YAML 1.2 spec-compliant).
+
+    Optional dependency: install with `pip install pydantic-yaml[yamlrocks]` (Python >=3.12).
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    @model_validator(mode="after")
+    def _check_available(self) -> YamlRocksReader:
+        try:
+            import yamlrocks  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "The 'yamlrocks' reader requires the optional `yamlrocks` package. "
+                "Install it with `pip install pydantic-yaml[yamlrocks]`."
+            ) from e
+        return self
+
+    def read(self, stream: IOBase) -> Any:
+        """Read a YAML stream (str, bytes, or file-like object) into plain Python objects."""
+        import yamlrocks as yr
+
+        return yr.load(stream)
 
 
 def _child_keys(node: Any) -> list[Any]:
@@ -80,8 +109,8 @@ def _add_descriptions(node: Any, obj: Any, opts: CommentsOptions) -> None:
                 _add_descriptions(node[key], sub_obj, opts=opts)
 
 
-class YamlRocksEngine(BaseModel):
-    """YAML engine backed by `yamlrocks` (Rust-based, YAML 1.2 spec-compliant).
+class YamlRocksWriter(BaseModel):
+    """YAML writer backed by `yamlrocks` (Rust-based, YAML 1.2 spec-compliant).
 
     Optional dependency: install with `pip install pydantic-yaml[yamlrocks]` (Python >=3.12).
     Instances are immutable (`frozen`); use `.model_copy(update={...})` to derive a variant.
@@ -102,7 +131,7 @@ class YamlRocksEngine(BaseModel):
     indent: int | None = None
     """Indent width, applied uniformly to maps and sequences. Only `2`/`4`/`None` are
     representable - `yamlrocks` has no independently-configurable map/sequence indent or
-    partial dash offset (unlike `RuamelEngine`); use that engine for finer-grained control."""
+    partial dash offset (unlike `RuamelWriter`); use that writer for finer-grained control."""
 
     option: int | None = None
     """Power-user escape hatch: raw `yamlrocks.OPT_*` bitflags, OR'd into the computed option
@@ -112,18 +141,18 @@ class YamlRocksEngine(BaseModel):
     """Extra keyword arguments forwarded to `model.model_dump_json(**json_kwargs)`."""
 
     @model_validator(mode="after")
-    def _check_available(self) -> YamlRocksEngine:
+    def _check_available(self) -> YamlRocksWriter:
         try:
             import yamlrocks  # noqa: F401
         except ImportError as e:
             raise ImportError(
-                "The 'yamlrocks' engine requires the optional `yamlrocks` package. "
+                "The 'yamlrocks' writer requires the optional `yamlrocks` package. "
                 "Install it with `pip install pydantic-yaml[yamlrocks]`."
             ) from e
         if self.indent not in (None, 2, 4):
             raise NotImplementedError(
-                f"The 'yamlrocks' engine only supports `indent` values of 2 or 4, got {self.indent!r}; "
-                "use `RuamelEngine` for finer-grained control."
+                f"The 'yamlrocks' writer only supports `indent` values of 2 or 4, got {self.indent!r}; "
+                "use `RuamelWriter` for finer-grained control."
             )
         return self
 
@@ -145,14 +174,8 @@ class YamlRocksEngine(BaseModel):
             option |= self.option
         return option
 
-    def read(self, stream: IOBase) -> Any:
-        """Read a YAML stream (str, bytes, or file-like object) into plain Python objects."""
-        import yamlrocks as yr
-
-        return yr.load(stream)
-
     def write(self, stream: IOBase, model: BaseModel) -> None:
-        """Write `model` as YAML to `stream`, using this engine's own configuration."""
+        """Write `model` as YAML to `stream`, using this writer's own configuration."""
         import yamlrocks as yr
 
         if not isinstance(model, BaseModel):
@@ -168,7 +191,7 @@ class YamlRocksEngine(BaseModel):
         if self.add_comments not in (True, "fields-only", "models-only"):
             raise ValueError(f"Invalid `add_comments` value: {self.add_comments!r}")
 
-        # We need to roundtrip, same as the ruamel engine does.
+        # We need to roundtrip, same as the ruamel writer does.
         raw = yr.dumps(val, option=option)
         doc = yr.loads(raw, option=option | yr.OPT_ROUND_TRIP)
         assert isinstance(doc, yr.YAMLRocksDocument)  # guaranteed by OPT_ROUND_TRIP

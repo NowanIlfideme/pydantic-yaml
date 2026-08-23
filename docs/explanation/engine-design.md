@@ -1,4 +1,4 @@
-# Why a Pluggable YAML Engine?
+# Why Pluggable Readers and Writers?
 
 ## The problem with `ruamel.yaml`
 
@@ -30,54 +30,67 @@ a Rust-backed engine that's YAML 1.2 spec-compliant and does pass the yaml-test-
 that "something better," and it's the recommended default today.
 
 But swapping libraries wholesale would have been risky for existing users (`ruamel.yaml` still
-works fine for many), and it wouldn't have actually solved #217 or #34 - both engines had the
+works fine for many), and it wouldn't have actually solved #217 or #34 - both backends had the
 same field-sorting default, and only one of them handled multiline strings well. Picking between
 two hardcoded backends via a string (`engine="ruamel"` vs `engine="yamlrocks"`) also didn't scale
-to a genuine ask buried in the same milestone: **the ability to write a custom engine entirely**,
+to a genuine ask buried in the same milestone: **the ability to write a custom backend entirely**,
 including one that doesn't go through JSON at all ("dumping by hand").
 
 ## The actual design
 
-`pydantic-yaml` reads/writes YAML through a `YamlEngine` object - anything with `read(stream)`
-and `write(stream, model)` methods. A few decisions shaped this:
+`pydantic-yaml` reads YAML through a `YamlReader` object (`read(stream)`) and writes YAML through
+a `YamlWriter` object (`write(stream, model)`) - two separate, `@runtime_checkable` `Protocol`s,
+passed as `reader=`/`writer=`. A few decisions shaped this:
 
-**`typing.Protocol`, not an abstract base class.** A custom engine needs zero dependency on
-`pydantic_yaml` - no import, no inheritance. `@runtime_checkable` still lets you write
-`isinstance(your_engine, YamlEngine)` if you want an explicit conformance check.
+**`typing.Protocol`, not an abstract base class.** A custom reader or writer needs zero dependency
+on `pydantic_yaml` - no import, no inheritance. `@runtime_checkable` still lets you write
+`isinstance(your_writer, YamlWriter)` if you want an explicit conformance check.
 
-**Engines own their configuration.** Formatting options, `add_comments`, and JSON-dump kwargs
-used to live on `to_yaml_str`/`to_yaml_file` themselves as flat keyword arguments - which meant
-every option had to make sense for *every* engine, or be silently ignored, or raise at call time.
-Instead, `RuamelEngine`/`YamlRocksEngine` are frozen `pydantic.BaseModel`s that each declare only
-the fields they can actually honor. `YamlRocksEngine` simply has no `map_indent` field, because
-`yamlrocks` has no equivalent knob - passing one raises a `pydantic.ValidationError` at
+**Reading and writing are separate protocols, not one combined "engine."** Parsing YAML is a
+single, largely unconfigurable operation - `RuamelReader()`/`YamlRocksReader()` take no fields at
+all. Writing has many independent formatting knobs (indentation, key sorting, comments, flow
+style, ...). Bundling both into one object meant every reader silently carried a pile of
+write-only fields it never used, and `read()` had no way to reject a writer-only setting that
+didn't apply to it. Splitting them means `RuamelReader` and `RuamelWriter` each only have the
+fields relevant to what they actually do. If you want one object that does both anyway (e.g. a
+hand-written engine that's naturally symmetric), implement both methods on it - it then
+automatically satisfies `YamlEngine`, a convenience protocol that's just the intersection of
+`YamlReader` and `YamlWriter`, and you can pass it as both `reader=` and `writer=`.
+
+**Readers/writers own their configuration.** Formatting options, `add_comments`, and JSON-dump
+kwargs used to live on `to_yaml_str`/`to_yaml_file` themselves as flat keyword arguments - which
+meant every option had to make sense for *every* backend, or be silently ignored, or raise at call
+time. Instead, `RuamelWriter`/`YamlRocksWriter` are frozen `pydantic.BaseModel`s that each declare
+only the fields they can actually honor. `YamlRocksWriter` simply has no `map_indent` field,
+because `yamlrocks` has no equivalent knob - passing one raises a `pydantic.ValidationError` at
 construction time, not a `NotImplementedError` buried inside a dump call. See
-[Choose and configure a YAML engine](../how-to/configure-engine.md).
+[Choose and configure readers/writers](../how-to/configure-readers-writers.md).
 
 **No string-based selection.** Early designs let you write `engine="yamlrocks"` and looked up a
-name in a registry. That doesn't generalize to arbitrary custom engines without adding a
-registration API purely for the sake of strings. `engine=` and `set_default_engine()` always take
-an actual engine *object* - a built-in, pre-configured however you like, or your own. See
-[Write a custom YAML engine](../how-to/write-custom-engine.md).
+name in a registry. That doesn't generalize to arbitrary custom backends without adding a
+registration API purely for the sake of strings. `reader=`/`writer=` and
+`set_default_reader()`/`set_default_writer()` always take an actual object - a built-in,
+pre-configured however you like, or your own. See
+[Write a custom reader/writer](../how-to/write-custom-reader-writer.md).
 
-**#217 and #34 became defaults, not options.** Once formatting lived on the engine itself, both
-fixes were natural: field declaration order is preserved by default on both engines (`sort_keys`
+**#217 and #34 became defaults, not options.** Once formatting lived on the writer itself, both
+fixes were natural: field declaration order is preserved by default on both writers (`sort_keys`
 opts back into alphabetizing), and multiline strings dump in block-literal style
 unconditionally - `yamlrocks` already did this automatically with no way to disable it, so
-`RuamelEngine` was made to match rather than exposing a toggle only one engine could honor.
+`RuamelWriter` was made to match rather than exposing a toggle only one backend could honor.
 
 ## Known cross-engine differences
 
-Both built-in engines are extensively tested against each other, but a couple of cosmetic
+Both built-in backends are extensively tested against each other, but a couple of cosmetic
 differences remain, inherent to how the two underlying libraries work:
 
-- **Comment placement with nested descriptions.** `RuamelEngine` sometimes drops a nested
+- **Comment placement with nested descriptions.** `RuamelWriter` sometimes drops a nested
   model's docstring when `add_comments=True` and that same field also has its own description -
-  a known `ruamel.yaml` inconsistency. `YamlRocksEngine` includes both.
+  a known `ruamel.yaml` inconsistency. `YamlRocksWriter` includes both.
 - **Comments on a multiline field.** A field's own description comment can't sit on the same
-  line as a block-literal (`|`) value, since the value spans multiple lines. Both engines dump
+  line as a block-literal (`|`) value, since the value spans multiple lines. Both writers dump
   it on a dangling, oddly-indented line right after the value instead - identical behavior on
   both, harmless (the data still round-trips correctly), just not pretty.
 - **Multiline strings under `default_flow_style=True`.** A block-literal scalar can't exist
-  inside flow style at all (`|` is a block-only construct) - both engines consistently fall back
+  inside flow style at all (`|` is a block-only construct) - both writers consistently fall back
   to a quoted, escaped string for that one value instead.

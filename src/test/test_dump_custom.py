@@ -2,7 +2,7 @@
 
 import pytest
 
-from pydantic_yaml import RuamelEngine, YamlRocksEngine, to_yaml_str
+from pydantic_yaml import RuamelWriter, YamlRocksWriter, to_yaml_str
 from pydantic_yaml.examples.base_models import HasEnums
 from pydantic_yaml.examples.common import MyIntEnum, MyStrEnum
 
@@ -17,35 +17,35 @@ has_enums = HasEnums(opts=MyStrEnum.option1, vals=[MyIntEnum.v1, MyIntEnum.v2])
         [dict(indent=4), "opts: option1\nvals:\n    - 1\n    - 2\n"],
     ],
 )
-def test_dump_kwargs(engine: RuamelEngine | YamlRocksEngine, kwargs: dict, expected: str):
-    """Test engine formatting fields; behaves identically on both built-in engines."""
-    configured = engine.model_copy(update=kwargs)
-    res = to_yaml_str(has_enums, engine=configured)
+def test_dump_kwargs(writer: RuamelWriter | YamlRocksWriter, kwargs: dict, expected: str):
+    """Test writer formatting fields; behaves identically on both built-in writers."""
+    configured = writer.model_copy(update=kwargs)
+    res = to_yaml_str(has_enums, writer=configured)
     assert res == expected
 
 
 def test_dump_kwargs_independent_map_and_sequence_indent_ruamel_only():
-    """Independently-configurable `map_indent`/`sequence_indent` is a `RuamelEngine`-only feature.
+    """Independently-configurable `map_indent`/`sequence_indent` is a `RuamelWriter`-only feature.
 
-    `YamlRocksEngine` doesn't even have these fields, so constructing one with them raises a
+    `YamlRocksWriter` doesn't even have these fields, so constructing one with them raises a
     Pydantic `ValidationError` (extra field) regardless of whether `yamlrocks` is installed.
     """
     expected = "opts: option1\nvals:\n      - 1\n      - 2\n"
-    assert to_yaml_str(has_enums, engine=RuamelEngine(indent=6, map_indent=2)) == expected
+    assert to_yaml_str(has_enums, writer=RuamelWriter(indent=6, map_indent=2)) == expected
 
     with pytest.raises(ValueError):
-        YamlRocksEngine(indent=6, map_indent=2)  # ty: ignore[unknown-argument]
+        YamlRocksWriter(indent=6, map_indent=2)  # ty: ignore[unknown-argument]
 
 
 def test_custom_yaml_writer_is_ruamel_only():
-    """`writer` (equivalent of the old `custom_yaml_writer`) is a `RuamelEngine`-only field."""
+    """`writer` (equivalent of the old `custom_yaml_writer`) is a `RuamelWriter`-only field."""
     from ruamel.yaml import YAML
 
-    writer = YAML(typ="safe")
-    writer.default_flow_style = True
+    ruamel_writer = YAML(typ="safe")
+    ruamel_writer.default_flow_style = True
     expected = "{opts: option1, vals: [1, 2]}\n"
-    got = to_yaml_str(has_enums, engine=RuamelEngine(default_flow_style=None, writer=writer))
+    got = to_yaml_str(has_enums, writer=RuamelWriter(default_flow_style=None, writer=ruamel_writer))
     assert got == expected
 
     with pytest.raises(ValueError):
-        YamlRocksEngine(writer=writer)  # ty: ignore[unknown-argument]
+        YamlRocksWriter(writer=ruamel_writer)  # ty: ignore[unknown-argument]

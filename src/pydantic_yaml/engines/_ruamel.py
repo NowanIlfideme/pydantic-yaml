@@ -1,11 +1,16 @@
-"""YAML engine backed by the `ruamel.yaml` library.
+"""YAML reader/writer backed by the `ruamel.yaml` library.
 
 This has been the default engine historically, but it is now an *optional* dependency (just
 like `yamlrocks`, see `issue #338 <https://github.com/NowanIlfideme/pydantic-yaml/issues/338>`_):
 install it with ``pip install pydantic-yaml[ruamel]``.
 
 Importing this module never requires `ruamel.yaml` to be installed - only constructing a
-`RuamelEngine` (or calling `.read()`/`.write()` on one) does.
+`RuamelReader`/`RuamelWriter` (or calling `.read()`/`.write()` on one) does.
+
+Reading and writing are deliberately separate classes: parsing YAML is a simple, mostly
+unconfigurable operation, while writing has many independent formatting knobs - bundling both
+into one class meant `read()` carried a pile of fields (`indent`, `add_comments`, ...) it never
+looked at.
 
 See Also
 --------
@@ -28,7 +33,35 @@ from pydantic.fields import FieldInfo
 
 from pydantic_yaml._internals.comments import CommentsOptions, get_doc
 
-__all__ = ["RuamelEngine"]
+__all__ = ["RuamelReader", "RuamelWriter"]
+
+
+class RuamelReader(BaseModel):
+    """YAML reader backed by `ruamel.yaml`.
+
+    Optional dependency: install with `pip install pydantic-yaml[ruamel]`.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    @model_validator(mode="after")
+    def _check_available(self) -> RuamelReader:
+        try:
+            import ruamel.yaml  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "The 'ruamel' reader requires the optional `ruamel.yaml` package. "
+                "Install it with `pip install pydantic-yaml[ruamel]`."
+            ) from e
+        return self
+
+    def read(self, stream: IOBase) -> Any:
+        """Read a YAML stream (str, bytes, or file-like object) into plain Python objects."""
+        from ruamel.yaml import YAML
+
+        reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
+        return reader.load(stream)
+
 
 _literal_scalarstring_registered = False
 
@@ -37,7 +70,7 @@ def _ensure_literal_scalarstring_registered() -> None:
     """Register `LiteralScalarString` with `SafeRepresenter`, once per process.
 
     Only `RoundTripRepresenter` (`typ="rt"`) has this registered by default; `SafeRepresenter`
-    (`typ="safe"`, what `RuamelEngine` uses) does not, so wrapping a value in
+    (`typ="safe"`, what `RuamelWriter` uses) does not, so wrapping a value in
     `LiteralScalarString` would otherwise have no effect on it. Representer dispatch is by
     `type(data)` regardless of `typ=`, so this single, process-wide registration makes
     `typ="safe"` writers honor it too (verified empirically) - mirrors how ruamel itself
@@ -131,8 +164,8 @@ def _add_descriptions(
             _add_descriptions(ystruct[key], sub_obj, opts=opts)
 
 
-class RuamelEngine(BaseModel):
-    """YAML engine backed by `ruamel.yaml`.
+class RuamelWriter(BaseModel):
+    """YAML writer backed by `ruamel.yaml`.
 
     Optional dependency: install with `pip install pydantic-yaml[ruamel]`. Instances are
     immutable (`frozen`); use `.model_copy(update={...})` to derive a variant.
@@ -168,12 +201,12 @@ class RuamelEngine(BaseModel):
     """Extra keyword arguments forwarded to `model.model_dump_json(**json_kwargs)`."""
 
     @model_validator(mode="after")
-    def _check_available(self) -> RuamelEngine:
+    def _check_available(self) -> RuamelWriter:
         try:
             from ruamel.yaml import YAML
         except ImportError as e:
             raise ImportError(
-                "The 'ruamel' engine requires the optional `ruamel.yaml` package. "
+                "The 'ruamel' writer requires the optional `ruamel.yaml` package. "
                 "Install it with `pip install pydantic-yaml[ruamel]`."
             ) from e
         if self.writer is not None and not isinstance(self.writer, YAML):
@@ -181,15 +214,8 @@ class RuamelEngine(BaseModel):
         _ensure_literal_scalarstring_registered()
         return self
 
-    def read(self, stream: IOBase) -> Any:
-        """Read a YAML stream (str, bytes, or file-like object) into plain Python objects."""
-        from ruamel.yaml import YAML
-
-        reader = YAML(typ="safe", pure=True)  # YAML 1.2 support
-        return reader.load(stream)
-
     def write(self, stream: IOBase, model: BaseModel) -> None:
-        """Write `model` as YAML to `stream`, using this engine's own configuration."""
+        """Write `model` as YAML to `stream`, using this writer's own configuration."""
         from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 
         if not isinstance(model, BaseModel):

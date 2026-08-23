@@ -4,8 +4,8 @@ Writing YAML models with comments has been
 [a hotly-requested feature](https://github.com/NowanIlfideme/pydantic-yaml/issues/83),
 as comments are one of the (many) features why YAML is nicer than JSON for human-facing
 configuration. Comment generation is supported by both built-in
-[YAML engines](configure-engine.md) - it's controlled by the `add_comments` field on whichever
-engine object you pass, not a `to_yaml_str` argument.
+[writers](configure-readers-writers.md) - it's controlled by the `add_comments` field on whichever
+writer object you pass, not a `to_yaml_str` argument.
 
 ## Adding Descriptions
 
@@ -38,10 +38,10 @@ class MyModel(BaseModel):
 Both of these options will work to create:
 
 ```python
-from pydantic_yaml import RuamelEngine, to_yaml_str
+from pydantic_yaml import RuamelWriter, to_yaml_str
 
 mdl = MyModel(c=3.14)
-print(to_yaml_str(mdl, engine=RuamelEngine(add_comments=True)))
+print(to_yaml_str(mdl, writer=RuamelWriter(add_comments=True)))
 ```
 
 with output:
@@ -59,7 +59,7 @@ See the Pydantic docs for more options on how to add descriptions:
 Note that you can also export just the headers:
 
 ```python
-print(to_yaml_str(mdl, engine=RuamelEngine(add_comments="models-only")))
+print(to_yaml_str(mdl, writer=RuamelWriter(add_comments="models-only")))
 ```
 
 ```yaml
@@ -70,7 +70,7 @@ c: 3.14
 or just the fields:
 
 ```python
-print(to_yaml_str(mdl, engine=RuamelEngine(add_comments="fields-only")))
+print(to_yaml_str(mdl, writer=RuamelWriter(add_comments="fields-only")))
 ```
 
 ```yaml
@@ -87,7 +87,7 @@ If you just want to create example YAML files, you have several main options:
    [`model_construct()`](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_construct)
    and use `None` for fields that are not optional but still need to be added.
    - Your docstrings and descriptions will still be used, so might be a bit confusing to users.
-     Consider `RuamelEngine(add_comments="fields-only")`.
+     Consider `RuamelWriter(add_comments="fields-only")`.
 3. Create a parallel "documentation model" where you instruct users in your
    docstrings/descriptions (rather than document code) and have some examples (or `None`) as
    default values.
@@ -97,7 +97,7 @@ Example of option 2:
 
 ```python
 ex = MyModel.model_construct(c=None)
-print(to_yaml_str(ex, engine=RuamelEngine(add_comments="fields-only")))
+print(to_yaml_str(ex, writer=RuamelWriter(add_comments="fields-only")))
 ```
 
 gives
@@ -108,7 +108,7 @@ c:  # See three?
 
 ## Known limitations
 
-Exact comment placement can differ slightly between the two built-in engines, and a field whose
+Exact comment placement can differ slightly between the two built-in writers, and a field whose
 *value* is a multiline string has a cosmetic placement quirk of its own - see
-[Why a pluggable YAML engine?](../explanation/engine-design.md#known-cross-engine-differences)
+[Why pluggable readers and writers?](../explanation/engine-design.md#known-cross-engine-differences)
 for the details.

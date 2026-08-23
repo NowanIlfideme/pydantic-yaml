@@ -1,9 +1,10 @@
-"""Engine-agnostic YAML <-> Pydantic model plumbing.
+"""Reader/writer-agnostic YAML <-> Pydantic model plumbing.
 
-The actual reading/writing is delegated entirely to a `pydantic_yaml.engines.YamlEngine` object
-(the built-in `RuamelEngine`/`YamlRocksEngine`, or a custom one) - see
-`pydantic_yaml.engines` for the engine interface, built-in implementations, and default-engine
-resolution (`get_default_engine`/`set_default_engine`).
+Reading is delegated entirely to a `pydantic_yaml.engines.YamlReader` object, and writing to a
+`pydantic_yaml.engines.YamlWriter` object (the built-in `RuamelReader`/`RuamelWriter` and
+`YamlRocksReader`/`YamlRocksWriter`, or custom ones) - see `pydantic_yaml.engines` for the
+interfaces, built-in implementations, and default resolution (`get_default_reader`/
+`set_default_reader`/`get_default_writer`/`set_default_writer`).
 """
 
 from __future__ import annotations
@@ -14,24 +15,24 @@ from typing import TypeVar
 
 from pydantic import BaseModel, TypeAdapter
 
-from pydantic_yaml.engines import YamlEngine, get_default_engine
+from pydantic_yaml.engines import YamlReader, YamlWriter, get_default_reader, get_default_writer
 
 T = TypeVar("T", bound=BaseModel)
 
 
-def to_yaml_str(model: BaseModel, *, engine: YamlEngine | None = None) -> str:
+def to_yaml_str(model: BaseModel, *, writer: YamlWriter | None = None) -> str:
     """Generate a YAML string representation of the model.
 
     Parameters
     ----------
     model : BaseModel
         The model to convert.
-    engine : YamlEngine or None
-        The YAML engine to use (e.g. `RuamelEngine(...)`, `YamlRocksEngine(...)`, or a custom
-        one). Defaults to `get_default_engine()` - whichever built-in is installed (preferring
-        `YamlRocksEngine`), with default configuration.
+    writer : YamlWriter or None
+        The YAML writer to use (e.g. `RuamelWriter(...)`, `YamlRocksWriter(...)`, or a custom
+        one). Defaults to `get_default_writer()` - whichever built-in is installed (preferring
+        `YamlRocksWriter`), with default configuration.
     """
-    resolved = engine if engine is not None else get_default_engine()
+    resolved = writer if writer is not None else get_default_writer()
     stream = StringIO()
     resolved.write(stream, model)
     stream.seek(0)
@@ -39,7 +40,7 @@ def to_yaml_str(model: BaseModel, *, engine: YamlEngine | None = None) -> str:
 
 
 def to_yaml_file(
-    file: Path | str | IOBase, model: BaseModel, *, engine: YamlEngine | None = None
+    file: Path | str | IOBase, model: BaseModel, *, writer: YamlWriter | None = None
 ) -> None:
     """Write a YAML file representation of the model.
 
@@ -49,10 +50,10 @@ def to_yaml_file(
         The file path or stream to write to.
     model : BaseModel
         The model to write.
-    engine : YamlEngine or None
-        The YAML engine to use. Defaults to `get_default_engine()`.
+    writer : YamlWriter or None
+        The YAML writer to use. Defaults to `get_default_writer()`.
     """
-    resolved = engine if engine is not None else get_default_engine()
+    resolved = writer if writer is not None else get_default_writer()
 
     if isinstance(file, IOBase):  # open file handle
         resolved.write(file, model)
@@ -74,7 +75,7 @@ def parse_yaml_raw_as(
     model_type: type[T],
     raw: str | bytes | IOBase,
     *,
-    engine: YamlEngine | None = None,
+    reader: YamlReader | None = None,
 ) -> T:
     """Parse raw YAML string as the passed model type.
 
@@ -84,8 +85,8 @@ def parse_yaml_raw_as(
         The resulting model type.
     raw : str or bytes or IOBase
         The YAML string or stream.
-    engine : YamlEngine or None
-        The YAML engine to use. Defaults to `get_default_engine()`.
+    reader : YamlReader or None
+        The YAML reader to use. Defaults to `get_default_reader()`.
     """
     stream: IOBase
     if isinstance(raw, str):
@@ -97,7 +98,7 @@ def parse_yaml_raw_as(
     else:
         raise TypeError(f"Expected str, bytes or IO, but got {raw!r}")
 
-    resolved = engine if engine is not None else get_default_engine()
+    resolved = reader if reader is not None else get_default_reader()
     objects = resolved.read(stream)
     ta = TypeAdapter(model_type)
     return ta.validate_python(objects)
@@ -107,7 +108,7 @@ def parse_yaml_file_as(
     model_type: type[T],
     file: Path | str | IOBase,
     *,
-    engine: YamlEngine | None = None,
+    reader: YamlReader | None = None,
 ) -> T:
     """Parse YAML file as the passed model type.
 
@@ -117,12 +118,12 @@ def parse_yaml_file_as(
         The resulting model type.
     file : Path or str or IOBase
         The file path or stream to read from.
-    engine : YamlEngine or None
-        The YAML engine to use. Defaults to `get_default_engine()`.
+    reader : YamlReader or None
+        The YAML reader to use. Defaults to `get_default_reader()`.
     """
     # Short-circuit
     if isinstance(file, IOBase):
-        return parse_yaml_raw_as(model_type, raw=file, engine=engine)
+        return parse_yaml_raw_as(model_type, raw=file, reader=reader)
 
     if isinstance(file, str):
         file = Path(file).resolve()
@@ -132,4 +133,4 @@ def parse_yaml_file_as(
         raise TypeError(f"Expected Path, str or IO, but got {file!r}")
 
     with file.open(mode="r") as f:
-        return parse_yaml_raw_as(model_type, f, engine=engine)
+        return parse_yaml_raw_as(model_type, f, reader=reader)

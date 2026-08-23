@@ -88,6 +88,6 @@ You've covered the core workflow. From here:
 
 - [Add comments to YAML output](../how-to/add-comments.md), generated from your model's
   docstrings and field descriptions.
-- [Choose and configure a YAML engine](../how-to/configure-engine.md) to control formatting, or
-  pick between the two built-in backends.
+- [Choose and configure readers/writers](../how-to/configure-readers-writers.md) to control
+  formatting, or pick between the two built-in backends.
 - Browse the [API reference](../reference/api.md) for the full picture.

@@ -7,12 +7,18 @@ __all__ = [
     "parse_yaml_raw_as",
     "to_yaml_file",
     "to_yaml_str",
-    # Engines
+    # Readers and writers
+    "YamlReader",
+    "YamlWriter",
     "YamlEngine",
-    "RuamelEngine",
-    "YamlRocksEngine",
-    "get_default_engine",
-    "set_default_engine",
+    "RuamelReader",
+    "RuamelWriter",
+    "YamlRocksReader",
+    "YamlRocksWriter",
+    "get_default_reader",
+    "set_default_reader",
+    "get_default_writer",
+    "set_default_writer",
 ]
 
 
@@ -23,11 +29,17 @@ from pydantic_yaml._internals.v2 import (
     to_yaml_str,
 )
 from pydantic_yaml.engines import (
-    RuamelEngine,
+    RuamelReader,
+    RuamelWriter,
     YamlEngine,
-    YamlRocksEngine,
-    get_default_engine,
-    set_default_engine,
+    YamlReader,
+    YamlRocksReader,
+    YamlRocksWriter,
+    YamlWriter,
+    get_default_reader,
+    get_default_writer,
+    set_default_reader,
+    set_default_writer,
 )
 
 from .version import __version__

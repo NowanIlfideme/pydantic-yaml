@@ -24,5 +24,5 @@ loaded = parse_yaml_raw_as(RootModel[YourType], "foo: wuz\n")
 assert loaded.root == obj
 ```
 
-Everything else - [comments](add-comments.md), [engine configuration](configure-engine.md) -
+Everything else - [comments](add-comments.md), [engine configuration](configure-readers-writers.md) -
 works exactly as it does for a regular `BaseModel`, since `RootModel[YourType]` *is* one.

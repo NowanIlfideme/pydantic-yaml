@@ -13,16 +13,40 @@
       show_root_toc_entry: false
       heading_level: 3
 
-## Engines
+## Protocols
 
 ::: pydantic_yaml.engines
     options:
       members:
+        - YamlReader
+        - YamlWriter
         - YamlEngine
-        - RuamelEngine
-        - YamlRocksEngine
-        - get_default_engine
-        - set_default_engine
+      show_root_heading: false
+      show_root_toc_entry: false
+      heading_level: 3
+
+## Built-in readers and writers
+
+::: pydantic_yaml.engines
+    options:
+      members:
+        - RuamelReader
+        - RuamelWriter
+        - YamlRocksReader
+        - YamlRocksWriter
+      show_root_heading: false
+      show_root_toc_entry: false
+      heading_level: 3
+
+## Default resolution
+
+::: pydantic_yaml.engines
+    options:
+      members:
+        - get_default_reader
+        - set_default_reader
+        - get_default_writer
+        - set_default_writer
       show_root_heading: false
       show_root_toc_entry: false
       heading_level: 3
